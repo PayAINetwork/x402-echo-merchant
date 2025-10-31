@@ -3,6 +3,7 @@ import { Providers } from "./src/Providers";
 import { PaywallApp } from "./src/PaywallApp";
 import "@payai/x402-solana-react/styles";
 import "@solana/wallet-adapter-react-ui/styles.css";
+import { X402Paywall } from "@payai/x402-solana-react";
 
 // Initialize the app when the window loads
 window.addEventListener("load", () => {
@@ -13,9 +14,5 @@ window.addEventListener("load", () => {
   }
 
   const root = createRoot(rootElement);
-  root.render(
-    <Providers>
-      <PaywallApp />
-    </Providers>
-  );
+  root.render(<X402Paywall></X402Paywall>);
 });
