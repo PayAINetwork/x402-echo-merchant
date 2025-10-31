@@ -10,8 +10,26 @@ import {
   WalletDropdownDisconnect,
 } from "@coinbase/onchainkit/wallet";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createPublicClient, createWalletClient, custom, formatUnits, http, publicActions } from "viem";
-import { base, baseSepolia, avalanche, avalancheFuji, sei, seiTestnet, iotex, polygon, polygonAmoy, peaq } from "viem/chains";
+import {
+  createPublicClient,
+  createWalletClient,
+  custom,
+  formatUnits,
+  http,
+  publicActions,
+} from "viem";
+import {
+  base,
+  baseSepolia,
+  avalanche,
+  avalancheFuji,
+  sei,
+  seiTestnet,
+  iotex,
+  polygon,
+  polygonAmoy,
+  peaq,
+} from "viem/chains";
 import { useAccount, useSwitchChain, useWalletClient } from "wagmi";
 
 import { selectPaymentRequirements } from "x402/client";
@@ -46,46 +64,50 @@ export function PaywallApp() {
     ? x402.paymentRequirements[0]
     : x402.paymentRequirements;
   const network = requirements?.network;
-  const paymentChain = network === "base-sepolia"
-    ? baseSepolia
-    : network === "avalanche-fuji"
-    ? avalancheFuji
-    : network === "sei-testnet"
-    ? seiTestnet
-    : network === "sei"
-    ? sei
-    : network === "avalanche"
-    ? avalanche
-    : network === "iotex"
-    ? iotex
-    : network === "polygon"
-    ? polygon
-    : network === "polygon-amoy"
-    ? polygonAmoy
-    : network === "peaq"
-    ? peaq
-    : base;
+  const paymentChain =
+    network === "base-sepolia"
+      ? baseSepolia
+      : network === "avalanche-fuji"
+      ? avalancheFuji
+      : network === "sei-testnet"
+      ? seiTestnet
+      : network === "sei"
+      ? sei
+      : network === "avalanche"
+      ? avalanche
+      : network === "iotex"
+      ? iotex
+      : network === "polygon"
+      ? polygon
+      : network === "polygon-amoy"
+      ? polygonAmoy
+      : network === "peaq"
+      ? peaq
+      : base;
 
-  const chainName = network === "base-sepolia"
-    ? "Base Sepolia"
-    : network === "avalanche-fuji"
-    ? "Avalanche Fuji"
-    : network === "sei-testnet"
-    ? "Sei Testnet"
-    : network === "sei"
-    ? "Sei"
-    : network === "avalanche"
-    ? "Avalanche"
-    : network === "iotex"
-    ? "Iotex"
-    : network === "polygon"
-    ? "Polygon"
-    : network === "polygon-amoy"
-    ? "Polygon Amoy"
-    : network === "peaq"
-    ? "Peaq"
-    : "Base";
-  const showOnramp = Boolean(!testnet && isConnected && x402.sessionTokenEndpoint);
+  const chainName =
+    network === "base-sepolia"
+      ? "Base Sepolia"
+      : network === "avalanche-fuji"
+      ? "Avalanche Fuji"
+      : network === "sei-testnet"
+      ? "Sei Testnet"
+      : network === "sei"
+      ? "Sei"
+      : network === "avalanche"
+      ? "Avalanche"
+      : network === "iotex"
+      ? "Iotex"
+      : network === "polygon"
+      ? "Polygon"
+      : network === "polygon-amoy"
+      ? "Polygon Amoy"
+      : network === "peaq"
+      ? "Peaq"
+      : "Base";
+  const showOnramp = Boolean(
+    !testnet && isConnected && x402.sessionTokenEndpoint
+  );
 
   useEffect(() => {
     if (address) {
@@ -100,7 +122,11 @@ export function PaywallApp() {
   }).extend(publicActions);
 
   const paymentRequirements = x402
-    ? selectPaymentRequirements([x402.paymentRequirements].flat(), network, "exact")
+    ? selectPaymentRequirements(
+        [x402.paymentRequirements].flat(),
+        network,
+        "exact"
+      )
     : null;
 
   useEffect(() => {
@@ -152,11 +178,13 @@ export function PaywallApp() {
       return;
     }
 
-    if (!switchableChains?.some(c => c.id === paymentChain.id)) {
+    if (!switchableChains?.some((c) => c.id === paymentChain.id)) {
       try {
         const ethereum: any = (window as any)?.ethereum;
         if (!ethereum?.request) {
-          setStatus("Your wallet doesn't support adding networks. Please add it manually.");
+          setStatus(
+            "Your wallet doesn't support adding networks. Please add it manually."
+          );
           return;
         }
         await ethereum.request({
@@ -177,7 +205,7 @@ export function PaywallApp() {
         setStatus(
           addErr instanceof Error
             ? addErr.message
-            : "Failed to add network. Please add it in your wallet and try again.",
+            : "Failed to add network. Please add it in your wallet and try again."
         );
         return;
       }
@@ -187,9 +215,11 @@ export function PaywallApp() {
       setStatus("");
       await switchChainAsync({ chainId: paymentChain.id });
       // Small delay to let wallet settle
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Failed to switch network");
+      setStatus(
+        error instanceof Error ? error.message : "Failed to switch network"
+      );
     }
   }, [switchChainAsync, paymentChain, isCorrectChain, switchableChains]);
 
@@ -206,7 +236,9 @@ export function PaywallApp() {
       try {
         const ethereum: any = (window as any)?.ethereum;
         if (!ethereum?.request) {
-          setStatus("No wallet provider found. Please open your wallet and reconnect.");
+          setStatus(
+            "No wallet provider found. Please open your wallet and reconnect."
+          );
           return;
         }
         walletClientForSigning = createWalletClient({
@@ -215,7 +247,11 @@ export function PaywallApp() {
           account: address as `0x${string}`,
         }).extend(publicActions);
       } catch (e) {
-        setStatus(e instanceof Error ? e.message : "Wallet client not available. Please reconnect your wallet.");
+        setStatus(
+          e instanceof Error
+            ? e.message
+            : "Wallet client not available. Please reconnect your wallet."
+        );
         return;
       }
     }
@@ -227,7 +263,9 @@ export function PaywallApp() {
       const balance = await getUSDCBalance(publicClient, address);
 
       if (balance === BigInt(0)) {
-        throw new Error(`Insufficient balance. Make sure you have USDC on ${chainName}`);
+        throw new Error(
+          `Insufficient balance. Make sure you have USDC on ${chainName}`
+        );
       }
 
       setStatus("Creating payment signature...");
@@ -235,7 +273,7 @@ export function PaywallApp() {
       const initialPayment = await exact.evm.createPayment(
         walletClientForSigning,
         1,
-        validPaymentRequirements,
+        validPaymentRequirements
       );
 
       const paymentHeader: string = exact.evm.encodePayment(initialPayment);
@@ -258,7 +296,7 @@ export function PaywallApp() {
           const retryPayment = await exact.evm.createPayment(
             walletClientForSigning,
             errorData.x402Version,
-            validPaymentRequirements,
+            validPaymentRequirements
           );
 
           retryPayment.x402Version = errorData.x402Version;
@@ -273,20 +311,31 @@ export function PaywallApp() {
             await handleSuccessfulResponse(retryResponse);
             return;
           } else {
-            throw new Error(`Payment retry failed: ${retryResponse.statusText}`);
+            throw new Error(
+              `Payment retry failed: ${retryResponse.statusText}`
+            );
           }
         } else {
           throw new Error(`Payment failed: ${response.statusText}`);
         }
       } else {
-        throw new Error(`Request failed: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Request failed: ${response.status} ${response.statusText}`
+        );
       }
     } catch (error) {
       setStatus(error instanceof Error ? error.message : "Payment failed");
     } finally {
       setIsPaying(false);
     }
-  }, [address, x402, paymentRequirements, publicClient, paymentChain, handleSwitchChain]);
+  }, [
+    address,
+    x402,
+    paymentRequirements,
+    publicClient,
+    paymentChain,
+    handleSwitchChain,
+  ]);
 
   if (!x402 || !paymentRequirements) {
     return (
@@ -304,13 +353,18 @@ export function PaywallApp() {
       <div className="header">
         <h1 className="title">Payment Required</h1>
         <p>
-          {paymentRequirements.description && `${paymentRequirements.description}.`} To access this
-          content, please pay ${amount} {chainName} USDC.
+          {paymentRequirements.description &&
+            `${paymentRequirements.description}.`}{" "}
+          To access this content, please pay ${amount} {chainName} USDC.
         </p>
         {testnet && (
           <p className="instructions">
             Need Base Sepolia USDC?{" "}
-            <a href="https://faucet.circle.com/" target="_blank" rel="noopener noreferrer">
+            <a
+              href="https://faucet.circle.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Get some <u>here</u>.
             </a>
           </p>
@@ -319,7 +373,10 @@ export function PaywallApp() {
 
       <div className="content w-full">
         <Wallet className="w-full">
-          <ConnectWallet className="w-full py-3" disconnectedLabel="Connect wallet">
+          <ConnectWallet
+            className="w-full py-3"
+            disconnectedLabel="Connect wallet"
+          >
             <Avatar className="h-5 w-5 opacity-80" />
             <Name className="opacity-80 text-sm" />
           </ConnectWallet>
@@ -333,13 +390,18 @@ export function PaywallApp() {
               <div className="payment-row">
                 <span className="payment-label">Wallet:</span>
                 <span className="payment-value">
-                  {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Loading..."}
+                  {address
+                    ? `${address.slice(0, 6)}...${address.slice(-4)}`
+                    : "Loading..."}
                 </span>
               </div>
               <div className="payment-row">
                 <span className="payment-label">Available balance:</span>
                 <span className="payment-value">
-                  <button className="balance-button" onClick={() => setHideBalance(prev => !prev)}>
+                  <button
+                    className="balance-button"
+                    onClick={() => setHideBalance((prev) => !prev)}
+                  >
                     {formattedUsdcBalance && !hideBalance
                       ? `$${formattedUsdcBalance} USDC`
                       : "••••• USDC"}
@@ -375,7 +437,10 @@ export function PaywallApp() {
                 </button>
               </div>
             ) : (
-              <button className="button button-primary" onClick={handleSwitchChain}>
+              <button
+                className="button button-primary"
+                onClick={handleSwitchChain}
+              >
                 Switch to {chainName}
               </button>
             )}
