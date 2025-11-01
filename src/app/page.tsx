@@ -81,13 +81,13 @@ const RESOURCES = [
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white dark:bg-background text-gray-900 dark:text-foreground flex flex-col items-center px-4">
+    <main className="min-h-screen bg-white dark:bg-background text-gray-900 dark:text-foreground flex flex-col items-center px-4 sm:px-6">
       {/* Theme Toggle Button */}
-      <div className="w-full max-w-2xl flex justify-end pt-6">
+      <div className="w-full max-w-2xl flex justify-end pt-4 sm:pt-6 px-4 sm:px-0">
         <ThemeToggle />
       </div>
       {/* Hero Section */}
-      <section className="w-full max-w-2xl mx-auto pt-16 pb-8 flex flex-col items-center text-center">
+      <section className="w-full max-w-2xl mx-auto pt-12 sm:pt-16 pb-6 sm:pb-8 flex flex-col items-center text-center px-4 sm:px-0">
         <h1 className="text-4xl sm:text-5xl font-semibold mb-4 tracking-tight">
           402 Echo
         </h1>
@@ -124,7 +124,7 @@ export default function Home() {
         </div>
 
         <Card className="w-full bg-card border border-border shadow-none mb-4 mt-8">
-          <CardContent className="py-6 flex flex-col gap-4">
+          <CardContent className="py-4 px-4 sm:py-6 sm:px-6 flex flex-col gap-4">
             <div className="text-base text-foreground font-medium mb-2">
               Test your x402 client against:
             </div>
@@ -134,21 +134,24 @@ export default function Home() {
             {TESTNET_ENDPOINTS.map((ep) => (
               <div
                 key={ep.label}
-                className="flex items-center justify-between bg-muted rounded-md px-4 py-3 border border-border mb-2"
+                className="bg-muted rounded-md px-3 py-3 border border-border mb-2"
               >
-                <span className="font-mono text-sm text-foreground">
-                  {ep.label}
-                </span>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-mono text-sm text-foreground font-medium">
+                    {ep.label}
+                  </span>
+                  <CopyButton url={ep.url} />
+                </div>
+                <div className="flex items-center gap-2">
                   <a
                     href={ep.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium flex items-center gap-1"
+                    className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium truncate flex-1 min-w-0"
                   >
-                    {ep.url} <ExternalLink className="w-4 h-4" />
+                    {ep.url.replace(API_URL || '', '')}
                   </a>
-                  <CopyButton url={ep.url} />
+                  <ExternalLink className="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
                 </div>
               </div>
             ))}
@@ -158,21 +161,24 @@ export default function Home() {
             {MAINNET_ENDPOINTS.map((ep) => (
               <div
                 key={ep.label}
-                className="flex items-center justify-between bg-muted rounded-md px-4 py-3 border border-border mb-2"
+                className="bg-muted rounded-md px-3 py-3 border border-border mb-2"
               >
-                <span className="font-mono text-sm text-foreground">
-                  {ep.label}
-                </span>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-mono text-sm text-foreground font-medium">
+                    {ep.label}
+                  </span>
+                  <CopyButton url={ep.url} />
+                </div>
+                <div className="flex items-center gap-2">
                   <a
                     href={ep.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium flex items-center gap-1"
+                    className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium truncate flex-1 min-w-0"
                   >
-                    {ep.url} <ExternalLink className="w-4 h-4" />
+                    {ep.url.replace(API_URL || '', '')}
                   </a>
-                  <CopyButton url={ep.url} />
+                  <ExternalLink className="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
                 </div>
               </div>
             ))}
@@ -183,12 +189,12 @@ export default function Home() {
       {/* Quickstart Section (cards linking to docs) */}
       <section
         id="quickstart-section"
-        className="w-full max-w-2xl mx-auto pt-8 pb-16"
+        className="w-full max-w-2xl mx-auto pt-6 sm:pt-8 pb-12 sm:pb-16 px-4 sm:px-0"
       >
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-16 text-center">
+        <h2 className="text-2xl sm:text-3xl font-semibold mb-8 sm:mb-16 text-center">
           Quickstart Guides
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <a
             href="https://docs.payai.network/x402/quickstarts/nextjs"
             target="_blank"
@@ -276,7 +282,7 @@ export default function Home() {
         </div>
       </section>
       {/* Resources Section */}
-      <section className="w-full max-w-2xl mx-auto py-16">
+      <section className="w-full max-w-2xl mx-auto py-8 sm:py-16 px-4 sm:px-0">
         <h3 className="text-xl font-semibold mb-6 text-center">Resources</h3>
         <ul className="flex flex-col gap-4 items-center">
           {RESOURCES.map((res) => (
@@ -295,7 +301,7 @@ export default function Home() {
         </ul>
       </section>
       {/* Footer */}
-      <footer className="w-full py-8 flex justify-center items-center border-t border-gray-100 mt-8">
+      <footer className="w-full py-6 sm:py-8 flex justify-center items-center border-t border-gray-100 mt-6 sm:mt-8 px-4 sm:px-0">
         <span className="text-gray-500 text-sm flex items-center gap-1">
           Made with{" "}
           <Heart className="inline w-4 h-4 text-pink-500 mx-1" fill="#ec4899" />{" "}
@@ -317,24 +323,34 @@ export default function Home() {
 function CopyButton({ url }: { url: string }) {
   const [copied, setCopied] = React.useState(false);
   return (
-    <Button
-      size="icon"
-      variant="ghost"
-      className="ml-1 opacity-70 hover:opacity-100"
-      onClick={async () => {
-        await navigator.clipboard.writeText(url);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1200);
-      }}
-      aria-label="Copy URL"
-    >
-      <Copy className="w-4 h-4" />
-      <span className="sr-only">Copy URL</span>
+    <div className="relative">
+      <Button
+        size="icon"
+        variant="ghost"
+        className={`opacity-70 hover:opacity-100 transition-colors ${
+          copied ? "text-green-600 dark:text-green-400" : ""
+        }`}
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+          } catch (err) {
+            console.error("Failed to copy:", err);
+          }
+        }}
+        aria-label="Copy URL"
+      >
+        <Copy className="w-4 h-4" />
+        <span className="sr-only">Copy URL</span>
+      </Button>
       {copied && (
-        <span className="absolute top-0 right-10 text-xs text-indigo-600 font-semibold bg-white px-2 py-1 rounded shadow">
-          Copied!
-        </span>
+        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-10">
+          <span className="text-xs text-green-600 dark:text-green-400 font-semibold bg-white dark:bg-gray-800 px-2 py-1 rounded shadow-md border whitespace-nowrap">
+            Copied!
+          </span>
+        </div>
       )}
-    </Button>
+    </div>
   );
 }
