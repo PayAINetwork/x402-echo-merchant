@@ -26,7 +26,6 @@ import {
   SupportedSVMNetworks
 } from "x402/types";
 import { type VerifyResponse } from "x402/types";
-// eslint-disable-next-line react-hooks/rules-of-hooks
 import { useFacilitator } from "x402/verify";
 import { Network, SolanaAddress } from 'x402-next';
 import { svm } from "x402/shared";

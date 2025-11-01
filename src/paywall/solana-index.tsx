@@ -11,6 +11,7 @@ window.addEventListener("load", () => {
     return;
   }
 
+  //eslint-disable-next-line @typescript-eslint/no-explicit-any
   const x402 = (window as any).x402Solana;
   if (!x402) {
     console.error("x402Solana configuration not found");

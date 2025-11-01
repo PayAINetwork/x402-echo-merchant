@@ -109,12 +109,7 @@ export function PaywallApp() {
     !testnet && isConnected && x402.sessionTokenEndpoint
   );
 
-  useEffect(() => {
-    if (address) {
-      handleSwitchChain();
-      checkUSDCBalance();
-    }
-  }, [address]);
+  
 
   const publicClient = createPublicClient({
     chain: paymentChain,
@@ -140,7 +135,7 @@ export function PaywallApp() {
       setIsCorrectChain(null);
       setStatus("");
     }
-  }, [paymentChain.id, connectedChainId, isConnected]);
+  }, [paymentChain.id, connectedChainId, isConnected, chainName]);
 
   const checkUSDCBalance = useCallback(async () => {
     if (!address) {
@@ -221,7 +216,14 @@ export function PaywallApp() {
         error instanceof Error ? error.message : "Failed to switch network"
       );
     }
-  }, [switchChainAsync, paymentChain, isCorrectChain, switchableChains]);
+  }, [switchChainAsync, paymentChain, isCorrectChain, switchableChains, chainName]);
+
+  useEffect(() => {
+    if (address) {
+      handleSwitchChain();
+      checkUSDCBalance();
+    }
+  }, [address, handleSwitchChain, checkUSDCBalance]);
 
   const handlePayment = useCallback(async () => {
     if (!address || !x402 || !paymentRequirements) {
@@ -335,6 +337,9 @@ export function PaywallApp() {
     publicClient,
     paymentChain,
     handleSwitchChain,
+    chainName,
+    handleSuccessfulResponse,
+    wagmiWalletClient,
   ]);
 
   if (!x402 || !paymentRequirements) {

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "next build && npm run paywall:build && npm run paywall:build-solana",
     "start": "next start",
     "lint": "next lint",
     "paywall:build": "tsx src/paywall/build.ts",
