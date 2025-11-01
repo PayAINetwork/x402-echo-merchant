@@ -21,7 +21,7 @@ function PaywallApp({ x402Config }: { x402Config: any }) {
         // Reload after a brief delay to show success UI
         setTimeout(() => {
           window.location.reload();
-        }, 2000);
+        }, 3000);
       }}
       onPaymentError={(error) => {
         console.error("Payment failed:", error);
