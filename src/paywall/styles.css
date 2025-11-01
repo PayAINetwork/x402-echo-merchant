@@ -79,7 +79,8 @@ h6 {
   font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
-.ock-bg-secondary, .ock-bg-default {
+.ock-bg-secondary,
+.ock-bg-default {
   background-color: var(--details-background-color);
   transition: background-color 150ms;
 }
@@ -99,11 +100,7 @@ h6 {
 body {
   min-height: 100vh;
   background-color: var(--background-color);
-  font-family:
-    "Inter",
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
 
 .container {
@@ -116,8 +113,7 @@ body {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
     0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 

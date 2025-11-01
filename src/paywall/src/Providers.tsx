@@ -1,7 +1,17 @@
 import { OnchainKitProvider } from "@coinbase/onchainkit";
 import type { ReactNode } from "react";
 import { useEffect, useState } from "react";
-import { base, baseSepolia, avalanche, avalancheFuji, sei, seiTestnet, iotex, polygon, polygonAmoy } from "viem/chains";
+import {
+  base,
+  baseSepolia,
+  avalanche,
+  avalancheFuji,
+  sei,
+  seiTestnet,
+  iotex,
+  polygon,
+  polygonAmoy,
+} from "viem/chains";
 import "./window.d.ts";
 
 type ProvidersProps = {
@@ -17,7 +27,11 @@ const getInitialThemeMode = (): "light" | "dark" => {
   }
 
   // Fall back to system preference
-  if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+  if (
+    typeof window !== "undefined" &&
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
     return "dark";
   }
 
@@ -38,34 +52,40 @@ export function Providers({ children }: ProvidersProps) {
     : window.x402.paymentRequirements;
 
   const network = requirements?.network;
-  const paymentChain = network === "base-sepolia"
-    ? baseSepolia
-    : network === "avalanche-fuji"
-    ? avalancheFuji
-    : network === "sei-testnet"
-    ? seiTestnet
-    : network === "sei"
-    ? sei
-    : network === "avalanche"
-    ? avalanche
-    : network === "iotex"
-    ? iotex
-    : network === "polygon"
-    ? polygon
-    : network === "polygon-amoy"
-    ? polygonAmoy
-    : base;
+  const paymentChain =
+    network === "base-sepolia"
+      ? baseSepolia
+      : network === "avalanche-fuji"
+      ? avalancheFuji
+      : network === "sei-testnet"
+      ? seiTestnet
+      : network === "sei"
+      ? sei
+      : network === "avalanche"
+      ? avalanche
+      : network === "iotex"
+      ? iotex
+      : network === "polygon"
+      ? polygon
+      : network === "polygon-amoy"
+      ? polygonAmoy
+      : base;
 
   console.log("paymentChain", paymentChain);
   console.log("network", network);
 
   // Theme state management
-  const [themeMode, setThemeMode] = useState<"light" | "dark">(getInitialThemeMode);
+  const [themeMode, setThemeMode] = useState<"light" | "dark">(
+    getInitialThemeMode
+  );
 
   useEffect(() => {
     // Listen for theme changes in localStorage
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "x402-theme" && (e.newValue === "dark" || e.newValue === "light")) {
+      if (
+        e.key === "x402-theme" &&
+        (e.newValue === "dark" || e.newValue === "light")
+      ) {
         setThemeMode(e.newValue);
       }
     };
@@ -105,7 +125,7 @@ export function Providers({ children }: ProvidersProps) {
           supportedWallets: {
             rabby: true,
             trust: true,
-            frame: true
+            frame: true,
           },
         },
       }}

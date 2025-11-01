@@ -49,7 +49,11 @@ const getInitialThemeMode = (): "light" | "dark" => {
   }
 
   // Fall back to system preference
-  if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+  if (
+    typeof window !== "undefined" &&
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
     return "dark";
   }
 
@@ -72,7 +76,9 @@ export function PaywallApp() {
   const [isPaying, setIsPaying] = useState(false);
   const [formattedUsdcBalance, setFormattedUsdcBalance] = useState<string>("");
   const [hideBalance, setHideBalance] = useState(true);
-  const [themeMode, setThemeMode] = useState<"light" | "dark">(getInitialThemeMode);
+  const [themeMode, setThemeMode] = useState<"light" | "dark">(
+    getInitialThemeMode
+  );
 
   const x402 = window.x402;
   const amount = x402.amount || 0;
@@ -158,7 +164,10 @@ export function PaywallApp() {
 
     // Listen for theme changes in localStorage
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "x402-theme" && (e.newValue === "dark" || e.newValue === "light")) {
+      if (
+        e.key === "x402-theme" &&
+        (e.newValue === "dark" || e.newValue === "light")
+      ) {
         applyTheme(e.newValue);
       }
     };

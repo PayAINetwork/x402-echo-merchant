@@ -2,7 +2,15 @@
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, ExternalLink, Github, Heart, Code, Globe, ChevronDown } from "lucide-react";
+import {
+  Copy,
+  ExternalLink,
+  Github,
+  Heart,
+  Code,
+  Globe,
+  ChevronDown,
+} from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const API_URL = process.env.NEXT_PUBLIC_SITE_URL;
@@ -99,7 +107,14 @@ export default function Home() {
         </p>
 
         {/* Inline Scroll Indicator */}
-        <div className="flex flex-col items-center gap-3 mt-6 mb-4 cursor-pointer group" onClick={() => document.getElementById('quickstart-section')?.scrollIntoView({ behavior: 'smooth' })}>
+        <div
+          className="flex flex-col items-center gap-3 mt-6 mb-4 cursor-pointer group"
+          onClick={() =>
+            document
+              .getElementById("quickstart-section")
+              ?.scrollIntoView({ behavior: "smooth" })
+          }
+        >
           <span className="text-sm text-muted-foreground font-medium group-hover:text-foreground transition-colors">
             Ready to get started?
           </span>
@@ -166,7 +181,10 @@ export default function Home() {
       </section>
 
       {/* Quickstart Section (cards linking to docs) */}
-      <section id="quickstart-section" className="w-full max-w-2xl mx-auto pt-8 pb-16">
+      <section
+        id="quickstart-section"
+        className="w-full max-w-2xl mx-auto pt-8 pb-16"
+      >
         <h2 className="text-2xl sm:text-3xl font-semibold mb-16 text-center">
           Quickstart Guides
         </h2>
