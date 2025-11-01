@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "paywall:build": "tsx src/paywall/build.ts"
+    "paywall:build": "tsx src/paywall/build.ts",
+    "paywall:build-solana": "tsx src/paywall/build-solana.ts"
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.38.7",
@@ -43,9 +44,11 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "crypto-browserify": "^3.12.1",
     "esbuild": "^0.23.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
+    "stream-browserify": "^3.0.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.5",
