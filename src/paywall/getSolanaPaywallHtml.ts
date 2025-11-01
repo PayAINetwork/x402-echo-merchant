@@ -6,6 +6,9 @@ type SolanaPaywallOptions = {
   currentUrl: string;
   network: 'solana' | 'solana-devnet';
   description?: string;
+  treasuryAddress?: string;
+  facilitatorUrl?: string;
+  apiEndpoint?: string;
 };
 
 function escapeString(str: string): string {
@@ -24,6 +27,9 @@ export function getSolanaPaywallHtml({
   paymentRequirements,
   currentUrl,
   description,
+  treasuryAddress,
+  facilitatorUrl,
+  apiEndpoint,
 }: SolanaPaywallOptions): string {
   const displayDescription = description || 'Premium Content Access';
   
@@ -35,7 +41,10 @@ export function getSolanaPaywallHtml({
       network: "${escapeString(network)}",
       paymentRequirements: ${JSON.stringify(paymentRequirements)},
       currentUrl: "${escapeString(currentUrl)}",
-      description: "${escapeString(displayDescription)}"
+      description: "${escapeString(displayDescription)}",
+      treasuryAddress: ${treasuryAddress ? `"${escapeString(treasuryAddress)}"` : 'undefined'},
+      facilitatorUrl: ${facilitatorUrl ? `"${escapeString(facilitatorUrl)}"` : 'undefined'},
+      apiEndpoint: ${apiEndpoint ? `"${escapeString(apiEndpoint)}"` : 'undefined'}
     };
   </script>`;
 

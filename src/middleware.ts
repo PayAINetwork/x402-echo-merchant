@@ -591,6 +591,9 @@ export function paymentMiddleware(
                   currentUrl: request.url,
                   network: network as 'solana' | 'solana-devnet',
                   description: description,
+                  treasuryAddress: payTo as string,
+                  facilitatorUrl: facilitatorUrl,
+                  apiEndpoint: request.url,
                 })
               : getLocalPaywallHtml({
                   amount: displayAmount,

@@ -24,6 +24,9 @@ window.addEventListener("load", () => {
       amount={x402.amount}
       description={x402.description}
       network={x402.network}
+      treasuryAddress={x402.treasuryAddress}
+      facilitatorUrl={x402.facilitatorUrl}
+      apiEndpoint={x402.apiEndpoint}
       onPaymentSuccess={(txId) => {
         console.log("Payment successful!", txId);
         // Reload to show content
