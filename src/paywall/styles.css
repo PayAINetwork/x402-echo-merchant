@@ -57,6 +57,24 @@ h6 {
   --button-error-hover-color: #dc2626;
 }
 
+/* Dark mode styles */
+.dark {
+  --background-color: #111827;
+  --container-background-color: #1f2937;
+  --text-color: #f9fafb;
+  --secondary-text-color: #9ca3af;
+  --details-background-color: #374151;
+  --details-background-color-hover: #4b5563;
+  --button-primary-color: #3b82f6;
+  --button-primary-hover-color: #2563eb;
+  --button-secondary-color: #374151;
+  --button-secondary-hover-color: #4b5563;
+  --button-positive-color: #10b981;
+  --button-positive-hover-color: #059669;
+  --button-error-color: #f87171;
+  --button-error-hover-color: #ef4444;
+}
+
 .ock-font-family {
   font-family: "Inter", system-ui, -apple-system, sans-serif;
 }
