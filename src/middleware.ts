@@ -10,6 +10,7 @@ import {
   toJsonSafe,
 } from "x402/shared";
 import { getLocalPaywallHtml } from "./paywall/getPaywallHtml";
+import { getSolanaPaywallHtml } from "./paywall/getSolanaPaywallHtml";
 import {
   FacilitatorConfig,
   moneySchema,
@@ -582,16 +583,24 @@ export function paymentMiddleware(
             displayAmount = Number(price.amount) / 10 ** price.asset.decimals;
           }
 
-          const html =
-            customPaywallHtml ??
-            getLocalPaywallHtml({
-              amount: displayAmount,
-              paymentRequirements: toJsonSafe(paymentRequirements) as Parameters<
-                typeof getLocalPaywallHtml
-              >[0]["paymentRequirements"],
-              currentUrl: request.url,
-              testnet: network === "base-sepolia" || network === "avalanche-fuji" || network === "sei-testnet" || network === "polygon-amoy",
-            });
+          // Use Solana-specific paywall for Solana networks
+          const html = customPaywallHtml ??
+            (network === "solana" || network === "solana-devnet"
+              ? getSolanaPaywallHtml({
+                  amount: displayAmount,
+                  paymentRequirements: toJsonSafe(paymentRequirements) as unknown[],
+                  currentUrl: request.url,
+                  network: network as 'solana' | 'solana-devnet',
+                  description: description,
+                })
+              : getLocalPaywallHtml({
+                  amount: displayAmount,
+                  paymentRequirements: toJsonSafe(paymentRequirements) as Parameters<
+                    typeof getLocalPaywallHtml
+                  >[0]["paymentRequirements"],
+                  currentUrl: request.url,
+                  testnet: network === "base-sepolia" || network === "avalanche-fuji" || network === "sei-testnet" || network === "polygon-amoy",
+                }));
           return new NextResponse(html, {
             status: 402,
             headers: { "Content-Type": "text/html" },
