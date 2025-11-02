@@ -53,8 +53,10 @@ const options: esbuild.BuildOptions = {
     }),
   ],
   inject: ["./src/paywall/buffer-polyfill.ts"],
-  // Mark problematic dependencies as external
-  external: ["crypto"],
+  alias: {
+    stream: "stream-browserify",
+    crypto: "crypto-browserify",
+  },
 };
 
 // Run the build and then create the template.ts file
