@@ -11,6 +11,7 @@ interface X402Config {
   treasuryAddress: string;
   facilitatorUrl: string;
   apiEndpoint: string;
+  rpcUrl?: string;
 }
 
 function PaywallApp({ x402Config }: { x402Config: X402Config }) {
@@ -24,6 +25,7 @@ function PaywallApp({ x402Config }: { x402Config: X402Config }) {
       treasuryAddress={x402Config.treasuryAddress}
       facilitatorUrl={x402Config.facilitatorUrl}
       apiEndpoint={x402Config.apiEndpoint}
+      rpcUrl={x402Config.rpcUrl}
       onPaymentSuccess={(txId) => {
         console.log("Payment successful!", txId);
         setTransactionId(txId);

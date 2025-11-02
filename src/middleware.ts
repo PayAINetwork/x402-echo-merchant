@@ -594,6 +594,9 @@ export function paymentMiddleware(
                   treasuryAddress: payTo as string,
                   facilitatorUrl: facilitatorUrl,
                   apiEndpoint: request.url,
+                  rpcUrl: network === 'solana-devnet'
+                    ? (process.env.SOLANA_DEVNET_RPC_URL ?? 'https://api.devnet.solana.com')
+                    : (process.env.SOLANA_RPC_URL ?? 'https://api.mainnet-beta.solana.com'),
                 })
               : getLocalPaywallHtml({
                   amount: displayAmount,
