@@ -9,6 +9,7 @@ type SolanaPaywallOptions = {
   treasuryAddress?: string;
   facilitatorUrl?: string;
   apiEndpoint?: string;
+  rpcUrl?: string;
 };
 
 function escapeString(str: string): string {
@@ -30,6 +31,7 @@ export function getSolanaPaywallHtml({
   treasuryAddress,
   facilitatorUrl,
   apiEndpoint,
+  rpcUrl,
 }: SolanaPaywallOptions): string {
   const displayDescription = description || 'Premium Content Access';
   
@@ -44,7 +46,8 @@ export function getSolanaPaywallHtml({
       description: "${escapeString(displayDescription)}",
       treasuryAddress: ${treasuryAddress ? `"${escapeString(treasuryAddress)}"` : 'undefined'},
       facilitatorUrl: ${facilitatorUrl ? `"${escapeString(facilitatorUrl)}"` : 'undefined'},
-      apiEndpoint: ${apiEndpoint ? `"${escapeString(apiEndpoint)}"` : 'undefined'}
+      apiEndpoint: ${apiEndpoint ? `"${escapeString(apiEndpoint)}"` : 'undefined'},
+      rpcUrl: ${rpcUrl ? `"${escapeString(rpcUrl)}"` : 'undefined'}
     };
   </script>`;
 
