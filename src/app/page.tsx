@@ -154,16 +154,16 @@ export default function Home() {
                 <span className="font-mono text-sm text-foreground">
                   {ep.label}
                 </span>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <a
                     href={ep.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium flex items-center gap-1"
+                    className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium truncate flex-1 min-w-0"
                   >
-                    {ep.url} <ExternalLink className="w-4 h-4" />
+                    {ep.url.replace(API_URL || "", "")}
                   </a>
-                  <CopyButton url={ep.url} />
+                  <ExternalLink className="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
                 </div>
               </div>
             ))}
@@ -178,16 +178,16 @@ export default function Home() {
                 <span className="font-mono text-sm text-foreground">
                   {ep.label}
                 </span>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <a
                     href={ep.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium flex items-center gap-1"
+                    className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium truncate flex-1 min-w-0"
                   >
-                    {ep.url} <ExternalLink className="w-4 h-4" />
+                    {ep.url.replace(API_URL || "", "")}
                   </a>
-                  <CopyButton url={ep.url} />
+                  <ExternalLink className="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
                 </div>
               </div>
             ))}
@@ -286,24 +286,34 @@ export default function Home() {
 function CopyButton({ url }: { url: string }) {
   const [copied, setCopied] = React.useState(false);
   return (
-    <Button
-      size="icon"
-      variant="ghost"
-      className="ml-1 opacity-70 hover:opacity-100"
-      onClick={async () => {
-        await navigator.clipboard.writeText(url);
-        setCopied(true);
-        setTimeout(() => setCopied(false), 1200);
-      }}
-      aria-label="Copy URL"
-    >
-      <Copy className="w-4 h-4" />
-      <span className="sr-only">Copy URL</span>
+    <div className="relative">
+      <Button
+        size="icon"
+        variant="ghost"
+        className={`opacity-70 hover:opacity-100 transition-colors ${
+          copied ? "text-green-600 dark:text-green-400" : ""
+        }`}
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+          } catch (err) {
+            console.error("Failed to copy:", err);
+          }
+        }}
+        aria-label="Copy URL"
+      >
+        <Copy className="w-4 h-4" />
+        <span className="sr-only">Copy URL</span>
+      </Button>
       {copied && (
-        <span className="absolute top-0 right-10 text-xs text-indigo-600 font-semibold bg-white px-2 py-1 rounded shadow">
-          Copied!
-        </span>
+        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-10">
+          <span className="text-xs text-green-600 dark:text-green-400 font-semibold bg-white dark:bg-gray-800 px-2 py-1 rounded shadow-md border whitespace-nowrap">
+            Copied!
+          </span>
+        </div>
       )}
-    </Button>
+    </div>
   );
 }
