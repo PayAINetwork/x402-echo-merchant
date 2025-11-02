@@ -1,10 +1,19 @@
 import { createRoot } from "react-dom/client";
 import { useState } from "react";
-import { X402Paywall } from "@payai/x402-solana-react";
+import { X402Paywall, SolanaNetwork } from "@payai/x402-solana-react";
 import "@payai/x402-solana-react/styles";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
-function PaywallApp({ x402Config }: { x402Config: any }) {
+interface X402Config {
+  amount: number;
+  description: string;
+  network: SolanaNetwork;
+  treasuryAddress: string;
+  facilitatorUrl: string;
+  apiEndpoint: string;
+}
+
+function PaywallApp({ x402Config }: { x402Config: X402Config }) {
   const [transactionId, setTransactionId] = useState<string | undefined>();
 
   return (
