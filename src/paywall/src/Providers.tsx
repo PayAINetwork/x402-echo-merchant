@@ -1,6 +1,16 @@
 import { OnchainKitProvider } from "@coinbase/onchainkit";
 import type { ReactNode } from "react";
-import { base, baseSepolia, avalanche, avalancheFuji, sei, seiTestnet, iotex, polygon, polygonAmoy } from "viem/chains";
+import {
+  base,
+  baseSepolia,
+  avalanche,
+  avalancheFuji,
+  sei,
+  seiTestnet,
+  iotex,
+  polygon,
+  polygonAmoy,
+} from "viem/chains";
 import "./window.d.ts";
 
 type ProvidersProps = {
@@ -21,23 +31,24 @@ export function Providers({ children }: ProvidersProps) {
     : window.x402.paymentRequirements;
 
   const network = requirements?.network;
-  const paymentChain = network === "base-sepolia"
-    ? baseSepolia
-    : network === "avalanche-fuji"
-    ? avalancheFuji
-    : network === "sei-testnet"
-    ? seiTestnet
-    : network === "sei"
-    ? sei
-    : network === "avalanche"
-    ? avalanche
-    : network === "iotex"
-    ? iotex
-    : network === "polygon"
-    ? polygon
-    : network === "polygon-amoy"
-    ? polygonAmoy
-    : base;
+  const paymentChain =
+    network === "base-sepolia"
+      ? baseSepolia
+      : network === "avalanche-fuji"
+      ? avalancheFuji
+      : network === "sei-testnet"
+      ? seiTestnet
+      : network === "sei"
+      ? sei
+      : network === "avalanche"
+      ? avalanche
+      : network === "iotex"
+      ? iotex
+      : network === "polygon"
+      ? polygon
+      : network === "polygon-amoy"
+      ? polygonAmoy
+      : base;
 
   console.log("paymentChain", paymentChain);
   console.log("network", network);
@@ -57,7 +68,7 @@ export function Providers({ children }: ProvidersProps) {
           supportedWallets: {
             rabby: true,
             trust: true,
-            frame: true
+            frame: true,
           },
         },
       }}
