@@ -10,6 +10,7 @@ import {
   Sun,
   Code,
   Globe,
+  Copy,
 } from "lucide-react";
 
 const API_URL = process.env.NEXT_PUBLIC_SITE_URL;
@@ -282,3 +283,17 @@ export default function Home() {
   );
 }
 
+<<<<<<< HEAD
+=======
+      </footer>
+    </main>
+  );
+}
+
+    </main>
+  );
+}
+
+// Unused utility function - kept for future use
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function CopyButton({ url }: { url: string }) {

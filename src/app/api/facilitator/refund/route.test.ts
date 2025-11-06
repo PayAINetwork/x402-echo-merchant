@@ -1,0 +1,170 @@
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { POST } from "./route";
+import { NextRequest } from "next/server";
+import * as refundModule from "../../../../refund";
+
+// Mock the refund module
+vi.mock("../../../../refund", () => ({
+  refund: vi.fn(),
+}));
+
+describe("/api/facilitator/refund", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should process refund successfully", async () => {
+    const mockRefundTxHash = "0xrefund123abc";
+    const mockRecipient = "0x1234567890123456789012345678901234567890";
+    const mockPaymentRequirements = {
+      amount: "1000000",
+      token: "0xabc",
+      network: "base",
+    };
+
+    // Mock the refund function
+    vi.mocked(refundModule.refund).mockResolvedValueOnce(mockRefundTxHash);
+
+    // Create a mock request
+    const request = new NextRequest(
+      "http://localhost:3000/api/facilitator/refund",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          recipient: mockRecipient,
+          selectedPaymentRequirements: mockPaymentRequirements,
+        }),
+      }
+    );
+
+    // Call the handler
+    const response = await POST(request);
+    const data = await response.json();
+
+    // Verify refund was called with correct parameters
+    expect(refundModule.refund).toHaveBeenCalledWith(
+      mockRecipient,
+      mockPaymentRequirements,
+      undefined
+    );
+
+    // Verify response
+    expect(response.status).toBe(200);
+    expect(data).toEqual({ refundTxHash: mockRefundTxHash });
+  });
+
+  it("should handle refund with SVM context", async () => {
+    const mockRefundTxHash = "5KJp8ZQmockSignature123";
+    const mockRecipient = "7xKPmockSolanaAddress123";
+    const mockPaymentRequirements = {
+      amount: "5000000",
+      token: "SoLToken123",
+      network: "solana",
+    };
+    const mockSvmContext = {
+      connection: "https://api.mainnet-beta.solana.com",
+    };
+
+    // Mock the refund function
+    vi.mocked(refundModule.refund).mockResolvedValueOnce(mockRefundTxHash);
+
+    const request = new NextRequest(
+      "http://localhost:3000/api/facilitator/refund",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          recipient: mockRecipient,
+          selectedPaymentRequirements: mockPaymentRequirements,
+          svmContext: mockSvmContext,
+        }),
+      }
+    );
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(refundModule.refund).toHaveBeenCalledWith(
+      mockRecipient,
+      mockPaymentRequirements,
+      mockSvmContext
+    );
+
+    expect(response.status).toBe(200);
+    expect(data).toEqual({ refundTxHash: mockRefundTxHash });
+  });
+
+  it("should return 400 when recipient is missing", async () => {
+    const request = new NextRequest(
+      "http://localhost:3000/api/facilitator/refund",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          selectedPaymentRequirements: {
+            amount: "1000000",
+            token: "0xabc",
+          },
+        }),
+      }
+    );
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data).toEqual({
+      error: "Missing recipient or payment requirements",
+    });
+    expect(refundModule.refund).not.toHaveBeenCalled();
+  });
+
+  it("should return 400 when payment requirements are missing", async () => {
+    const request = new NextRequest(
+      "http://localhost:3000/api/facilitator/refund",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          recipient: "0x1234567890123456789012345678901234567890",
+        }),
+      }
+    );
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(400);
+    expect(data).toEqual({
+      error: "Missing recipient or payment requirements",
+    });
+    expect(refundModule.refund).not.toHaveBeenCalled();
+  });
+
+  it("should return 500 when refund fails", async () => {
+    const mockRecipient = "0x1234567890123456789012345678901234567890";
+    const mockPaymentRequirements = {
+      amount: "1000000",
+      token: "0xabc",
+    };
+
+    // Mock the refund function to throw an error
+    vi.mocked(refundModule.refund).mockRejectedValueOnce(
+      new Error("Insufficient balance for refund")
+    );
+
+    const request = new NextRequest(
+      "http://localhost:3000/api/facilitator/refund",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          recipient: mockRecipient,
+          selectedPaymentRequirements: mockPaymentRequirements,
+        }),
+      }
+    );
+
+    const response = await POST(request);
+    const data = await response.json();
+
+    expect(response.status).toBe(500);
+    expect(data).toEqual({ error: "Refund failed" });
+  });
+});
