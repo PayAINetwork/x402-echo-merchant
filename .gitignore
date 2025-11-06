@@ -4,3 +4,4 @@ node_modules
 .env
 .DS_Store
 src/paywall/dist/
+src/paywall/gen/
