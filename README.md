@@ -39,6 +39,7 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 ## Local Development
 
 1. **Install dependencies:**
+
    ```bash
    npm install
    # or
@@ -46,6 +47,7 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
    ```
 
 2. **Set up environment variables:**
+
    - Copy `.env.example` to `.env` and fill in required values (see below)
 
 3. **Run the dev server:**
@@ -74,11 +76,14 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 - `AVALANCHE_FUJI_RPC_URL` - Avalanche Fuji Testnet RPC URL (https)
 - `SEI_RPC_URL` - Sei Mainnet RPC URL (https)
 - `SEI_TESTNET_RPC_URL` - Sei Testnet RPC URL (https)
+- `POLYGON_RPC_URL` - Polygon Mainnet RPC URL (https)
+- `POLYGON_AMOY_RPC_URL` - Polygon Amoy Testnet RPC URL (https)
 - `SOLANA_RPC_URL` - Solana Mainnet RPC URL (https)
 - `SOLANA_DEVNET_RPC_URL` - Solana Devnet RPC URL (https)
 - `SOLANA_WS_URL` - (optional) Solana Mainnet WebSocket URL (wss)
 - `SOLANA_DEVNET_WS_URL` - (optional) Solana Devnet WebSocket URL (wss)
 - `IOTEX_RPC_URL` - (optional) IoTeX Mainnet RPC URL (https)
+- `PEAQ_RPC_URL` - Peaq Mainnet RPC URL (https)
 
 ---
 
@@ -86,7 +91,7 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 
 - Deploy to Vercel, your own Node.js server, or any platform supporting Next.js
 - For Edge compatibility, all Node.js-only logic is handled in API routes, including:
----- authenticating with @coinbase/cdp-sdk which relies on the NodeJS crypto library
+  ---- authenticating with @coinbase/cdp-sdk which relies on the NodeJS crypto library
 
 ---
 
@@ -100,14 +105,16 @@ Apache V2
 
 To add a new network (example: `peaq`) across the Echo Merchant UI, middleware, and API:
 
-1) Make sure that you `npm install` the `x402` package version that contains the new network.
+1. Make sure that you `npm install` the `x402` package version that contains the new network.
 
-2) Frontend link on homepage
+2. Frontend link on homepage
+
    - Edit `src/app/page.tsx`
    - Add a new entry to `MAINNET_ENDPOINTS` or `TESTNET_ENDPOINTS`:
      - `{ label: 'Peaq Mainnet', url: `${API_URL}/api/peaq/paid-content` }`
 
-3) Middleware route & config
+3. Middleware route & config
+
    - Edit `src/middleware.ts`
    - Create a route config for the network:
      - `const peaqConfig = { price: '$0.01', network: 'peaq', config: { description: '...' } }`
@@ -116,34 +123,39 @@ To add a new network (example: `peaq`) across the Echo Merchant UI, middleware, 
    - Add the matcher so the middleware runs:
      - include `'/api/peaq/paid-content/:path*'` in `export const config.matcher`.
 
-4) API route file
+4. API route file
+
    - Create `src/app/api/<network>/paid-content/route.ts` with a basic `GET` that returns `{ ok: true }`.
    - The actual paywall logic is enforced in middleware; the route acts as the endpoint.
 
-5) Paywall app (wallet flow)
+5. Paywall app (wallet flow)
+
    - Edit `src/paywall/src/PaywallApp.tsx`
    - Import the chain from `viem/chains` and map it:
      - Import: `import { peaq } from 'viem/chains'`
      - Add to `paymentChain` switch and to `chainName` mapping.
 
-6) Explorer links
+6. Explorer links
+
    - Edit `src/lib/utils.ts` if you want explorer links for the new network in the rizzler page:
      - Update `getExplorerForNetwork` and `renderRizzlerHtml` to include the new network.
 
-7) Environment variables
+7. Environment variables
+
    - Set `<NETWORK>_RPC_URL` to a private custom RPC from Alchemy if possible, otherwise find a suitable RPC for the network and add it here. `<NETWORK>` is to be replaced by the network name.
    - Ensure you have `FACILITATOR_URL` pointing to your facilitator (which must support the network).
    - Ensure `EVM_RECEIVE_PAYMENTS_ADDRESS` is set for EVM networks.
    - For SVM networks, set `SVM_RECEIVE_PAYMENTS_ADDRESS`.
 
-8) Refund flow
+8. Refund flow
+
    - Edit `src/refund.ts` and update the EVM signer factory:
      - Import your chain from `viem/chains` (e.g., `peaq`).
      - Add a `network === '<network>'` branch in `getSigner` that returns a `createWalletClient` with the chain and `process.env.<NETWORK>_RPC_URL`.
    - Ensure the `x402` package version you installed includes the new network in `SupportedEVMNetworks` so the refund path triggers for EVM.
    - Set `<NETWORK>_RPC_URL` in your `.env` (same value used by `getSigner`).
 
-9) Test
+9. Test
    - Visit `/api/<network>/paid-content` in a browser.
    - You should see the paywall, be able to connect a wallet, pay, and receive the rizzler page.
 

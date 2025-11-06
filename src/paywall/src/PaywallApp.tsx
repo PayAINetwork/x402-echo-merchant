@@ -109,11 +109,9 @@ export function PaywallApp() {
     !testnet && isConnected && x402.sessionTokenEndpoint
   );
 
-  
-
   const publicClient = createPublicClient({
     chain: paymentChain,
-    transport: http(),
+    transport: http(x402.rpcUrl || undefined),
   }).extend(publicActions);
 
   const paymentRequirements = x402
@@ -216,7 +214,13 @@ export function PaywallApp() {
         error instanceof Error ? error.message : "Failed to switch network"
       );
     }
-  }, [switchChainAsync, paymentChain, isCorrectChain, switchableChains, chainName]);
+  }, [
+    switchChainAsync,
+    paymentChain,
+    isCorrectChain,
+    switchableChains,
+    chainName,
+  ]);
 
   useEffect(() => {
     if (address) {

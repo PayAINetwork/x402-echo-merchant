@@ -10,6 +10,7 @@ type PaywallOptions = {
   appLogo?: string;
   sessionTokenEndpoint?: string;
   config?: Record<string, unknown>;
+  rpcUrl?: string;
 };
 
 function escapeString(str: string): string {
@@ -32,6 +33,7 @@ export function getLocalPaywallHtml({
   appLogo,
   sessionTokenEndpoint,
   config = {},
+  rpcUrl,
 }: PaywallOptions): string {
   const configScript = `
   <script>
@@ -47,10 +49,9 @@ export function getLocalPaywallHtml({
       appName: "${escapeString(appName || "")}",
       appLogo: "${escapeString(appLogo || "")}",
       sessionTokenEndpoint: "${escapeString(sessionTokenEndpoint || "")}",
+      rpcUrl: "${escapeString(rpcUrl || "")}",
     };
   </script>`;
 
   return PAYWALL_TEMPLATE.replace("</head>", `${configScript}\n</head>`);
 }
-
-
