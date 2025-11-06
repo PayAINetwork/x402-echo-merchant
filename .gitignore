@@ -3,3 +3,4 @@ node_modules
 .cursor
 .env
 .DS_Store
+src/paywall/dist/
