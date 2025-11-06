@@ -682,9 +682,12 @@ export function paymentMiddleware(
                   treasuryAddress: payTo as string,
                   facilitatorUrl: facilitatorUrl,
                   apiEndpoint: request.url,
-                  rpcUrl: network === 'solana-devnet'
-                    ? (process.env.SOLANA_DEVNET_RPC_URL ?? 'https://api.devnet.solana.com')
-                    : (process.env.SOLANA_RPC_URL ?? 'https://api.mainnet-beta.solana.com'),
+                  rpcUrl:
+                    network === "solana-devnet"
+                      ? process.env.SOLANA_DEVNET_RPC_URL ??
+                        "https://api.devnet.solana.com"
+                      : process.env.SOLANA_RPC_URL ??
+                        "https://api.mainnet-beta.solana.com",
                 })
               : getLocalPaywallHtml({
                   amount: displayAmount,
@@ -827,8 +830,8 @@ export function paymentMiddleware(
             programAddress: string;
           };
           const ixIndex = txMessage.instructions.length > 3 ? 3 : 2;
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const transferIx = parseTransferCheckedInstruction(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             txMessage.instructions[ixIndex] as any
           ) as unknown as TransferCheckedIx;
           payer = transferIx.accounts.authority.address;

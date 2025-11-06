@@ -283,17 +283,39 @@ export default function Home() {
   );
 }
 
-<<<<<<< HEAD
-=======
-      </footer>
-    </main>
-  );
-}
-
-    </main>
-  );
-}
-
 // Unused utility function - kept for future use
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function CopyButton({ url }: { url: string }) {
+  const [copied, setCopied] = React.useState(false);
+  return (
+    <div className="relative">
+      <Button
+        size="icon"
+        variant="ghost"
+        className={`opacity-70 hover:opacity-100 transition-colors ${
+          copied ? "text-green-600 dark:text-green-400" : ""
+        }`}
+        onClick={async () => {
+          try {
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1500);
+          } catch (err) {
+            console.error("Failed to copy:", err);
+          }
+        }}
+        aria-label="Copy URL"
+      >
+        <Copy className="w-4 h-4" />
+        <span className="sr-only">Copy URL</span>
+      </Button>
+      {copied && (
+        <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 z-10">
+          <span className="text-xs text-green-600 dark:text-green-400 font-semibold bg-white dark:bg-gray-800 px-2 py-1 rounded shadow-md border whitespace-nowrap">
+            Copied!
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
