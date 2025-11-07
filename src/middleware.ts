@@ -761,6 +761,14 @@ export function paymentMiddleware(
       selectedPaymentRequirements
     );
 
+    // Log verification response for debugging
+    if (SupportedSVMNetworks.includes(network)) {
+      console.log(
+        "Verification response:",
+        JSON.stringify(verification, null, 2)
+      );
+    }
+
     if (!verification.isValid) {
       return new NextResponse(
         JSON.stringify({
@@ -866,7 +874,11 @@ export function paymentMiddleware(
 
         const responseHeaderData = {
           success: true,
+          // keep legacy field for server-side rendering
           transaction: actualTransaction,
+          // add fields expected by @payai/x402-solana-react so it doesn't fallback to tx_<timestamp>
+          transactionId: actualTransaction,
+          signature: actualTransaction,
           network: settlement.network,
           payer,
         };

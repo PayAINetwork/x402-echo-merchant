@@ -30,8 +30,30 @@ function PaywallApp({ x402Config }: { x402Config: X402Config }) {
         console.log("Payment successful!", txId);
         setTransactionId(txId);
 
-        // Don't reload - just show success message
-        // The middleware will handle showing the proper success page on next visit
+        // Wait a moment for the payment to settle, then fetch the success page
+        setTimeout(async () => {
+          try {
+            // Fetch the success page from the server
+            // The middleware will have the payment info and serve the correct HTML
+            const response = await fetch(x402Config.apiEndpoint, {
+              method: 'GET',
+              headers: {
+                'Accept': 'text/html',
+              },
+              credentials: 'same-origin',
+            });
+            
+            if (response.ok && response.headers.get('content-type')?.includes('text/html')) {
+              const html = await response.text();
+              // Replace the entire page with the server's HTML
+              document.open();
+              document.write(html);
+              document.close();
+            }
+          } catch (error) {
+            console.error('Error fetching success page:', error);
+          }
+        }, 1500); // Wait 1.5 seconds for settlement to complete
       }}
       onPaymentError={(error) => {
         console.error("Payment failed:", error);
@@ -75,19 +97,8 @@ function PaywallApp({ x402Config }: { x402Config: X402Config }) {
               marginBottom: "1rem",
             }}
           >
-            Your premium content is loading...
+            Loading your success page...
           </p>
-          {transactionId && (
-            <p
-              style={{
-                fontSize: "0.875rem",
-                color: "var(--secondary-text-color)",
-                wordBreak: "break-all",
-              }}
-            >
-              Transaction: {transactionId}
-            </p>
-          )}
           <div
             style={{
               marginTop: "1.5rem",
@@ -101,7 +112,7 @@ function PaywallApp({ x402Config }: { x402Config: X402Config }) {
               ⏳
             </div>
             <span style={{ color: "var(--secondary-text-color)" }}>
-              Redirecting...
+              Please wait...
             </span>
           </div>
         </div>

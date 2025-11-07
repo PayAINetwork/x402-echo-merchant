@@ -29,6 +29,10 @@ export async function handlePaidContentRequest(request: NextRequest, defaultNetw
   let paymentInfo: PaymentInfo;
   try {
     paymentInfo = decodeBase64Json<PaymentInfo>(paymentResponseHeader);
+    
+    // Log payment info for debugging
+    console.log('Payment info from header:', JSON.stringify(paymentInfo, null, 2));
+    
     if (!paymentInfo.network) {
       paymentInfo.network = defaultNetwork;
     }

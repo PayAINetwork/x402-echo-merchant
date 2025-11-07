@@ -5,10 +5,16 @@ import { renderRizzlerHtml } from '@/lib/utils';
 export const GET = async (request: Request) => {
   // Check if this request has payment info (indicating successful payment)
   const paymentResponseHeader = request.headers.get('x-payment-response');
+  
+  console.log('Route handler - x-payment-response header:', paymentResponseHeader);
+  
   if (paymentResponseHeader) {
     // Fallback: generate success HTML if middleware didn't handle it
     try {
       const paymentInfo = JSON.parse(atob(paymentResponseHeader));
+      
+      console.log('Route handler - parsed payment info:', JSON.stringify(paymentInfo, null, 2));
+      
       const html = renderRizzlerHtml({
         transaction: paymentInfo.transaction || 'N/A',
         network: paymentInfo.network || 'solana',
