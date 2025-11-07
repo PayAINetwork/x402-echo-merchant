@@ -26,13 +26,12 @@ function PaywallApp({ x402Config }: { x402Config: X402Config }) {
       facilitatorUrl={x402Config.facilitatorUrl}
       apiEndpoint={x402Config.apiEndpoint}
       rpcUrl={x402Config.rpcUrl}
-      onPaymentSuccess={(txId) => {
+      onPaymentSuccess={async (txId: string) => {
         console.log("Payment successful!", txId);
         setTransactionId(txId);
-        // Reload after a brief delay to show success UI
-        setTimeout(() => {
-          window.location.reload();
-        }, 3000);
+
+        // Don't reload - just show success message
+        // The middleware will handle showing the proper success page on next visit
       }}
       onPaymentError={(error) => {
         console.error("Payment failed:", error);
@@ -70,7 +69,12 @@ function PaywallApp({ x402Config }: { x402Config: X402Config }) {
           >
             Payment Successful!
           </h2>
-          <p style={{ color: "var(--secondary-text-color)", marginBottom: "1rem" }}>
+          <p
+            style={{
+              color: "var(--secondary-text-color)",
+              marginBottom: "1rem",
+            }}
+          >
             Your premium content is loading...
           </p>
           {transactionId && (
@@ -96,7 +100,9 @@ function PaywallApp({ x402Config }: { x402Config: X402Config }) {
             <div className="animate-spin" style={{ fontSize: "1.5rem" }}>
               ⏳
             </div>
-            <span style={{ color: "var(--secondary-text-color)" }}>Redirecting...</span>
+            <span style={{ color: "var(--secondary-text-color)" }}>
+              Redirecting...
+            </span>
           </div>
         </div>
       </div>

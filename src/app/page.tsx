@@ -44,6 +44,10 @@ const MAINNET_ENDPOINTS = [
 
 const TESTNET_ENDPOINTS = [
   {
+    label: "Solana Devnet",
+    url: `${API_URL}/api/solana-devnet/paid-content`,
+  },
+  {
     label: "Base Sepolia",
     url: `${API_URL}/api/base-sepolia/paid-content`,
   },
@@ -136,26 +140,25 @@ export default function Home() {
               Testnets
             </div>
             {TESTNET_ENDPOINTS.map((ep) => (
-              <div
-                key={ep.label}
-                className="bg-muted rounded-md px-3 py-3 border border-border mb-2"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-mono text-sm text-foreground font-medium">
-                    {ep.label}
-                  </span>
-                  <CopyButton url={ep.url} />
+              <div key={ep.label} className="mb-3">
+                <div className="text-sm text-foreground font-medium mb-2">
+                  {ep.label}
                 </div>
-                <div className="flex items-center gap-2">
-                  <a
-                    href={ep.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium truncate flex-1 min-w-0"
-                  >
-                    {ep.url.replace(API_URL || "", "")}
-                  </a>
-                  <ExternalLink className="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
+                <div className="bg-muted rounded-md px-3 py-3 border border-border">
+                  <div className="flex items-center justify-between gap-2">
+                    <a
+                      href={ep.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium truncate flex-1 min-w-0 font-mono"
+                    >
+                      {ep.url.replace(API_URL || "", "")}
+                    </a>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <ExternalLink className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                      <CopyButton url={ep.url} />
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -163,26 +166,25 @@ export default function Home() {
               Mainnets
             </div>
             {MAINNET_ENDPOINTS.map((ep) => (
-              <div
-                key={ep.label}
-                className="bg-muted rounded-md px-3 py-3 border border-border mb-2"
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-mono text-sm text-foreground font-medium">
-                    {ep.label}
-                  </span>
-                  <CopyButton url={ep.url} />
+              <div key={ep.label} className="mb-3">
+                <div className="text-sm text-foreground font-medium mb-2">
+                  {ep.label}
                 </div>
-                <div className="flex items-center gap-2">
-                  <a
-                    href={ep.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium truncate flex-1 min-w-0"
-                  >
-                    {ep.url.replace(API_URL || "", "")}
-                  </a>
-                  <ExternalLink className="w-4 h-4 text-indigo-600 dark:text-indigo-400 flex-shrink-0" />
+                <div className="bg-muted rounded-md px-3 py-3 border border-border">
+                  <div className="flex items-center justify-between gap-2">
+                    <a
+                      href={ep.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-800 dark:hover:text-indigo-300 text-sm font-medium truncate flex-1 min-w-0 font-mono"
+                    >
+                      {ep.url.replace(API_URL || "", "")}
+                    </a>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <ExternalLink className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+                      <CopyButton url={ep.url} />
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}

@@ -6,30 +6,30 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getExplorerForNetwork(network: string) {
-  if (network === 'base-sepolia') {
-    return 'https://sepolia.basescan.org/tx/';
-  } else if (network === 'base') {
-    return 'https://basescan.org/tx/';
-  } else if (network === 'solana-devnet') {
-    return 'https://solscan.io/tx/';
-  } else if (network === 'solana') {
-    return 'https://solscan.io/tx/';
-  } else if (network === 'avalanche') {
-    return 'https://snowtrace.io/tx/';
-  } else if (network === 'avalanche-fuji') {
-    return 'https://testnet.snowtrace.io/tx/';
-  } else if (network === 'sei') {
-    return 'https://seistream.app/transactions/';
-  } else if (network === 'sei-testnet') {
-    return 'https://testnet.seistream.app/transactions/';
-  } else if (network === 'iotex') {
-    return 'https://iotexscan.io/tx/';
-  } else if (network === 'polygon') {
-    return 'https://polygonscan.com/tx/';
-  } else if (network === 'polygon-amoy') {
-    return 'https://amoy.polygonscan.com/tx/';
-  } else if (network === 'peaq') {
-    return 'https://peaq.subscan.io/tx/';
+  if (network === "base-sepolia") {
+    return "https://sepolia.basescan.org/tx/";
+  } else if (network === "base") {
+    return "https://basescan.org/tx/";
+  } else if (network === "solana-devnet") {
+    return "https://solscan.io/tx/";
+  } else if (network === "solana") {
+    return "https://solscan.io/tx/";
+  } else if (network === "avalanche") {
+    return "https://snowtrace.io/tx/";
+  } else if (network === "avalanche-fuji") {
+    return "https://testnet.snowtrace.io/tx/";
+  } else if (network === "sei") {
+    return "https://seistream.app/transactions/";
+  } else if (network === "sei-testnet") {
+    return "https://testnet.seistream.app/transactions/";
+  } else if (network === "iotex") {
+    return "https://iotexscan.io/tx/";
+  } else if (network === "polygon") {
+    return "https://polygonscan.com/tx/";
+  } else if (network === "polygon-amoy") {
+    return "https://amoy.polygonscan.com/tx/";
+  } else if (network === "peaq") {
+    return "https://peaq.subscan.io/tx/";
   }
 }
 
@@ -424,13 +424,17 @@ export function renderRizzlerHtml(
         </div> -->
 
         <div class="info-grid">
-          <div class="info-card">
-            <div class="label">Payment Transaction</div>
-            <div class="tx">${
-              paymentTxLink
-                ? `<a href="${paymentTxLink}" class="tx-link" target="_blank" rel="noopener noreferrer">${paymentTx}</a>`
-                : paymentTx
+          <div>
+            <div class="label" style="margin-bottom: 0.5rem;">Network: ${
+              paymentResponse.network
             }</div>
+            <div class="info-card">
+              <div class="tx">${
+                paymentTxLink
+                  ? `<a href="${paymentTxLink}" class="tx-link" target="_blank" rel="noopener noreferrer">${paymentTx}</a>`
+                  : paymentTx
+              }</div>
+            </div>
           </div>
           <div class="info-card">
             <div class="label">Refund ${

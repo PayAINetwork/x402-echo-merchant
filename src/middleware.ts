@@ -33,6 +33,7 @@ import {
   createSolanaRpc,
   decompileTransactionMessageFetchingLookupTables,
   getCompiledTransactionMessageDecoder,
+  getSignatureFromTransaction,
 } from "@solana/kit";
 import { parseTransferCheckedInstruction } from "@solana-program/token-2022";
 import { handlePaidContentRequest } from "./lib/paidContentHandler";
@@ -793,6 +794,14 @@ export function paymentMiddleware(
         // need to get the actual payer for the tx, currently the x402 package has a bug
         // TODO change this once the x402 package is fixed
         let payer: string;
+        let actualTransaction = settlement.transaction;
+
+        // Log the settlement response to debug
+        console.log(
+          "Settlement response:",
+          JSON.stringify(settlement, null, 2)
+        );
+
         let svmContext:
           | {
               mint: string;
@@ -813,6 +822,11 @@ export function paymentMiddleware(
           const encodedSolanaTx = await decodeTransactionFromPayload(
             decodedPayment.payload as ExactSvmPayload
           );
+
+          // For Solana, we'll use the settlement.transaction for now
+          // The facilitator should provide the actual transaction signature
+          // If it's a placeholder, we'll need to fix it at the facilitator level
+
           const compiledTransactionMessage =
             getCompiledTransactionMessageDecoder().decode(
               encodedSolanaTx.messageBytes
@@ -853,7 +867,7 @@ export function paymentMiddleware(
 
         const responseHeaderData = {
           success: true,
-          transaction: settlement.transaction,
+          transaction: actualTransaction,
           network: settlement.network,
           payer,
         };
