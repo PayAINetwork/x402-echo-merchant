@@ -155,7 +155,7 @@ export function PaywallApp() {
     });
   }, [sessionToken]);
 
-  const handleSuccessfulResponse = useCallback(async (response: Response) => {
+    const handleSuccessfulResponse = useCallback(async (response: Response) => {
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("text/html")) {
       document.documentElement.innerHTML = await response.text();

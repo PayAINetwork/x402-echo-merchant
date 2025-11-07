@@ -706,7 +706,10 @@ export function paymentMiddleware(
                 }));
           return new NextResponse(html, {
             status: 402,
-            headers: { "Content-Type": "text/html" },
+            headers: {
+              "Content-Type": "text/html",
+              "Cross-Origin-Opener-Policy": "unsafe-none",
+            },
           });
         }
       }
