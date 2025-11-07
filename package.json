@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build && npm run paywall:build && npm run paywall:build-solana",
+    "build": "npm run paywall:build && npm run paywall:build-solana && next build",
     "start": "next start",
     "lint": "next lint",
     "paywall:build": "tsx src/paywall/build.ts",

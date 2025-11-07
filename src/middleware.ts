@@ -33,7 +33,6 @@ import {
   createSolanaRpc,
   decompileTransactionMessageFetchingLookupTables,
   getCompiledTransactionMessageDecoder,
-  getSignatureFromTransaction,
 } from "@solana/kit";
 import { parseTransferCheckedInstruction } from "@solana-program/token-2022";
 import { handlePaidContentRequest } from "./lib/paidContentHandler";
@@ -794,7 +793,7 @@ export function paymentMiddleware(
         // need to get the actual payer for the tx, currently the x402 package has a bug
         // TODO change this once the x402 package is fixed
         let payer: string;
-        let actualTransaction = settlement.transaction;
+        const actualTransaction = settlement.transaction;
 
         // Log the settlement response to debug
         console.log(
