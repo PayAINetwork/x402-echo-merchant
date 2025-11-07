@@ -1,5 +1,4 @@
 import { createRoot } from "react-dom/client";
-import { useState } from "react";
 import { X402Paywall, SolanaNetwork } from "@payai/x402-solana-react";
 import "@payai/x402-solana-react/styles";
 import "@solana/wallet-adapter-react-ui/styles.css";
@@ -15,8 +14,6 @@ interface X402Config {
 }
 
 function PaywallApp({ x402Config }: { x402Config: X402Config }) {
-  const [transactionId, setTransactionId] = useState<string | undefined>();
-
   return (
     <X402Paywall
       amount={x402Config.amount}
@@ -28,7 +25,6 @@ function PaywallApp({ x402Config }: { x402Config: X402Config }) {
       rpcUrl={x402Config.rpcUrl}
       onPaymentSuccess={async (txId: string) => {
         console.log("Payment successful!", txId);
-        setTransactionId(txId);
 
         // Wait a moment for the payment to settle, then fetch the success page
         setTimeout(async () => {
@@ -36,14 +32,17 @@ function PaywallApp({ x402Config }: { x402Config: X402Config }) {
             // Fetch the success page from the server
             // The middleware will have the payment info and serve the correct HTML
             const response = await fetch(x402Config.apiEndpoint, {
-              method: 'GET',
+              method: "GET",
               headers: {
-                'Accept': 'text/html',
+                Accept: "text/html",
               },
-              credentials: 'same-origin',
+              credentials: "same-origin",
             });
-            
-            if (response.ok && response.headers.get('content-type')?.includes('text/html')) {
+
+            if (
+              response.ok &&
+              response.headers.get("content-type")?.includes("text/html")
+            ) {
               const html = await response.text();
               // Replace the entire page with the server's HTML
               document.open();
@@ -51,7 +50,7 @@ function PaywallApp({ x402Config }: { x402Config: X402Config }) {
               document.close();
             }
           } catch (error) {
-            console.error('Error fetching success page:', error);
+            console.error("Error fetching success page:", error);
           }
         }, 1500); // Wait 1.5 seconds for settlement to complete
       }}
