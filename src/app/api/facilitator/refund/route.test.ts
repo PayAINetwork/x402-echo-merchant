@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
 import * as refundModule from "../../../../refund";
+import { Signature, type Address as SolAddress } from "@solana/kit";
 
 // Mock the refund module
 vi.mock("../../../../refund", () => ({
@@ -26,6 +27,11 @@ describe("/api/facilitator/refund", () => {
     vi.mocked(refundModule.refund).mockResolvedValueOnce(mockRefundTxHash);
 
     // Create a mock request
+    const headers = new Headers({
+      "Content-Type": "application/json",
+      "x-payment-response": "mockPaymentResponseHeader",
+    });
+
     const request = new NextRequest(
       "http://localhost:3000/api/facilitator/refund",
       {
@@ -34,6 +40,7 @@ describe("/api/facilitator/refund", () => {
           recipient: mockRecipient,
           selectedPaymentRequirements: mockPaymentRequirements,
         }),
+        headers,
       }
     );
 
@@ -44,8 +51,7 @@ describe("/api/facilitator/refund", () => {
     // Verify refund was called with correct parameters
     expect(refundModule.refund).toHaveBeenCalledWith(
       mockRecipient,
-      mockPaymentRequirements,
-      undefined
+      mockPaymentRequirements
     );
 
     // Verify response
@@ -53,16 +59,13 @@ describe("/api/facilitator/refund", () => {
     expect(data).toEqual({ refundTxHash: mockRefundTxHash });
   });
 
-  it("should handle refund with SVM context", async () => {
-    const mockRefundTxHash = "5KJp8ZQmockSignature123";
-    const mockRecipient = "7xKPmockSolanaAddress123";
+  it("should handle refund on svm", async () => {
+    const mockRefundTxHash = "5KJp8ZQmockSignature123" as Signature;
+    const mockRecipient = "7xKPmockSolanaAddress123" as SolAddress;
     const mockPaymentRequirements = {
       amount: "5000000",
       token: "SoLToken123",
       network: "solana",
-    };
-    const mockSvmContext = {
-      connection: "https://api.mainnet-beta.solana.com",
     };
 
     // Mock the refund function
@@ -75,7 +78,6 @@ describe("/api/facilitator/refund", () => {
         body: JSON.stringify({
           recipient: mockRecipient,
           selectedPaymentRequirements: mockPaymentRequirements,
-          svmContext: mockSvmContext,
         }),
       }
     );
@@ -86,7 +88,6 @@ describe("/api/facilitator/refund", () => {
     expect(refundModule.refund).toHaveBeenCalledWith(
       mockRecipient,
       mockPaymentRequirements,
-      mockSvmContext
     );
 
     expect(response.status).toBe(200);
