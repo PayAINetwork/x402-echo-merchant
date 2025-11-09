@@ -15,7 +15,6 @@ import {
   FacilitatorConfig,
   moneySchema,
   ERC20TokenAmount,
-  ExactSvmPayload,
   PaymentPayload,
   PaymentRequirements,
   Price,
@@ -28,16 +27,8 @@ import {
 import { type VerifyResponse } from "x402/types";
 import { useFacilitator } from "x402/verify";
 import { Network, SolanaAddress } from "x402-next";
-import { svm } from "x402/shared";
-import {
-  createSolanaRpc,
-  decompileTransactionMessageFetchingLookupTables,
-  getCompiledTransactionMessageDecoder,
-} from "@solana/kit";
-import { parseTransferCheckedInstruction } from "@solana-program/token-2022";
 import { handlePaidContentRequest } from "./lib/paidContentHandler";
 
-const { decodeTransactionFromPayload } = svm;
 const facilitatorUrl = process.env.FACILITATOR_URL as `${string}://${string}`;
 const payToEVM = process.env.EVM_RECEIVE_PAYMENTS_ADDRESS as `0x${string}`;
 const payToSVM = process.env.SVM_RECEIVE_PAYMENTS_ADDRESS as SolanaAddress;
@@ -798,87 +789,15 @@ export function paymentMiddleware(
       );
 
       if (settlement.success) {
-        // need to get the actual payer for the tx, currently the x402 package has a bug
-        // TODO change this once the x402 package is fixed
-        let payer: string;
-        const actualTransaction = settlement.transaction;
-
-        // Log the settlement response to debug
-        console.log(
-          "Settlement response:",
-          JSON.stringify(settlement, null, 2)
-        );
-
-        let svmContext:
-          | {
-              mint: string;
-              sourceTokenAccount: string;
-              destinationTokenAccount: string;
-              decimals: number;
-              tokenProgram?: string;
-            }
-          | undefined;
-        if (SupportedSVMNetworks.includes(settlement.network)) {
-          const rpcUrl =
-            settlement.network === "solana-devnet"
-              ? process.env.SOLANA_DEVNET_RPC_URL ??
-                "https://api.devnet.solana.com"
-              : process.env.SOLANA_RPC_URL ??
-                "https://api.mainnet-beta.solana.com";
-          const rpc = createSolanaRpc(rpcUrl);
-          const encodedSolanaTx = await decodeTransactionFromPayload(
-            decodedPayment.payload as ExactSvmPayload
-          );
-
-          // For Solana, we'll use the settlement.transaction for now
-          // The facilitator should provide the actual transaction signature
-          // If it's a placeholder, we'll need to fix it at the facilitator level
-
-          const compiledTransactionMessage =
-            getCompiledTransactionMessageDecoder().decode(
-              encodedSolanaTx.messageBytes
-            );
-          const txMessage =
-            await decompileTransactionMessageFetchingLookupTables(
-              compiledTransactionMessage,
-              rpc
-            );
-          type TransferCheckedIx = {
-            accounts: {
-              authority: { address: string };
-              mint: { address: string };
-              destination: { address: string };
-              source: { address: string };
-            };
-            data: { decimals: number };
-            programAddress: string;
-          };
-          const ixIndex = txMessage.instructions.length > 3 ? 3 : 2;
-          const transferIx = parseTransferCheckedInstruction(
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            txMessage.instructions[ixIndex] as any
-          ) as unknown as TransferCheckedIx;
-          payer = transferIx.accounts.authority.address;
-          // Build svmContext for refund API
-          svmContext = {
-            mint: transferIx.accounts.mint.address,
-            // reverse source/destination for refund
-            sourceTokenAccount: transferIx.accounts.destination.address,
-            destinationTokenAccount: transferIx.accounts.source.address,
-            decimals: transferIx.data.decimals,
-            tokenProgram: transferIx.programAddress,
-          };
-        } else {
-          payer = settlement.payer || "";
-        }
+        const payer = settlement.payer;
 
         const responseHeaderData = {
           success: true,
           // keep legacy field for server-side rendering
-          transaction: actualTransaction,
+          transaction: settlement.transaction,
           // add fields expected by @payai/x402-solana-react so it doesn't fallback to tx_<timestamp>
-          transactionId: actualTransaction,
-          signature: actualTransaction,
+          transactionId: settlement.transaction,
+          signature: settlement.transaction,
           network: settlement.network,
           payer,
         };
@@ -893,17 +812,20 @@ export function paymentMiddleware(
 
         // refund the payment via Node API route for EVM only in this branch
         const apiUrl = `${request.nextUrl.protocol}//${request.nextUrl.host}/api/facilitator/refund`;
+        console.log("calling refund API at: ", apiUrl);
+        console.log("payment requirements: ", selectedPaymentRequirements);
+        console.log("payer: ", payer);
         const refundResp = await fetch(apiUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             recipient: payer,
             selectedPaymentRequirements,
-            svmContext,
           }),
         });
         if (refundResp.ok) {
           const { refundTxHash } = await refundResp.json();
+          console.log("refund response: ", refundTxHash);
           // Build a request for the paidContentHandler with the payment info header
           const forwardHeaders = new Headers();
           // preserve content negotiation and user agent

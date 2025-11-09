@@ -25,7 +25,6 @@ import {
 } from '@solana/kit';
 import {
     findAssociatedTokenPda,
-    getCreateAssociatedTokenInstructionAsync,
     getTransferCheckedInstruction,
 } from '@solana-program/token-2022';
 import { fetchMint } from '@solana-program/token-2022';
@@ -142,14 +141,9 @@ const getSigner = async (network: Network) => {
 export const refund = async (
     recipient: string,
     selectedPaymentRequirements: PaymentRequirements,
-    svmContext?: {
-      mint: string;
-      sourceTokenAccount: string;
-      destinationTokenAccount: string;
-      decimals: number;
-      tokenProgram?: string;
-    }
 ) => {
+  console.log("refunding payment for network: ", selectedPaymentRequirements.network);
+  console.log("payment requirements: ", selectedPaymentRequirements);
   if (SupportedEVMNetworks.includes(selectedPaymentRequirements.network)) {
     // create a signer for the network
     const signer = await getSigner(selectedPaymentRequirements.network) as WalletClient;
@@ -185,44 +179,29 @@ export const refund = async (
     const rpc = createSolanaRpc(rpcUrl);
     const rpcSubscriptions = createSolanaRpcSubscriptions(wsUrl);
 
-    // Resolve latest blockhash for transaction lifetime
-    const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
     // Determine mint and associated token accounts
-    const mintAddress = (svmContext?.mint ?? selectedPaymentRequirements.asset) as string;
-    let programId: SolAddress | undefined = svmContext?.tokenProgram as unknown as SolAddress | undefined;
-    let decimals: number | undefined = svmContext?.decimals;
+    const mintAddress = selectedPaymentRequirements.asset as string;
 
-    if (!programId || decimals === undefined) {
-      const mintAccount = await fetchMint(rpc, mintAddress as unknown as SolAddress);
-      programId = mintAccount?.programAddress as SolAddress;
-      if (decimals === undefined) decimals = mintAccount.data.decimals;
-    }
+    // fetch the mint account
+    const mintAccount = await fetchMint(rpc, mintAddress as unknown as SolAddress);
+    const programId = mintAccount?.programAddress as SolAddress;
+    const decimals = mintAccount.data.decimals;
 
     // Prefer provided token accounts from the original transaction to avoid ATA creation for PDA owners
-    const sourceAta = (svmContext?.sourceTokenAccount ?? (await findAssociatedTokenPda({
+    const sourceAta = (await findAssociatedTokenPda({
       mint: mintAddress as unknown as SolAddress,
       owner: kitSigner.address as SolAddress,
       tokenProgram: programId,
-    }))[0]) as unknown as SolAddress;
+    }))[0] as unknown as SolAddress;
 
-    const destinationAta = (svmContext?.destinationTokenAccount ?? (await findAssociatedTokenPda({
+    const destinationAta = (await findAssociatedTokenPda({
       mint: mintAddress as unknown as SolAddress,
       owner: recipient as unknown as SolAddress,
       tokenProgram: programId,
-    }))[0]) as unknown as SolAddress;
+    }))[0] as unknown as SolAddress;
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ixs: any[] = [];
-    if (!svmContext) {
-      const maybeCreateDestinationAtaIx = await getCreateAssociatedTokenInstructionAsync({
-        payer: kitSigner,
-        mint: mintAddress as unknown as SolAddress,
-        owner: recipient as unknown as SolAddress,
-        tokenProgram: programId,
-      });
-      if (maybeCreateDestinationAtaIx) ixs.push(maybeCreateDestinationAtaIx);
-    }
-
     const transferIx = getTransferCheckedInstruction(
       {
         source: sourceAta as SolAddress,
@@ -237,6 +216,10 @@ export const refund = async (
       }
     );
     ixs.push(transferIx);
+
+    // Resolve latest blockhash for transaction lifetime
+    const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
+
 
     const txMessage = appendTransactionMessageInstructions(
       ixs,

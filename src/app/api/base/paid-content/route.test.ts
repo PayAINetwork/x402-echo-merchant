@@ -24,7 +24,11 @@ describe("/api/base/paid-content", () => {
     ).mockResolvedValueOnce(NextResponse.json(mockResponse));
 
     // Call the handler
-    const response = await GET();
+    const req = new Request("http://localhost/api/base/paid-content", {
+      method: "GET",
+      headers: new Headers(),
+    });
+    const response = await GET(req);
     const data = await response.json();
 
     // Verify response
