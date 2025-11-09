@@ -24,10 +24,11 @@ import {
     type TransactionSigner,
 } from '@solana/kit';
 import {
+    fetchMint,
     findAssociatedTokenPda,
     getTransferCheckedInstruction,
 } from '@solana-program/token-2022';
-import { fetchMint } from '@solana-program/token-2022';
+
 
 // load the private key from the .env file
 const evmPrivateKey = process.env.EVM_PRIVATE_KEY as `0x${string}`;
