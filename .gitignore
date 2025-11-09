@@ -3,3 +3,5 @@ node_modules
 .cursor
 .env
 .DS_Store
+src/paywall/dist/
+src/paywall/gen/

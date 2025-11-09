@@ -2,13 +2,18 @@
   "name": "next-x402-demo",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build && npm run paywall:build && npm run paywall:build-solana",
+    "build": "npm run paywall:build && npm run paywall:build-solana && next build",
     "start": "next start",
     "lint": "next lint",
     "paywall:build": "tsx src/paywall/build.ts",
-    "paywall:build-solana": "tsx src/paywall/build-solana.ts"
+    "paywall:build-solana": "tsx src/paywall/build-solana.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@coinbase/onchainkit": "^0.38.7",
@@ -40,19 +45,27 @@
     "@craftamap/esbuild-plugin-html": "^0.6.1",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "@vitejs/plugin-react": "^5.1.0",
+    "@vitest/coverage-v8": "^4.0.6",
+    "@vitest/ui": "^4.0.6",
     "crypto-browserify": "^3.12.1",
     "esbuild": "^0.23.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
+    "happy-dom": "^20.0.10",
+    "msw": "^2.11.6",
     "stream-browserify": "^3.0.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.5",
     "tw-animate-css": "^1.3.0",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.0.6"
   }
 }

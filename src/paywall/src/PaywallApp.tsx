@@ -109,11 +109,9 @@ export function PaywallApp() {
     !testnet && isConnected && x402.sessionTokenEndpoint
   );
 
-  
-
   const publicClient = createPublicClient({
     chain: paymentChain,
-    transport: http(),
+    transport: http(x402.rpcUrl || undefined),
   }).extend(publicActions);
 
   const paymentRequirements = x402
@@ -157,7 +155,7 @@ export function PaywallApp() {
     });
   }, [sessionToken]);
 
-  const handleSuccessfulResponse = useCallback(async (response: Response) => {
+    const handleSuccessfulResponse = useCallback(async (response: Response) => {
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("text/html")) {
       document.documentElement.innerHTML = await response.text();
@@ -216,7 +214,13 @@ export function PaywallApp() {
         error instanceof Error ? error.message : "Failed to switch network"
       );
     }
-  }, [switchChainAsync, paymentChain, isCorrectChain, switchableChains, chainName]);
+  }, [
+    switchChainAsync,
+    paymentChain,
+    isCorrectChain,
+    switchableChains,
+    chainName,
+  ]);
 
   useEffect(() => {
     if (address) {
