@@ -641,6 +641,7 @@ export function paymentMiddleware(
 
     // Check for payment header
     const paymentHeader = request.headers.get("X-PAYMENT");
+    console.log("🔍 Payment header present:", !!paymentHeader);
     if (!paymentHeader) {
       const accept = request.headers.get("Accept");
       if (accept?.includes("text/html")) {
@@ -788,8 +789,16 @@ export function paymentMiddleware(
         selectedPaymentRequirements
       );
 
+      console.log(
+        "💰 Settlement response:",
+        JSON.stringify(settlement, null, 2)
+      );
+
       if (settlement.success) {
-        const payer = settlement.payer;
+        const payer = settlement.payer || verification.payer || "";
+        console.log("💳 Payer from settlement:", settlement.payer);
+        console.log("💳 Payer from verification:", verification.payer);
+        console.log("💳 Final payer used:", payer);
 
         const responseHeaderData = {
           success: true,
