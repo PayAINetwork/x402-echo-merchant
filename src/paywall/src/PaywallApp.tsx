@@ -83,6 +83,10 @@ export function PaywallApp() {
       ? polygonAmoy
       : network === "peaq"
       ? peaq
+      : network === "solana"
+      ? solana
+      : network === "solana-devnet"
+      ? solanaDevnet
       : base;
 
   const chainName =
@@ -104,6 +108,10 @@ export function PaywallApp() {
       ? "Polygon Amoy"
       : network === "peaq"
       ? "Peaq"
+      : network === "solana"
+      ? "Solana Mainnet"
+      : network === "solana-devnet"
+      ? "Solana Devnet"
       : "Base";
   const showOnramp = Boolean(
     !testnet && isConnected && x402.sessionTokenEndpoint
