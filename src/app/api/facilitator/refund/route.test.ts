@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
+import { Signature } from "@solana/kit";
 import * as refundModule from "../../../../refund";
 import { Signature, type Address as SolAddress } from "@solana/kit";
 
@@ -69,7 +70,9 @@ describe("/api/facilitator/refund", () => {
     };
 
     // Mock the refund function
-    vi.mocked(refundModule.refund).mockResolvedValueOnce(mockRefundTxHash);
+    vi.mocked(refundModule.refund).mockResolvedValueOnce(
+      mockRefundTxHash as Signature
+    );
 
     const request = new NextRequest(
       "http://localhost:3000/api/facilitator/refund",

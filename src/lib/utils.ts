@@ -464,7 +464,7 @@ export function renderRizzlerHtml(
         <div class="quickstart-section">
           <h2 class="section-title">Get Started with x402</h2>
           <div class="cards-grid">
-            <a href="https://docs.payai.network/x402/quickstarts/nextjs" target="_blank" rel="noopener noreferrer" class="card">
+            <a href="https://docs.payai.network/x402/servers/typescript/nextjs" target="_blank" rel="noopener noreferrer" class="card">
               <div class="card-icon">⚡</div>
               <div class="card-content">
                 <div class="card-title">Next.js Quickstart</div>
@@ -472,7 +472,7 @@ export function renderRizzlerHtml(
               </div>
               <span class="card-link">View →</span>
             </a>
-            <a href="https://docs.payai.network/x402/quickstarts/express" target="_blank" rel="noopener noreferrer" class="card">
+            <a href="https://docs.payai.network/x402/servers/typescript/express" target="_blank" rel="noopener noreferrer" class="card">
               <div class="card-icon">🚀</div>
               <div class="card-content">
                 <div class="card-title">Express Quickstart</div>
@@ -480,7 +480,7 @@ export function renderRizzlerHtml(
               </div>
               <span class="card-link">View →</span>
             </a>
-            <a href="https://docs.payai.network/x402/quickstarts/hono" target="_blank" rel="noopener noreferrer" class="card">
+            <a href="https://docs.payai.network/x402/servers/typescript/hono" target="_blank" rel="noopener noreferrer" class="card">
               <div class="card-icon">🔥</div>
               <div class="card-content">
                 <div class="card-title">Hono Quickstart</div>
