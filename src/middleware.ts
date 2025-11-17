@@ -885,12 +885,18 @@ export function paymentMiddleware(
           return handlerResponse;
         }
       } else {
+        // Settlement was attempted but did not succeed. Surface this as a 402 so
+        // the client can handle it explicitly instead of treating it as a successful
+        // content response (which would currently be downloaded as a blob).
         return new NextResponse(
           JSON.stringify({
             x402Version,
             error: "Settlement failed",
+            // expose the underlying errorReason from the facilitator when available
+            errorReason: settlement.errorReason,
             accepts: paymentRequirements,
-          })
+          }),
+          { status: 402, headers: { "Content-Type": "application/json" } }
         );
       }
     } catch (error) {
