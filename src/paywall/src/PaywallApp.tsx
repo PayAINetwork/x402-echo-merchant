@@ -109,10 +109,15 @@ export function PaywallApp() {
     !testnet && isConnected && x402.sessionTokenEndpoint
   );
 
-  const publicClient = createPublicClient({
-    chain: paymentChain,
-    transport: http(x402.rpcUrl || undefined),
-  }).extend(publicActions);
+  // Memoize publicClient to prevent recreation on every render
+  const publicClient = useMemo(
+    () =>
+      createPublicClient({
+        chain: paymentChain,
+        transport: http(x402.rpcUrl || undefined),
+      }).extend(publicActions),
+    [paymentChain, x402.rpcUrl]
+  );
 
   const paymentRequirements = x402
     ? selectPaymentRequirements(
@@ -135,6 +140,7 @@ export function PaywallApp() {
     }
   }, [paymentChain.id, connectedChainId, isConnected, chainName]);
 
+  // Memoize balance checking to prevent excessive RPC calls
   const checkUSDCBalance = useCallback(async () => {
     if (!address) {
       return;
@@ -222,12 +228,19 @@ export function PaywallApp() {
     chainName,
   ]);
 
+  // Only check balance when address or connection status changes, not on every render
   useEffect(() => {
-    if (address) {
-      handleSwitchChain();
+    if (address && isConnected && isCorrectChain) {
       checkUSDCBalance();
     }
-  }, [address, handleSwitchChain, checkUSDCBalance]);
+  }, [address, isConnected, isCorrectChain, checkUSDCBalance]);
+
+  // Handle chain switching separately to avoid triggering balance checks
+  useEffect(() => {
+    if (address && !isCorrectChain && isCorrectChain !== null) {
+      handleSwitchChain();
+    }
+  }, [address, isCorrectChain, handleSwitchChain]);
 
   const handlePayment = useCallback(async () => {
     if (!address || !x402 || !paymentRequirements) {
