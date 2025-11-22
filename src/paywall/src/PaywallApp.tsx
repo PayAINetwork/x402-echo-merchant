@@ -29,12 +29,14 @@ import {
   polygon,
   polygonAmoy,
   peaq,
+  xLayer,
+  xLayerTestnet,
 } from "viem/chains";
 import { useAccount, useSwitchChain, useWalletClient } from "wagmi";
 
-import { selectPaymentRequirements } from "x402/client";
-import { exact } from "x402/schemes";
-import { getUSDCBalance } from "x402/shared/evm";
+import { selectPaymentRequirements } from "@payai/x402/client";
+import { exact } from "@payai/x402/schemes";
+import { getUSDCBalance } from "@payai/x402/shared/evm";
 
 import { Spinner } from "./Spinner";
 import { useOnrampSessionToken } from "./useOnrampSessionToken";
@@ -71,6 +73,8 @@ export function PaywallApp() {
       ? avalancheFuji
       : network === "sei-testnet"
       ? seiTestnet
+      : network === "xlayer-testnet"
+      ? xLayerTestnet
       : network === "sei"
       ? sei
       : network === "avalanche"
@@ -83,6 +87,8 @@ export function PaywallApp() {
       ? polygonAmoy
       : network === "peaq"
       ? peaq
+      : network === "xlayer"
+      ? xLayer
       : base;
 
   const chainName =
@@ -92,6 +98,8 @@ export function PaywallApp() {
       ? "Avalanche Fuji"
       : network === "sei-testnet"
       ? "Sei Testnet"
+      : network === "xlayer-testnet"
+      ? "xLayer Testnet"
       : network === "sei"
       ? "Sei"
       : network === "avalanche"
@@ -104,6 +112,8 @@ export function PaywallApp() {
       ? "Polygon Amoy"
       : network === "peaq"
       ? "Peaq"
+      : network === "xlayer"
+      ? "xLayer"
       : "Base";
   const showOnramp = Boolean(
     !testnet && isConnected && x402.sessionTokenEndpoint
@@ -250,7 +260,9 @@ export function PaywallApp() {
     await handleSwitchChain();
 
     // Prefer wagmi's wallet client; fallback to EIP-1193 provider if available
-    let walletClientForSigning: any = wagmiWalletClient?.extend(publicActions);
+    let walletClientForSigning: any = (wagmiWalletClient as any)?.["extend"]?.(
+      publicActions as any
+    ) ?? (wagmiWalletClient as any);
     if (!walletClientForSigning) {
       try {
         const ethereum: any = (window as any)?.ethereum;
@@ -260,11 +272,13 @@ export function PaywallApp() {
           );
           return;
         }
-        walletClientForSigning = createWalletClient({
+        const created = createWalletClient({
           chain: paymentChain,
           transport: custom(ethereum),
           account: address as `0x${string}`,
-        }).extend(publicActions);
+        }) as any;
+        walletClientForSigning =
+          created?.["extend"]?.(publicActions as any) ?? created;
       } catch (e) {
         setStatus(
           e instanceof Error

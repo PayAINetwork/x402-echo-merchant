@@ -30,6 +30,10 @@ export function getExplorerForNetwork(network: string) {
     return "https://amoy.polygonscan.com/tx/";
   } else if (network === "peaq") {
     return "https://peaq.subscan.io/tx/";
+  } else if (network === "xlayer") {
+    return "https://www.oklink.com/xlayer/tx/";
+  } else if (network === "xlayer-testnet") {
+    return "https://www.oklink.com/xlayer-testnet/tx/";
   }
 }
 
@@ -67,6 +71,10 @@ export function renderRizzlerHtml(
     explorerBase = "https://amoy.polygonscan.com/tx/";
   } else if (paymentResponse.network === "peaq") {
     explorerBase = "https://peaq.subscan.io/tx/";
+  } else if (paymentResponse.network === "xlayer") {
+    explorerBase = "https://www.oklink.com/xlayer/tx/";
+  } else if (paymentResponse.network === "xlayer-testnet") {
+    explorerBase = "https://www.oklink.com/xlayer-testnet/tx/";
   }
 
   const paymentTxLink = paymentTx

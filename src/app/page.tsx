@@ -29,6 +29,10 @@ const MAINNET_ENDPOINTS = [
     url: `${API_URL}/api/polygon/paid-content`,
   },
   {
+    label: "xLayer Mainnet",
+    url: `${API_URL}/api/xlayer/paid-content`,
+  },
+  {
     label: "Peaq Mainnet",
     url: `${API_URL}/api/peaq/paid-content`,
   },
@@ -58,6 +62,10 @@ const TESTNET_ENDPOINTS = [
   {
     label: "Polygon Amoy",
     url: `${API_URL}/api/polygon-amoy/paid-content`,
+  },
+  {
+    label: "xLayer Testnet",
+    url: `${API_URL}/api/xlayer-testnet/paid-content`,
   },
   {
     label: "Sei Testnet",
