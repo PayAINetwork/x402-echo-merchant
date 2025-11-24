@@ -10,9 +10,10 @@ import {
   iotex,
   polygon,
   polygonAmoy,
+  peaq,
   xLayer,
-  xLayerTestnet,
 } from "viem/chains";
+import { xLayerTestnet1952 } from "../../lib/chains";
 import "./window.d.ts";
 
 type ProvidersProps = {
@@ -41,7 +42,7 @@ export function Providers({ children }: ProvidersProps) {
       : network === "sei-testnet"
       ? seiTestnet
       : network === "xlayer-testnet"
-      ? xLayerTestnet
+      ? xLayerTestnet1952
       : network === "sei"
       ? sei
       : network === "avalanche"
@@ -52,6 +53,8 @@ export function Providers({ children }: ProvidersProps) {
       ? polygon
       : network === "polygon-amoy"
       ? polygonAmoy
+      : network === "peaq"
+      ? peaq
       : network === "xlayer"
       ? xLayer
       : base;

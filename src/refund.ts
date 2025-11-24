@@ -7,9 +7,10 @@ import {
     type WalletClient
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { avalanche, avalancheFuji, base, baseSepolia, iotex, sei, seiTestnet, polygon, polygonAmoy, peaq, xLayer, xLayerTestnet } from 'viem/chains';
+import { avalanche, avalancheFuji, base, baseSepolia, iotex, sei, seiTestnet, polygon, polygonAmoy, peaq, xLayer } from 'viem/chains';
 import { createSigner, PaymentRequirements, SupportedEVMNetworks, SupportedSVMNetworks, Signer } from 'x402/types';
 import { Network } from '@payai/x402/types';
+import { xLayerTestnet1952 } from './lib/chains';
 import {
     appendTransactionMessageInstructions,
     createSolanaRpc,
@@ -99,7 +100,7 @@ const getSigner = async (network: Network) => {
 
     else if (network === "xlayer-testnet") {
         return createWalletClient({
-          chain: xLayerTestnet,
+          chain: xLayerTestnet1952,
           transport: http(process.env.XLAYER_TESTNET_RPC_URL as `https://${string}`),
           account,
         }).extend(publicActions);
