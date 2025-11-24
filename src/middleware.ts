@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Address, getAddress } from "viem";
-import { exact } from "x402/schemes";
+import { exact } from "@payai/x402/schemes";
 import {
   computeRoutePatterns,
   findMatchingPaymentRequirements,
@@ -8,7 +8,7 @@ import {
   processPriceToAtomicAmount,
   safeBase64Encode,
   toJsonSafe,
-} from "x402/shared";
+} from "@payai/x402/shared";
 import { getLocalPaywallHtml } from "./paywall/getPaywallHtml";
 import { getSolanaPaywallHtml } from "./paywall/getSolanaPaywallHtml";
 import {
@@ -23,10 +23,10 @@ import {
   RoutesConfig,
   SupportedEVMNetworks,
   SupportedSVMNetworks,
-} from "x402/types";
-import { type VerifyResponse } from "x402/types";
-import { useFacilitator } from "x402/verify";
-import { SolanaAddress } from "x402-next";
+} from "@payai/x402/types";
+import { type VerifyResponse } from "@payai/x402/types";
+import { useFacilitator } from "@payai/x402/verify";
+import { SolanaAddress } from "@payai/x402-next";
 import { Network } from "@payai/x402/types";
 import { handlePaidContentRequest } from "./lib/paidContentHandler";
 

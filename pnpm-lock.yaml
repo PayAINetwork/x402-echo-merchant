@@ -17,6 +17,9 @@ importers:
       '@payai/x402':
         specifier: 0.7.1-payai.4
         version: 0.7.1-payai.4
+      '@payai/x402-next':
+        specifier: ^0.7.1
+        version: 0.7.1(next@15.3.2(@babel/core@7.28.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))
       '@payai/x402-solana-react':
         specifier: ^1.0.4
         version: 1.0.4(7c8bfe98c03a4f1b583b087d81bc118b)
@@ -1360,6 +1363,11 @@ packages:
   '@paulmillr/qr@0.2.1':
     resolution: {integrity: sha512-IHnV6A+zxU7XwmKFinmYjUcwlyK9+xkG3/s9KcQhI9BjQKycrJ1JRO+FbNYPwZiPKW3je/DR0k7w8/gLa5eaxQ==}
     deprecated: 'The package is now available as "qr": npm install qr'
+
+  '@payai/x402-next@0.7.1':
+    resolution: {integrity: sha512-ZcabcMwessNYFEE0SeJq2yMH43CFouYR2DfobO95wqCJF0AiTyV1RZP5T5nvRKoGTH41O6MnR/0AjR/467HmLg==}
+    peerDependencies:
+      next: ^15.0.0
 
   '@payai/x402-solana-react@1.0.4':
     resolution: {integrity: sha512-S15hQcV4reVHLUgRtEOerQCL4bTuCoEKCAdRHQbpWS51m8Dgz9ZzHwVl+CxeeBbSVZnzH1OYige1n7dK2WonAA==}
@@ -9010,6 +9018,10 @@ snapshots:
       bs58: 5.0.0
 
   '@paulmillr/qr@0.2.1': {}
+
+  '@payai/x402-next@0.7.1(next@15.3.2(@babel/core@7.28.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))':
+    dependencies:
+      next: 15.3.2(@babel/core@7.28.5)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
 
   '@payai/x402-solana-react@1.0.4(7c8bfe98c03a4f1b583b087d81bc118b)':
     dependencies:
