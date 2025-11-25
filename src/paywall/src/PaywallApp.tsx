@@ -138,35 +138,37 @@ export function PaywallApp() {
     ? selectPaymentRequirements([x402.paymentRequirements].flat(), network, 'exact')
     : null;
 
-  useEffect(() => {
-    console.log('useEffect', isConnected, paymentChain.id, walletChainId);
-    const checkChain = async () => {
-      let currentChainId = walletChainId;
-      try {
-        const ethereum = (window as unknown as { ethereum?: Eip1193Provider })?.ethereum;
-        if (ethereum?.request) {
-          const hexId = (await ethereum.request({ method: 'eth_chainId' })) as string;
-          const parsedId = Number.parseInt(hexId, 16);
-          if (Number.isFinite(parsedId)) {
-            currentChainId = parsedId;
-          }
+  // Extract chain checking logic so it can be reused
+  const checkChain = useCallback(async () => {
+    console.log('checkChain', isConnected, paymentChain.id, walletChainId);
+    let currentChainId = walletChainId;
+    try {
+      const ethereum = (window as unknown as { ethereum?: Eip1193Provider })?.ethereum;
+      if (ethereum?.request) {
+        const hexId = (await ethereum.request({ method: 'eth_chainId' })) as string;
+        const parsedId = Number.parseInt(hexId, 16);
+        if (Number.isFinite(parsedId)) {
+          currentChainId = parsedId;
         }
-      } catch {
-        // ignore errors reading chain id from provider
       }
-      if (isConnected && paymentChain.id === currentChainId) {
-        setIsCorrectChain(true);
-        setStatus('');
-      } else if (isConnected && currentChainId && paymentChain.id !== currentChainId) {
-        setIsCorrectChain(false);
-        setStatus(`On the wrong network. Please switch to ${chainName}.`);
-      } else {
-        setIsCorrectChain(null);
-        setStatus('');
-      }
-    };
+    } catch {
+      // ignore errors reading chain id from provider
+    }
+    if (isConnected && paymentChain.id === currentChainId) {
+      setIsCorrectChain(true);
+      setStatus('');
+    } else if (isConnected && currentChainId && paymentChain.id !== currentChainId) {
+      setIsCorrectChain(false);
+      setStatus(`On the wrong network. Please switch to ${chainName}.`);
+    } else {
+      setIsCorrectChain(null);
+      setStatus('');
+    }
+  }, [isConnected, paymentChain.id, walletChainId, chainName]);
+
+  useEffect(() => {
     void checkChain();
-  }, [paymentChain.id, walletChainId, isConnected, chainName]);
+  }, [checkChain]);
 
   // Memoize balance checking to prevent excessive RPC calls
   const checkUSDCBalance = useCallback(async () => {
@@ -239,6 +241,8 @@ export function PaywallApp() {
         setStatus('');
         // Small delay to let wallet settle
         await new Promise((resolve) => setTimeout(resolve, 100));
+        // Re-check chain status after switch
+        await checkChain();
         return;
       } catch (addErr) {
         setStatus(
@@ -257,12 +261,14 @@ export function PaywallApp() {
       await switchChainAsync({ chainId: paymentChain.id });
       // Small delay to let wallet settle
       await new Promise((resolve) => setTimeout(resolve, 100));
+      // Re-check chain status after switch
+      await checkChain();
     } catch (error) {
       setStatus(error instanceof Error ? error.message : 'Failed to switch network');
     } finally {
       isSwitchingRef.current = false;
     }
-  }, [switchChainAsync, paymentChain, isCorrectChain, switchableChains, chainName]);
+  }, [switchChainAsync, paymentChain, isCorrectChain, switchableChains, chainName, checkChain]);
 
   // Only check balance when address or connection status changes, not on every render
   useEffect(() => {
