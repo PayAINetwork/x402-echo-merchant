@@ -8,8 +8,7 @@ import {
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { avalanche, avalancheFuji, base, baseSepolia, iotex, sei, seiTestnet, polygon, polygonAmoy, peaq, xLayer } from 'viem/chains';
-import { createSigner, PaymentRequirements, SupportedEVMNetworks, SupportedSVMNetworks, Signer } from 'x402/types';
-import { Network } from '@payai/x402/types';
+import { createSigner, PaymentRequirements, SupportedEVMNetworks, SupportedSVMNetworks, Signer, Network } from '@payai/x402/types';
 import { xLayerTestnet1952 } from './lib/chains';
 import {
     appendTransactionMessageInstructions,

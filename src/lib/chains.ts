@@ -19,7 +19,7 @@ export const xLayerTestnet1952: Chain = {
   blockExplorers: {
     default: {
       name: 'OKLink',
-      url: 'https://www.oklink.com/xlayer-test',
+      url: 'https://www.oklink.com/x-layer-testnet',
     },
   },
   contracts: {

@@ -31,9 +31,9 @@ export function getExplorerForNetwork(network: string) {
   } else if (network === "peaq") {
     return "https://peaq.subscan.io/tx/";
   } else if (network === "xlayer") {
-    return "https://www.oklink.com/xlayer/tx/";
+    return "https://www.oklink.com/x-layer/tx/";
   } else if (network === "xlayer-testnet") {
-    return "https://www.oklink.com/xlayer-testnet/tx/";
+    return "https://www.oklink.com/x-layer-testnet/tx/";
   }
 }
 
@@ -72,9 +72,9 @@ export function renderRizzlerHtml(
   } else if (paymentResponse.network === "peaq") {
     explorerBase = "https://peaq.subscan.io/tx/";
   } else if (paymentResponse.network === "xlayer") {
-    explorerBase = "https://www.oklink.com/xlayer/tx/";
+    explorerBase = "https://www.oklink.com/x-layer/tx/";
   } else if (paymentResponse.network === "xlayer-testnet") {
-    explorerBase = "https://www.oklink.com/xlayer-testnet/tx/";
+    explorerBase = "https://www.oklink.com/x-layer-testnet/tx/";
   }
 
   const paymentTxLink = paymentTx
