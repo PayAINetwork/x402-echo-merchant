@@ -279,7 +279,7 @@ export function PaywallApp() {
     await handleSwitchChain();
 
     // Build a wallet client bound to the selected payment chain using the EIP-1193 provider
-    let walletClientForSigning = createWalletClient({
+    const walletClientForSigning = createWalletClient({
       chain: paymentChain,
       transport: custom(
         (window as unknown as { ethereum?: Eip1193Provider })?.ethereum as unknown as Eip1193Provider
