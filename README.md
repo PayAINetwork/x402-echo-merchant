@@ -84,6 +84,8 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 - `SOLANA_DEVNET_WS_URL` - (optional) Solana Devnet WebSocket URL (wss)
 - `IOTEX_RPC_URL` - (optional) IoTeX Mainnet RPC URL (https)
 - `PEAQ_RPC_URL` - Peaq Mainnet RPC URL (https)
+- `XLAYER_RPC_URL` - xLayer Mainnet RPC URL (https)
+- `XLAYER_TESTNET_RPC_URL` - xLayer Testnet RPC URL (https)
 
 ---
 
