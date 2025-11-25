@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
-import { PaymentRequirements } from "x402/types";
+import { PaymentRequirements } from "@payai/x402/types";
 import * as viem from "viem";
 import { sendAndConfirmTransactionFactory } from "@solana/kit";
 
@@ -95,8 +95,8 @@ vi.mock("@solana-program/token-2022", () => ({
 }));
 
 // Mock x402 createSigner
-vi.mock("x402/types", async () => {
-  const actual = await vi.importActual("x402/types");
+vi.mock("@payai/x402/types", async () => {
+  const actual = await vi.importActual("@payai/x402/types");
   return {
     ...actual,
     SupportedSVMNetworks: ["solana", "solana-devnet"],
