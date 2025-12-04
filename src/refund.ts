@@ -7,9 +7,9 @@ import {
     type WalletClient
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
-import { avalanche, avalancheFuji, base, baseSepolia, iotex, sei, seiTestnet, polygon, polygonAmoy, peaq } from 'viem/chains';
-import { createSigner, PaymentRequirements, SupportedEVMNetworks, SupportedSVMNetworks, Signer } from 'x402/types';
-import { Network } from 'x402-next';
+import { avalanche, avalancheFuji, base, baseSepolia, iotex, sei, seiTestnet, polygon, polygonAmoy, peaq, xLayer } from 'viem/chains';
+import { createSigner, PaymentRequirements, SupportedEVMNetworks, SupportedSVMNetworks, Signer, Network } from '@payai/x402/types';
+import { xLayerTestnet1952 } from './lib/chains';
 import {
     appendTransactionMessageInstructions,
     createSolanaRpc,
@@ -85,6 +85,22 @@ const getSigner = async (network: Network) => {
         return createWalletClient({
           chain: seiTestnet,
           transport: http(process.env.SEI_TESTNET_RPC_URL as `https://${string}`),
+          account,
+        }).extend(publicActions);
+    }
+
+    else if (network === "xlayer") {
+        return createWalletClient({
+          chain: xLayer,
+          transport: http(process.env.XLAYER_RPC_URL as `https://${string}`),
+          account,
+        }).extend(publicActions);
+    }
+
+    else if (network === "xlayer-testnet") {
+        return createWalletClient({
+          chain: xLayerTestnet1952,
+          transport: http(process.env.XLAYER_TESTNET_RPC_URL as `https://${string}`),
           account,
         }).extend(publicActions);
     }

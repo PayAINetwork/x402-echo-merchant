@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Address, getAddress } from "viem";
-import { exact } from "x402/schemes";
+import { exact } from "@payai/x402/schemes";
 import {
   computeRoutePatterns,
   findMatchingPaymentRequirements,
@@ -8,7 +8,7 @@ import {
   processPriceToAtomicAmount,
   safeBase64Encode,
   toJsonSafe,
-} from "x402/shared";
+} from "@payai/x402/shared";
 import { getLocalPaywallHtml } from "./paywall/getPaywallHtml";
 import { getSolanaPaywallHtml } from "./paywall/getSolanaPaywallHtml";
 import {
@@ -23,10 +23,11 @@ import {
   RoutesConfig,
   SupportedEVMNetworks,
   SupportedSVMNetworks,
-} from "x402/types";
-import { type VerifyResponse } from "x402/types";
-import { useFacilitator } from "x402/verify";
-import { Network, SolanaAddress } from "x402-next";
+} from "@payai/x402/types";
+import { type VerifyResponse } from "@payai/x402/types";
+import { useFacilitator } from "@payai/x402/verify";
+import { SolanaAddress } from "@payai/x402-next";
+import { Network } from "@payai/x402/types";
 import { handlePaidContentRequest } from "./lib/paidContentHandler";
 
 const facilitatorUrl = process.env.FACILITATOR_URL as `${string}://${string}`;
@@ -50,6 +51,10 @@ function getRpcUrlForNetwork(network: Network): string | undefined {
       return process.env.SEI_RPC_URL;
     case "sei-testnet":
       return process.env.SEI_TESTNET_RPC_URL;
+    case "xlayer":
+      return process.env.XLAYER_RPC_URL;
+    case "xlayer-testnet":
+      return process.env.XLAYER_TESTNET_RPC_URL;
     case "polygon":
       return process.env.POLYGON_RPC_URL;
     case "polygon-amoy":
@@ -152,6 +157,22 @@ const peaqConfig = {
   network: "peaq" as Network,
   config: {
     description: "Access to protected content on peaq mainnet",
+  },
+} as RouteConfig;
+
+const xlayerConfig = {
+  price: "$0.01" as Price,
+  network: "xlayer" as Network,
+  config: {
+    description: "Access to protected content on xlayer mainnet",
+  },
+} as RouteConfig;
+
+const xlayerTestnetConfig = {
+  price: "$0.01" as Price,
+  network: "xlayer-testnet" as Network,
+  config: {
+    description: "Access to protected content on xlayer testnet",
   },
 } as RouteConfig;
 
@@ -413,6 +434,40 @@ export async function middleware(request: NextRequest) {
     return withCors(request, response);
   }
 
+  // xlayer mainnet
+  if (pathname.startsWith("/api/xlayer/")) {
+    const requestedAmount = await getRequestedAmount(
+      request,
+      xlayerConfig.price
+    );
+    const dynamicConfig = { ...xlayerConfig, price: requestedAmount };
+    const response = await paymentMiddleware(
+      payToEVM,
+      { "/api/xlayer/paid-content": dynamicConfig },
+      {
+        url: facilitatorUrl,
+      }
+    )(request);
+    return withCors(request, response);
+  }
+
+  // xlayer-testnet
+  if (pathname.startsWith("/api/xlayer-testnet/")) {
+    const requestedAmount = await getRequestedAmount(
+      request,
+      xlayerTestnetConfig.price
+    );
+    const dynamicConfig = { ...xlayerTestnetConfig, price: requestedAmount };
+    const response = await paymentMiddleware(
+      payToEVM,
+      { "/api/xlayer-testnet/paid-content": dynamicConfig },
+      {
+        url: facilitatorUrl,
+      }
+    )(request);
+    return withCors(request, response);
+  }
+
   // peaq mainnet
   if (pathname.startsWith("/api/peaq/")) {
     const requestedAmount = await getRequestedAmount(request, peaqConfig.price);
@@ -641,6 +696,7 @@ export function paymentMiddleware(
 
     // Check for payment header
     const paymentHeader = request.headers.get("X-PAYMENT");
+    console.log("🔍 Payment header present:", !!paymentHeader);
     if (!paymentHeader) {
       const accept = request.headers.get("Accept");
       if (accept?.includes("text/html")) {
@@ -692,7 +748,8 @@ export function paymentMiddleware(
                     network === "base-sepolia" ||
                     network === "avalanche-fuji" ||
                     network === "sei-testnet" ||
-                    network === "polygon-amoy",
+                    network === "polygon-amoy" ||
+                    network === "xlayer-testnet" as unknown as Network,
                   rpcUrl: getRpcUrlForNetwork(network),
                 }));
           return new NextResponse(html, {
@@ -788,8 +845,16 @@ export function paymentMiddleware(
         selectedPaymentRequirements
       );
 
+      console.log(
+        "💰 Settlement response:",
+        JSON.stringify(settlement, null, 2)
+      );
+
       if (settlement.success) {
-        const payer = settlement.payer;
+        const payer = settlement.payer || verification.payer || "";
+        console.log("💳 Payer from settlement:", settlement.payer);
+        console.log("💳 Payer from verification:", verification.payer);
+        console.log("💳 Final payer used:", payer);
 
         const responseHeaderData = {
           success: true,
@@ -876,12 +941,18 @@ export function paymentMiddleware(
           return handlerResponse;
         }
       } else {
+        // Settlement was attempted but did not succeed. Surface this as a 402 so
+        // the client can handle it explicitly instead of treating it as a successful
+        // content response (which would currently be downloaded as a blob).
         return new NextResponse(
           JSON.stringify({
             x402Version,
             error: "Settlement failed",
+            // expose the underlying errorReason from the facilitator when available
+            errorReason: settlement.errorReason,
             accepts: paymentRequirements,
-          })
+          }),
+          { status: 402, headers: { "Content-Type": "application/json" } }
         );
       }
     } catch (error) {

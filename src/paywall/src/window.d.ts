@@ -1,4 +1,4 @@
-import { PaymentRequirements } from "x402/types";
+import { PaymentRequirements } from "@payai/x402/types";
 
 declare global {
   interface Window {

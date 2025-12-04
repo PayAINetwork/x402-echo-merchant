@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { toJsonSafe } from "x402/shared";
+import { toJsonSafe } from "@payai/x402/shared";
 
 export async function POST(request: NextRequest) {
   const { paymentPayload, paymentRequirements } = await request.json();

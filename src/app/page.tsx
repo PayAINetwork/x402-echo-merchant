@@ -29,6 +29,10 @@ const MAINNET_ENDPOINTS = [
     url: `${API_URL}/api/polygon/paid-content`,
   },
   {
+    label: "xLayer Mainnet",
+    url: `${API_URL}/api/xlayer/paid-content`,
+  },
+  {
     label: "Peaq Mainnet",
     url: `${API_URL}/api/peaq/paid-content`,
   },
@@ -58,6 +62,10 @@ const TESTNET_ENDPOINTS = [
   {
     label: "Polygon Amoy",
     url: `${API_URL}/api/polygon-amoy/paid-content`,
+  },
+  {
+    label: "xLayer Testnet",
+    url: `${API_URL}/api/xlayer-testnet/paid-content`,
   },
   {
     label: "Sei Testnet",
@@ -202,7 +210,7 @@ export default function Home() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
           <a
-            href="https://docs.payai.network/x402/quickstarts/nextjs"
+            href="https://docs.payai.network/x402/servers/typescript/nextjs"
             target="_blank"
             rel="noopener noreferrer"
             className="group"
@@ -223,7 +231,7 @@ export default function Home() {
             </Card>
           </a>
           <a
-            href="https://docs.payai.network/x402/quickstarts/express"
+            href="https://docs.payai.network/x402/servers/typescript/express"
             target="_blank"
             rel="noopener noreferrer"
             className="group"
@@ -244,7 +252,7 @@ export default function Home() {
             </Card>
           </a>
           <a
-            href="https://docs.payai.network/x402/quickstarts/hono"
+            href="https://docs.payai.network/x402/servers/typescript/hono"
             target="_blank"
             rel="noopener noreferrer"
             className="group"
