@@ -255,6 +255,7 @@ export const refund = async (
     const signedTransaction = await signTransactionMessageWithSigners(txMessage);
 
     // Cast to any to work around @solana/kit type changes
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     await sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions })(signedTransaction as any, {
       commitment: 'confirmed',
     });

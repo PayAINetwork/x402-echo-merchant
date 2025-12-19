@@ -363,7 +363,7 @@ describe('refund', () => {
           { amount: '1000000', description: '1 USDC' },
         ];
 
-        for (const { amount, description } of amounts) {
+        for (const { amount } of amounts) {
           const mockWriteContract = vi.fn().mockResolvedValue('0xrefundTxHash');
           const mockWalletClient = {
             chain: { id: 84532, name: 'Base Sepolia' },

@@ -31,6 +31,12 @@ import {
 // SolanaAddress is just a string type alias
 type SolanaAddress = string;
 
+// Enable verbose logging via environment variable
+const VERBOSE = process.env.X402_VERBOSE === 'true';
+const log = (...args: unknown[]) => {
+  if (VERBOSE) console.log('[x402-middleware]', ...args);
+};
+
 const facilitatorUrl = process.env.FACILITATOR_URL as `${string}://${string}`;
 const payToEVM = process.env.EVM_RECEIVE_PAYMENTS_ADDRESS as `0x${string}`;
 const payToSVM = process.env.SVM_RECEIVE_PAYMENTS_ADDRESS as SolanaAddress;
@@ -303,6 +309,9 @@ export async function middleware(request: NextRequest) {
 
   // solana mainnet
   if (pathname.startsWith('/api/solana/')) {
+    log('Matched Solana mainnet route:', pathname);
+    log('Request method:', request.method);
+    log('PAYMENT-SIGNATURE header present:', !!request.headers.get('PAYMENT-SIGNATURE'));
     const requestedAmount = await getRequestedAmount(request, solanaConfig.price);
     const dynamicConfig = { ...solanaConfig, price: requestedAmount };
     const response = await paymentMiddleware(
@@ -502,12 +511,17 @@ export function paymentMiddleware(
     const pathname = request.nextUrl.pathname;
     const method = request.method.toUpperCase();
 
+    log('Processing request:', method, pathname);
+
     // Find matching route configuration
     const matchingRoute = findMatchingRoute(routePatterns, pathname, method);
 
     if (!matchingRoute) {
+      log('No matching route found for:', pathname);
       return NextResponse.next();
     }
+
+    log('Matched route config:', JSON.stringify(matchingRoute.config, null, 2));
 
     const { price, network, config = {} } = matchingRoute.config;
     const {
@@ -613,7 +627,18 @@ export function paymentMiddleware(
     }
 
     const paymentHeader = request.headers.get('PAYMENT-SIGNATURE');
-    console.log('🔍 Payment header present:', !!paymentHeader);
+    log('Payment header present:', !!paymentHeader);
+
+    // Debug: log all headers (only when verbose)
+    if (VERBOSE) {
+      const allHeaders: Record<string, string> = {};
+      request.headers.forEach((value, key) => {
+        allHeaders[key] = key.toLowerCase().includes('payment')
+          ? value.substring(0, 50) + '...'
+          : value;
+      });
+      log('All request headers:', JSON.stringify(allHeaders, null, 2));
+    }
     if (!paymentHeader) {
       const accept = request.headers.get('Accept');
       if (accept?.includes('text/html')) {
@@ -719,7 +744,7 @@ export function paymentMiddleware(
 
     // Log verification response for debugging
     if ((SupportedSVMNetworks as readonly string[]).includes(network)) {
-      console.log('Verification response:', JSON.stringify(verification, null, 2));
+      log('Verification response:', JSON.stringify(verification, null, 2));
     }
 
     if (!verification.isValid) {
@@ -746,13 +771,13 @@ export function paymentMiddleware(
     try {
       const settlement = await settle(decodedPayment, selectedPaymentRequirements);
 
-      console.log('💰 Settlement response:', JSON.stringify(settlement, null, 2));
+      log('Settlement response:', JSON.stringify(settlement, null, 2));
 
       if (settlement.success) {
         const payer = settlement.payer || verification.payer || '';
-        console.log('💳 Payer from settlement:', settlement.payer);
-        console.log('💳 Payer from verification:', verification.payer);
-        console.log('💳 Final payer used:', payer);
+        log('Payer from settlement:', settlement.payer);
+        log('Payer from verification:', verification.payer);
+        log('Final payer used:', payer);
 
         const responseHeaderData = {
           success: true,
@@ -773,9 +798,9 @@ export function paymentMiddleware(
 
         // refund the payment via Node API route for EVM only in this branch
         const apiUrl = `${request.nextUrl.protocol}//${request.nextUrl.host}/api/facilitator/refund`;
-        console.log('calling refund API at: ', apiUrl);
-        console.log('payment requirements: ', selectedPaymentRequirements);
-        console.log('payer: ', payer);
+        log('Calling refund API at:', apiUrl);
+        log('Payment requirements:', selectedPaymentRequirements);
+        log('Payer:', payer);
         const refundResp = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -786,7 +811,7 @@ export function paymentMiddleware(
         });
         if (refundResp.ok) {
           const { refundTxHash } = await refundResp.json();
-          console.log('refund response: ', refundTxHash);
+          log('Refund response:', refundTxHash);
           // Build a request for the paidContentHandler with the payment info header
           const forwardHeaders = new Headers();
           // preserve content negotiation and user agent

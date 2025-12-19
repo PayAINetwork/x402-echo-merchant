@@ -38,7 +38,6 @@ import { useAccount, useChainId, useSwitchChain, useWalletClient } from 'wagmi';
 import { ExactEvmScheme, toClientEvmSigner } from '@x402/evm';
 import { safeBase64Encode } from '@payai/x402/utils';
 import { xLayerTestnet1952 } from '../../lib/chains';
-import type { PaymentRequirements } from './window.d';
 
 // ERC20 ABI for balanceOf function
 const ERC20_BALANCE_OF_ABI = [
