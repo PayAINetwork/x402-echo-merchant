@@ -565,15 +565,14 @@ export function paymentMiddleware(
     }
     // svm networks
     else if ((SupportedSVMNetworks as readonly string[]).includes(network)) {
-      // network call to get the supported payments from the facilitator
+      // Fetch V2 payment kinds from the facilitator (filtered to CAIP-2 network format)
       const paymentKinds = await supported();
 
-      // Find the payment kind that matches the network and scheme
+      // Find the payment kind that matches the CAIP-2 network and scheme
       let feePayer: string | undefined;
       for (const kind of paymentKinds.kinds) {
-        // Check both legacy network name and CAIP-2 format (facilitator may use either)
-        const kindMatches =
-          (kind.network === network || kind.network === caip2Network) && kind.scheme === 'exact';
+        // V2 kinds use CAIP-2 format, match against our converted caip2Network
+        const kindMatches = kind.network === caip2Network && kind.scheme === 'exact';
         if (kindMatches) {
           feePayer = kind?.extra?.feePayer;
           break;

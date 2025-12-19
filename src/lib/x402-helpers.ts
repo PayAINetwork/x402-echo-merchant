@@ -455,6 +455,16 @@ export async function createSigner(network: Network, privateKey: string): Promis
 // Facilitator Helpers
 // =============================================================================
 
+/**
+ * Payment kind from the facilitator's /supported endpoint
+ */
+export interface PaymentKind {
+  network: string;
+  scheme: string;
+  x402Version?: number;
+  extra?: { feePayer?: string; [key: string]: unknown };
+}
+
 export interface FacilitatorHooks {
   verify: (
     paymentPayload: PaymentPayload,
@@ -470,12 +480,14 @@ export interface FacilitatorHooks {
     payer?: string;
     errorReason?: string;
   }>;
+  /**
+   * Fetches supported payment kinds from the facilitator.
+   * Returns only V2 kinds (CAIP-2 network format) for V2 protocol compatibility.
+   */
   supported: () => Promise<{
-    kinds: Array<{
-      network: string;
-      scheme: string;
-      extra?: { feePayer?: string };
-    }>;
+    kinds: PaymentKind[];
+    extensions?: string[];
+    signers?: Record<string, string[]>;
   }>;
 }
 
@@ -528,8 +540,19 @@ export function useFacilitator(config?: FacilitatorConfig): FacilitatorHooks {
     },
 
     supported: async () => {
-      const res = await fetch(`${baseUrl}/supported`);
-      return res.json();
+      // Request V2 format explicitly - returns version-grouped kinds object
+      const res = await fetch(`${baseUrl}/supported?format=v2`);
+      const data = await res.json();
+
+      // V2 format returns kinds grouped by version: { '1': [...], '2': [...] }
+      // Extract V2 kinds which use CAIP-2 network format (e.g., 'eip155:84532', 'solana:5eykt4...')
+      const v2Kinds: PaymentKind[] = data.kinds?.['2'] ?? [];
+
+      return {
+        kinds: v2Kinds,
+        extensions: data.extensions,
+        signers: data.signers,
+      };
     },
   };
 }
