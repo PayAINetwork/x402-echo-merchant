@@ -83,7 +83,7 @@ export const NETWORK_TO_CAIP2: Record<string, string> = {
   sei: 'eip155:1329',
   'sei-testnet': 'eip155:713715',
   xlayer: 'eip155:196',
-  'xlayer-testnet': 'eip155:195',
+  'xlayer-testnet': 'eip155:1952',
   peaq: 'eip155:3338',
   iotex: 'eip155:4689',
   // SVM networks

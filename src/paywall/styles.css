@@ -1,4 +1,14 @@
-@import "@coinbase/onchainkit/styles.css";
+/* Google Fonts must be imported first, before any @layer rules from Tailwind */
+@import 'https://fonts.googleapis.com/css2?family=Inter&display=swap';
+@import 'https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap';
+@import 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz@0,9..40;1,9..40&display=swap';
+@import 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,700;1,9..40,700&display=swap';
+@import 'https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap';
+@import 'https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@100..900&display=swap';
+
+@import 'tailwindcss';
+@import '@coinbase/onchainkit/styles.css';
+
 /* Reset */
 *,
 *::before,
@@ -58,10 +68,11 @@ h6 {
 }
 
 .ock-font-family {
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-.ock-bg-secondary, .ock-bg-default {
+.ock-bg-secondary,
+.ock-bg-default {
   background-color: var(--details-background-color);
   transition: background-color 150ms;
 }
@@ -74,18 +85,198 @@ h6 {
   opacity: 0.8;
 }
 
-[data-testid="ockWalletDropdown"] {
-  z-index: 10;
+[data-testid='ockWalletDropdown'] {
+  z-index: 50;
+}
+
+/* Style the wallet dropdown menu */
+[data-testid='ockWalletDropdownContent'] {
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.75rem !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+  min-width: 160px !important;
+  overflow: hidden !important;
+}
+
+/* Fix the dropdown inner container */
+[data-testid='ockWalletDropdownContent'] > div {
+  min-width: auto !important;
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+/* Style the disconnect button in dropdown */
+[data-testid='ockWalletDropdownContent'] button {
+  padding: 0.625rem 1rem !important;
+  font-size: 0.875rem !important;
+  color: #374151 !important;
+  background: white !important;
+  border: none !important;
+  outline: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0.625rem !important;
+  width: 100% !important;
+  white-space: nowrap !important;
+  transition: background-color 0.15s ease !important;
+  cursor: pointer !important;
+}
+
+[data-testid='ockWalletDropdownContent'] button:hover {
+  background-color: #f3f4f6 !important;
+}
+
+[data-testid='ockWalletDropdownContent'] button:focus {
+  outline: none !important;
+  border: none !important;
+}
+
+/* Style the disconnect icon container */
+[data-testid='ockWalletDropdownContent'] button > div {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: static !important;
+  left: auto !important;
+}
+
+/* Style the disconnect icon */
+[data-testid='ockWalletDropdownContent'] svg {
+  width: 1rem !important;
+  height: 1rem !important;
+  flex-shrink: 0 !important;
+}
+
+[data-testid='ockWalletDropdownContent'] svg path {
+  fill: #6b7280 !important;
+}
+
+/* Fix disconnect text */
+[data-testid='ockWalletDropdownContent'] button span {
+  padding-left: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* ===== OnChainKit Wallet Button Styling ===== */
+
+/* Spinner keyframes - defined here to ensure they're available */
+@keyframes spinner-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Fix OnChainKit spinner container */
+[data-testid='ockSpinner'] {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  padding: 0.25rem 0 !important;
+}
+
+/* Fix the actual spinner element - override all OnChainKit styles */
+[data-testid='ockSpinner'] > div,
+[data-testid='ockSpinner'] > div.ock\:animate-spin,
+div[data-testid='ockSpinner'] > div {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  min-width: 1.25rem !important;
+  min-height: 1.25rem !important;
+  border: 2px solid #d1d5db !important;
+  border-top: 2px solid #6b7280 !important;
+  border-radius: 50% !important;
+  animation: spinner-rotate 0.75s linear infinite !important;
+  -webkit-animation: spinner-rotate 0.75s linear infinite !important;
+  box-sizing: border-box !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
+  /* Reset any conflicting properties */
+  background: transparent !important;
+}
+
+/* Fix SVG loading spinner centering - remove gap that causes offset */
+/* Fix SVG loading spinner centering - remove gap that causes offset */
+.ock\:gap-2:has([data-testid='ock-defaultLoadingSVG']) {
+  gap: 0 !important;
+}
+
+.ock\:flex.ock\:items-center.ock\:justify-center.ock\:gap-2:has(
+    svg[data-testid='ock-defaultLoadingSVG']
+  ) {
+  gap: 0 !important;
+}
+
+/* Center the wallet/connect button container */
+[data-testid='ockConnectWallet_Container'] {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* Center the wallet wrapper in the content area */
+.content > .ock\:relative {
+  align-self: center;
+}
+
+/* Style the connect wallet button (both loading and connected states) */
+[data-testid='ockConnectAccountButtonInner'] {
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+  border-radius: 0.75rem !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25) !important;
+}
+
+[data-testid='ockConnectAccountButtonInner']:not(:disabled):hover {
+  background: linear-gradient(135deg, #4338ca 0%, #4f46e5 100%) !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35) !important;
+  transform: translateY(-1px);
+}
+
+[data-testid='ockConnectAccountButtonInner']:disabled {
+  background: linear-gradient(135deg, #9ca3af 0%, #d1d5db 100%) !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+/* Style the connected wallet button with avatar */
+[data-testid='ockConnectWallet_Connected'] {
+  background: var(--details-background-color) !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.75rem !important;
+  padding: 0.5rem 1rem !important;
+  transition: all 0.2s ease !important;
+}
+
+[data-testid='ockConnectWallet_Connected']:hover {
+  background: var(--details-background-color-hover) !important;
+  border-color: #d1d5db !important;
+}
+
+/* Make the avatar more visible */
+[data-testid='ockConnectWallet_Connected'] img,
+[data-testid='ockConnectWallet_Connected'] svg {
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
+}
+
+/* Style the wallet name text */
+[data-testid='ockConnectWallet_Connected'] span {
+  font-weight: 500;
+  color: var(--text-color);
 }
 
 body {
   min-height: 100vh;
   background-color: var(--background-color);
-  font-family:
-    "Inter",
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .container {
@@ -98,9 +289,7 @@ body {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.1),
-    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .header {
