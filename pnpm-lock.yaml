@@ -153,6 +153,9 @@ importers:
       msw:
         specifier: ^2.12.4
         version: 2.12.4(@types/node@25.0.3)(typescript@5.9.3)
+      postcss:
+        specifier: ^8.5.6
+        version: 8.5.6
       stream-browserify:
         specifier: ^3.0.0
         version: 3.0.0
