@@ -220,6 +220,83 @@ div[data-testid='ockSpinner'] > div {
   justify-content: center;
 }
 
+/* ===== Wallet Selector Modal Styling ===== */
+
+/* Modal overlay backdrop */
+[data-testid='ockModalOverlay'] {
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  padding: 1.5rem !important;
+  padding-bottom: 1rem !important;
+  max-width: 22rem !important;
+}
+
+/* Modal title */
+[data-testid='ockModalOverlay'] h2 {
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+  color: #111827 !important;
+}
+
+/* Wallet option buttons in the modal */
+[data-testid='ockModalOverlay'] button[type='button']:not([aria-label='Close modal']) {
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 0.75rem !important;
+  padding: 0.875rem 1rem !important;
+  font-size: 0.9375rem !important;
+  font-weight: 500 !important;
+  color: #111827 !important;
+  transition: all 0.15s ease !important;
+}
+
+[data-testid='ockModalOverlay'] button[type='button']:not([aria-label='Close modal']):hover {
+  background: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+}
+
+/* Wallet icons in the modal */
+[data-testid='ockModalOverlay'] button[type='button'] svg,
+[data-testid='ockModalOverlay'] button[type='button'] img {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+}
+
+/* Close button styling */
+[data-testid='ockModalOverlay'] button[aria-label='Close modal'] {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.5rem !important;
+  border-radius: 0.5rem !important;
+  transition: background-color 0.15s ease !important;
+}
+
+[data-testid='ockModalOverlay'] button[aria-label='Close modal']:hover {
+  background: #f3f4f6 !important;
+}
+
+/* Divider in modal */
+[data-testid='ockModalOverlay'] .ock\:border-ock-line {
+  border-color: #e5e7eb !important;
+}
+
+/* "or use another wallet" text */
+[data-testid='ockModalOverlay'] span.ock\:text-ock-foreground-muted {
+  color: #6b7280 !important;
+  font-size: 0.75rem !important;
+}
+
+/* Terms of service text at bottom */
+[data-testid='ockModalOverlay'] .ock\:text-\[10px\] {
+  color: #6b7280 !important;
+}
+
+[data-testid='ockModalOverlay'] a.ock\:text-ock-primary {
+  color: #2563eb !important;
+}
+
 /* Center the wallet wrapper in the content area */
 .content > .ock\:relative {
   align-self: center;
@@ -232,6 +309,8 @@ div[data-testid='ockSpinner'] > div {
   font-weight: 600 !important;
   transition: all 0.2s ease !important;
   box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25) !important;
+  min-height: 3rem !important;
+  padding: 0.875rem 1.5rem !important;
 }
 
 [data-testid='ockConnectAccountButtonInner']:not(:disabled):hover {
@@ -246,12 +325,20 @@ div[data-testid='ockSpinner'] > div {
   opacity: 1 !important;
 }
 
+/* Style the disconnected connect button to be larger */
+[data-testid='ockConnectButton'] {
+  min-height: 3rem !important;
+  padding: 0.875rem 1.5rem !important;
+  font-size: 1rem !important;
+}
+
 /* Style the connected wallet button with avatar */
 [data-testid='ockConnectWallet_Connected'] {
   background: var(--details-background-color) !important;
   border: 1px solid #e5e7eb !important;
   border-radius: 0.75rem !important;
-  padding: 0.5rem 1rem !important;
+  padding: 0.625rem 1rem !important;
+  min-height: 3rem !important;
   transition: all 0.2s ease !important;
 }
 
