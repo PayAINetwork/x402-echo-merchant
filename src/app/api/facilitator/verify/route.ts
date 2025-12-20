@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { toJsonSafe } from "@payai/x402/shared";
+import { toJsonSafe } from '@/lib/x402-helpers';
 
 export async function POST(request: NextRequest) {
   const { paymentPayload, paymentRequirements } = await request.json();
 
   // get the url and headers for the facilitator
   const url = process.env.FACILITATOR_URL as `${string}://${string}`;
-  const headers = {'Content-Type': 'application/json'};
+  const headers = { 'Content-Type': 'application/json' };
 
   // make the request to the facilitator
   const res = await fetch(`${url}/verify`, {
-    method: "POST",
+    method: 'POST',
     headers: headers,
     body: JSON.stringify({
       x402Version: paymentPayload.x402Version,

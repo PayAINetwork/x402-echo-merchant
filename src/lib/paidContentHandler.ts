@@ -20,8 +20,14 @@ function decodeBase64Json<T = unknown>(value: string): T {
   }
 }
 
-export async function handlePaidContentRequest(request: NextRequest, defaultNetwork: string, refundTxHash?: string) {
-  const paymentResponseHeader = request.headers.get('x-payment-response');
+export async function handlePaidContentRequest(
+  request: NextRequest,
+  defaultNetwork: string,
+  refundTxHash?: string
+) {
+  // Check both header names for backwards compatibility (V2 uses 'PAYMENT-RESPONSE')
+  const paymentResponseHeader =
+    request.headers.get('PAYMENT-RESPONSE') || request.headers.get('x-payment-response');
   if (!paymentResponseHeader) {
     return NextResponse.json({ error: 'Payment info missing. Did you pay?' }, { status: 402 });
   }
@@ -29,21 +35,20 @@ export async function handlePaidContentRequest(request: NextRequest, defaultNetw
   let paymentInfo: PaymentInfo;
   try {
     paymentInfo = decodeBase64Json<PaymentInfo>(paymentResponseHeader);
-    
+
     // Log payment info for debugging
     console.log('Payment info from header:', JSON.stringify(paymentInfo, null, 2));
-    
+
     if (!paymentInfo.network) {
       paymentInfo.network = defaultNetwork;
     }
 
     // premium content
-    paymentInfo.premiumContent = "Have some rizz!";
+    paymentInfo.premiumContent = 'Have some rizz!';
 
     if (refundTxHash) {
       paymentInfo.refundTransaction = refundTxHash;
     }
-
   } catch (e) {
     console.error('Invalid payment info json.', e);
     return NextResponse.json({ error: 'Invalid payment info json.' }, { status: 500 });
@@ -53,7 +58,9 @@ export async function handlePaidContentRequest(request: NextRequest, defaultNetw
   const userAgent = request.headers.get('user-agent') || '';
   const wantsJson = acceptHeader.includes('application/json');
   const wantsHtml = acceptHeader.includes('text/html');
-  const isBrowserUa = /(Mozilla|Chrome|Safari|Firefox|Edge|OPR|Edg)/i.test(userAgent) && !/(curl|wget|httpie|Postman|Insomnia|Go-http-client|node|node-fetch)/i.test(userAgent);
+  const isBrowserUa =
+    /(Mozilla|Chrome|Safari|Firefox|Edge|OPR|Edg)/i.test(userAgent) &&
+    !/(curl|wget|httpie|Postman|Insomnia|Go-http-client|node|node-fetch)/i.test(userAgent);
 
   // Set refund status if refund failed
   if (refundTxHash === undefined) {
@@ -67,11 +74,14 @@ export async function handlePaidContentRequest(request: NextRequest, defaultNetw
 
   // Otherwise, return HTML for regular browser navigation
   if (wantsHtml || isBrowserUa) {
-    const html = renderRizzlerHtml({
-      transaction: paymentInfo.transaction || 'N/A',
-      network: paymentInfo.network || defaultNetwork,
-      payer: paymentInfo.payer || 'N/A'
-    }, refundTxHash);
+    const html = renderRizzlerHtml(
+      {
+        transaction: paymentInfo.transaction || 'N/A',
+        network: paymentInfo.network || defaultNetwork,
+        payer: paymentInfo.payer || 'N/A',
+      },
+      refundTxHash
+    );
     return new NextResponse(html, {
       status: 200,
       headers: { 'Content-Type': 'text/html; charset=utf-8' },
@@ -81,5 +91,3 @@ export async function handlePaidContentRequest(request: NextRequest, defaultNetw
   // Default to JSON for other clients
   return NextResponse.json(paymentInfo);
 }
-
-

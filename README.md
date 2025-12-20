@@ -1,6 +1,6 @@
 # x402 Echo Merchant Server
 
-A modern, developer-focused pay-per-use API demo server for the [x402 protocol](https://x402.org). Instantly test x402 payments, see live paywall enforcement, and get a rizzler GIF reward after payment—plus a full refund!
+A modern, developer-focused pay-per-use API demo server for the [x402 protocol](https://x402.org). Supports both **x402 V1 and V2 protocols** with CAIP-2 network format. Instantly test x402 payments, see live paywall enforcement, and get a rizzler GIF reward after payment—plus a full refund!
 
 ---
 
@@ -12,7 +12,8 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 
 ## Features
 
-- **Pay-per-use API endpoints** on Base Mainnet and Base Sepolia
+- **x402 V2 protocol support**: Uses CAIP-2 network format (e.g., `eip155:8453`) and V2 headers (`PAYMENT-SIGNATURE`, `PAYMENT-RESPONSE`)
+- **Pay-per-use API endpoints** on multiple networks (Base, Polygon, Avalanche, Sei, Solana, IoTeX, Peaq)
 - **x402 paywall middleware**: Enforces payment before serving protected content
 - **Rizzler GIF reward**: After payment, receive a fun GIF and full transaction/refund details
 - **100% refunds**: All payments are instantly refunded for demo/testing

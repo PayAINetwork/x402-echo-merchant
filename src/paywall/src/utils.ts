@@ -1,4 +1,4 @@
-import type { PaymentRequirements } from "@payai/x402/types";
+import type { PaymentRequirements } from './window.d';
 
 /**
  * Safely clones an object without prototype pollution
@@ -7,7 +7,7 @@ import type { PaymentRequirements } from "@payai/x402/types";
  * @returns A safe clone of the object
  */
 function safeClone<T>(obj: T): T {
-  if (obj === null || typeof obj !== "object") {
+  if (obj === null || typeof obj !== 'object') {
     return obj;
   }
 
@@ -22,7 +22,7 @@ function safeClone<T>(obj: T): T {
   const cloned: Record<string, unknown> = {};
   for (const key in obj as Record<string, unknown>) {
     // Skip __proto__ and other dangerous properties
-    if (key === "__proto__" || key === "constructor" || key === "prototype") {
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
       continue;
     }
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
@@ -44,17 +44,15 @@ export function ensureValidAmount(paymentRequirements: PaymentRequirements): Pay
   if (window.x402?.amount) {
     try {
       const amountInBaseUnits = Math.round(window.x402.amount * 1_000_000);
-      updatedRequirements.maxAmountRequired = amountInBaseUnits.toString();
+      updatedRequirements.amount = amountInBaseUnits.toString();
     } catch (error) {
-      console.error("Failed to parse amount:", error);
+      console.error('Failed to parse amount:', error);
     }
   }
 
-  if (
-    !updatedRequirements.maxAmountRequired ||
-    !/^\d+$/.test(updatedRequirements.maxAmountRequired)
-  ) {
-    updatedRequirements.maxAmountRequired = "10000";
+  // Validate amount field
+  if (!updatedRequirements.amount || !/^\d+$/.test(updatedRequirements.amount)) {
+    updatedRequirements.amount = '10000';
   }
 
   return updatedRequirements;
@@ -74,16 +72,16 @@ export const generateOnrampSessionToken = async (address: string): Promise<strin
 
   // Call the session token API with user's address
   const response = await fetch(endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       addresses: [
         {
           address,
-          blockchains: ["base"], // Onramp only supports mainnet
+          blockchains: ['base'], // Onramp only supports mainnet
         },
       ],
-      assets: ["USDC"],
+      assets: ['USDC'],
     }),
   });
 

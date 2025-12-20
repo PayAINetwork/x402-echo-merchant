@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { FundButton, getOnrampBuyUrl } from '@coinbase/onchainkit/fund';
@@ -17,7 +16,10 @@ import {
   formatUnits,
   http,
   publicActions,
+  type Address,
+  type PublicClient,
 } from 'viem';
+import type { Chain } from 'viem';
 import {
   base,
   baseSepolia,
@@ -33,10 +35,47 @@ import {
 } from 'viem/chains';
 import { useAccount, useChainId, useSwitchChain, useWalletClient } from 'wagmi';
 
-import { selectPaymentRequirements } from '@payai/x402/client';
-import { exact } from '@payai/x402/schemes';
-import { getUSDCBalance } from '@payai/x402/shared/evm';
+import { ExactEvmScheme, toClientEvmSigner } from '@x402/evm';
+import { safeBase64Encode } from '@payai/x402/utils';
 import { xLayerTestnet1952 } from '../../lib/chains';
+
+// ERC20 ABI for balanceOf function
+const ERC20_BALANCE_OF_ABI = [
+  {
+    constant: true,
+    inputs: [{ name: '_owner', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: 'balance', type: 'uint256' }],
+    type: 'function',
+  },
+] as const;
+
+/**
+ * Get USDC balance for an address using viem
+ *
+ * @param client - Any client with readContract capability
+ * @param address - The wallet address to check
+ * @param usdcAddress - The USDC contract address
+ * @returns The balance in base units
+ */
+async function getUSDCBalance(
+  client: { readContract: PublicClient['readContract'] },
+  address: Address,
+  usdcAddress: Address
+): Promise<bigint> {
+  try {
+    const balance = await client.readContract({
+      address: usdcAddress,
+      abi: ERC20_BALANCE_OF_ABI,
+      functionName: 'balanceOf',
+      args: [address],
+    });
+    return balance as bigint;
+  } catch (error) {
+    console.error('Failed to get USDC balance:', error);
+    return BigInt(0);
+  }
+}
 
 import { Spinner } from './Spinner';
 import { useOnrampSessionToken } from './useOnrampSessionToken';
@@ -45,6 +84,56 @@ import { ensureValidAmount } from './utils';
 type Eip1193Provider = {
   request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
 };
+
+/**
+ * CAIP-2 network to chain mapping
+ */
+const CAIP2_TO_CHAIN: Record<string, Chain> = {
+  'eip155:8453': base,
+  'eip155:84532': baseSepolia,
+  'eip155:43114': avalanche,
+  'eip155:43113': avalancheFuji,
+  'eip155:1329': sei,
+  'eip155:713715': seiTestnet,
+  'eip155:4689': iotex,
+  'eip155:137': polygon,
+  'eip155:80002': polygonAmoy,
+  'eip155:3338': peaq,
+  'eip155:196': xLayer,
+  'eip155:1952': xLayerTestnet1952,
+};
+
+/**
+ * Parse CAIP-2 network format to extract chain ID
+ * Format: "eip155:84532"
+ */
+function parseCAIP2Network(network: string): { namespace: string; chainId: number } {
+  const [namespace, chainIdStr] = network.split(':');
+  const chainId = parseInt(chainIdStr, 10);
+  return { namespace, chainId };
+}
+
+/**
+ * Get chain name for display from CAIP-2 network
+ */
+function getChainName(network: string): string {
+  const chain = CAIP2_TO_CHAIN[network];
+  if (chain) {
+    return chain.name;
+  }
+  // Fallback: try to extract from network string
+  const { chainId } = parseCAIP2Network(network);
+  return `Chain ${chainId}`;
+}
+
+/**
+ * Check if network is a testnet based on CAIP-2 format
+ */
+function isTestnet(network: string): boolean {
+  const testnetChainIds = [84532, 43113, 713715, 80002, 195]; // base-sepolia, avalanche-fuji, sei-testnet, polygon-amoy, xlayer-testnet
+  const { chainId } = parseCAIP2Network(network);
+  return testnetChainIds.includes(chainId);
+}
 
 /**
  * Main Paywall App Component
@@ -68,60 +157,29 @@ export function PaywallApp() {
 
   const x402 = window.x402;
   const amount = x402.amount || 0;
-  const testnet = x402.testnet ?? true;
   const requirements = Array.isArray(x402.paymentRequirements)
     ? x402.paymentRequirements[0]
     : x402.paymentRequirements;
   const network = requirements?.network;
-  const paymentChain =
-    network === 'base-sepolia'
-      ? baseSepolia
-      : network === 'avalanche-fuji'
-      ? avalancheFuji
-      : network === 'sei-testnet'
-      ? seiTestnet
-      : network === 'xlayer-testnet'
-      ? xLayerTestnet1952
-      : network === 'sei'
-      ? sei
-      : network === 'avalanche'
-      ? avalanche
-      : network === 'iotex'
-      ? iotex
-      : network === 'polygon'
-      ? polygon
-      : network === 'polygon-amoy'
-      ? polygonAmoy
-      : network === 'peaq'
-      ? peaq
-      : network === 'xlayer'
-      ? xLayer
-      : base;
 
-  const chainName =
-    network === 'base-sepolia'
-      ? 'Base Sepolia'
-      : network === 'avalanche-fuji'
-      ? 'Avalanche Fuji'
-      : network === 'sei-testnet'
-      ? 'Sei Testnet'
-      : network === 'xlayer-testnet'
-      ? 'xLayer Testnet'
-      : network === 'sei'
-      ? 'Sei'
-      : network === 'avalanche'
-      ? 'Avalanche'
-      : network === 'iotex'
-      ? 'Iotex'
-      : network === 'polygon'
-      ? 'Polygon'
-      : network === 'polygon-amoy'
-      ? 'Polygon Amoy'
-      : network === 'peaq'
-      ? 'Peaq'
-      : network === 'xlayer'
-      ? 'xLayer'
-      : 'Base';
+  // Parse CAIP-2 network to get chain
+  const paymentChain = useMemo(() => {
+    if (!network) return base;
+    return CAIP2_TO_CHAIN[network] || base;
+  }, [network]);
+
+  // Determine testnet status from CAIP-2 network
+  const testnet = useMemo(() => {
+    if (!network) return true;
+    return isTestnet(network);
+  }, [network]);
+
+  // Get chain name from CAIP-2 network
+  const chainName = useMemo(() => {
+    if (!network) return 'Base';
+    return getChainName(network);
+  }, [network]);
+
   const showOnramp = Boolean(!testnet && isConnected && x402.sessionTokenEndpoint);
 
   // Memoize publicClient to prevent recreation on every render
@@ -134,9 +192,17 @@ export function PaywallApp() {
     [paymentChain, x402.rpcUrl]
   );
 
-  const paymentRequirements = x402
-    ? selectPaymentRequirements([x402.paymentRequirements].flat(), network, 'exact')
-    : null;
+  // Select the first payment requirement that matches the network and scheme
+  const paymentRequirements = useMemo(() => {
+    if (!x402) return null;
+    const requirements = [x402.paymentRequirements].flat();
+    // Find the first requirement matching the network and exact scheme
+    return (
+      requirements.find(r => r.network === network && r.scheme === 'exact') ||
+      requirements[0] ||
+      null
+    );
+  }, [x402, network]);
 
   // Extract chain checking logic so it can be reused
   const checkChain = useCallback(async () => {
@@ -173,16 +239,17 @@ export function PaywallApp() {
   // Memoize balance checking to prevent excessive RPC calls
   const checkUSDCBalance = useCallback(async () => {
     console.log('checkUSDCBalance', address, publicClient);
-    if (!address) {
+    if (!address || !paymentRequirements?.asset) {
       return;
     }
-    console.log('getUSDCBalance', address, publicClient);
-    const balance = await getUSDCBalance(publicClient, address);
+    const usdcAddress = paymentRequirements.asset as Address;
+    console.log('getUSDCBalance', address, usdcAddress, publicClient);
+    const balance = await getUSDCBalance(publicClient, address, usdcAddress);
     console.log('balance', balance);
     const formattedBalance = formatUnits(balance, 6);
     console.log('formattedBalance', formattedBalance);
     setFormattedUsdcBalance(formattedBalance);
-  }, [address, publicClient]);
+  }, [address, publicClient, paymentRequirements?.asset]);
 
   const onrampBuyUrl = useMemo(() => {
     if (!sessionToken) {
@@ -212,7 +279,7 @@ export function PaywallApp() {
     }
     isSwitchingRef.current = true;
 
-    if (!switchableChains?.some((c) => c.id === paymentChain.id)) {
+    if (!switchableChains?.some(c => c.id === paymentChain.id)) {
       try {
         const ethereum = (window as unknown as { ethereum?: Eip1193Provider })?.ethereum;
         if (!ethereum?.request) {
@@ -240,7 +307,7 @@ export function PaywallApp() {
         });
         setStatus('');
         // Small delay to let wallet settle
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 100));
         // Re-check chain status after switch
         await checkChain();
         return;
@@ -260,7 +327,7 @@ export function PaywallApp() {
       setStatus('');
       await switchChainAsync({ chainId: paymentChain.id });
       // Small delay to let wallet settle
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 100));
       // Re-check chain status after switch
       await checkChain();
     } catch (error) {
@@ -288,7 +355,8 @@ export function PaywallApp() {
     const walletClientForSigning = createWalletClient({
       chain: paymentChain,
       transport: custom(
-        (window as unknown as { ethereum?: Eip1193Provider })?.ethereum as unknown as Eip1193Provider
+        (window as unknown as { ethereum?: Eip1193Provider })
+          ?.ethereum as unknown as Eip1193Provider
       ),
       account: address as `0x${string}`,
     }).extend(publicActions);
@@ -301,7 +369,8 @@ export function PaywallApp() {
 
     try {
       setStatus('Checking USDC balance...');
-      const balance = await getUSDCBalance(publicClient, address);
+      const usdcAddress = paymentRequirements.asset as Address;
+      const balance = await getUSDCBalance(publicClient, address, usdcAddress);
 
       if (balance === BigInt(0)) {
         throw new Error(`Insufficient balance. Make sure you have USDC on ${chainName}`);
@@ -309,19 +378,44 @@ export function PaywallApp() {
 
       setStatus('Creating payment signature...');
       const validPaymentRequirements = ensureValidAmount(paymentRequirements);
-      const initialPayment = await exact.evm.createPayment(
-        walletClientForSigning,
-        1,
-        validPaymentRequirements
-      );
 
-      const paymentHeader: string = exact.evm.encodePayment(initialPayment);
+      // Create signer for ExactEvmScheme
+      const signer = toClientEvmSigner({
+        address: address as Address,
+        signTypedData: walletClientForSigning.signTypedData.bind(walletClientForSigning),
+      });
+
+      const scheme = new ExactEvmScheme(signer);
+
+      // Cast requirements to expected format (CAIP-2 network with required extra)
+      const paymentReqs = {
+        ...validPaymentRequirements,
+        network: validPaymentRequirements.network as `${string}:${string}`,
+        extra: validPaymentRequirements.extra || {},
+      };
+
+      // Create payment payload
+      const partialPayload = await scheme.createPaymentPayload(2, paymentReqs);
+
+      // Construct full payment payload with accepted requirements
+      const fullPaymentPayload = {
+        ...partialPayload,
+        resource: {
+          url: x402.currentUrl,
+          description: validPaymentRequirements.extra?.description || '',
+          mimeType: validPaymentRequirements.extra?.mimeType || 'application/json',
+        },
+        accepted: paymentReqs,
+      };
+
+      // Encode the payment signature header as base64
+      const paymentHeader = safeBase64Encode(JSON.stringify(fullPaymentPayload));
 
       setStatus('Requesting content with payment...');
       const response = await fetch(x402.currentUrl, {
         headers: {
-          'X-PAYMENT': paymentHeader,
-          'Access-Control-Expose-Headers': 'X-PAYMENT-RESPONSE',
+          'PAYMENT-SIGNATURE': paymentHeader,
+          'Access-Control-Expose-Headers': 'PAYMENT-RESPONSE',
         },
       });
 
@@ -332,18 +426,27 @@ export function PaywallApp() {
         const errorData = await response.json().catch(() => ({}));
         if (errorData && typeof errorData.x402Version === 'number') {
           // Retry with server's x402Version
-          const retryPayment = await exact.evm.createPayment(
-            walletClientForSigning,
+          const retryPartialPayload = await scheme.createPaymentPayload(
             errorData.x402Version,
-            validPaymentRequirements
+            paymentReqs
           );
 
-          retryPayment.x402Version = errorData.x402Version;
-          const retryHeader = exact.evm.encodePayment(retryPayment);
+          // Construct full payment payload for retry
+          const retryFullPayload = {
+            ...retryPartialPayload,
+            resource: {
+              url: x402.currentUrl,
+              description: validPaymentRequirements.extra?.description || '',
+              mimeType: validPaymentRequirements.extra?.mimeType || 'application/json',
+            },
+            accepted: paymentReqs,
+          };
+
+          const retryHeader = safeBase64Encode(JSON.stringify(retryFullPayload));
           const retryResponse = await fetch(x402.currentUrl, {
             headers: {
-              'X-PAYMENT': retryHeader,
-              'Access-Control-Expose-Headers': 'X-PAYMENT-RESPONSE',
+              'PAYMENT-SIGNATURE': retryHeader,
+              'Access-Control-Expose-Headers': 'PAYMENT-RESPONSE',
             },
           });
           if (retryResponse.ok) {
@@ -386,13 +489,15 @@ export function PaywallApp() {
     );
   }
 
+  const description = paymentRequirements.extra?.description;
+
   return (
     <div className="container gap-8">
       <div className="header">
         <h1 className="title">Payment Required</h1>
         <p>
-          {paymentRequirements.description && `${paymentRequirements.description}.`} To access this
-          content, please pay ${amount} {chainName} USDC.
+          {description && `${description}.`} To access this content, please pay ${amount}{' '}
+          {chainName} USDC.
         </p>
         {testnet && (
           <p className="instructions">
@@ -426,10 +531,7 @@ export function PaywallApp() {
               <div className="payment-row">
                 <span className="payment-label">Available balance:</span>
                 <span className="payment-value">
-                  <button
-                    className="balance-button"
-                    onClick={() => setHideBalance((prev) => !prev)}
-                  >
+                  <button className="balance-button" onClick={() => setHideBalance(prev => !prev)}>
                     {formattedUsdcBalance && !hideBalance
                       ? `$${formattedUsdcBalance} USDC`
                       : '••••• USDC'}
@@ -449,12 +551,7 @@ export function PaywallApp() {
             {isCorrectChain ? (
               <div className="cta-container">
                 {showOnramp && (
-                  <FundButton
-                    fundingUrl={onrampBuyUrl}
-                    text="Get more USDC"
-                    hideIcon
-                    className="button button-positive"
-                  />
+                  <FundButton fundingUrl={onrampBuyUrl} className="button button-positive" />
                 )}
                 <button
                   className="button button-primary"
