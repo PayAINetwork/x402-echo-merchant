@@ -287,9 +287,33 @@ export function findMatchingPaymentRequirements(
 ): PaymentRequirements | undefined {
   const accepted = decodedPayment.accepted;
   if (accepted) {
-    return requirements.find(
+    const match = requirements.find(
       req => req.scheme === accepted.scheme && req.network === accepted.network
     );
+    if (!match) return undefined;
+
+    // SVM nuance: the facilitator rotates feePayers (round-robin) over time. A client may
+    // legitimately present a payment that was constructed using a previously-issued feePayer.
+    //
+    // If the client provides an `accepted.extra.feePayer`, prefer that feePayer for verification
+    // while keeping all other server-derived fields (amount/payTo/asset/etc.) from `match`.
+    // This preserves price enforcement on the merchant side while aligning the feePayer used
+    // by the facilitator with the transaction the client actually constructed.
+    const acceptedFeePayer =
+      typeof (accepted.extra as Record<string, unknown> | undefined)?.feePayer === 'string'
+        ? String((accepted.extra as Record<string, unknown>).feePayer)
+        : undefined;
+    if (acceptedFeePayer) {
+      return {
+        ...match,
+        extra: {
+          ...match.extra,
+          feePayer: acceptedFeePayer,
+        },
+      };
+    }
+
+    return match;
   }
   // Fallback: check for properties at the top level
   const payloadAny = decodedPayment as unknown as Record<string, unknown>;
