@@ -540,13 +540,23 @@ export function useFacilitator(config?: FacilitatorConfig): FacilitatorHooks {
     },
 
     supported: async () => {
-      // Request V2 format explicitly - returns version-grouped kinds object
-      const res = await fetch(`${baseUrl}/supported?format=v2`);
+      const res = await fetch(`${baseUrl}/supported`);
       const data = await res.json();
 
-      // V2 format returns kinds grouped by version: { '1': [...], '2': [...] }
-      // Extract V2 kinds which use CAIP-2 network format (e.g., 'eip155:84532', 'solana:5eykt4...')
-      const v2Kinds: PaymentKind[] = data.kinds?.['2'] ?? [];
+      // Support both response formats:
+      // 1. Current: flat array with x402Version on each kind
+      // 2. Future: grouped object { '1': [...], '2': [...] }
+      let v2Kinds: PaymentKind[];
+
+      if (Array.isArray(data.kinds)) {
+        // Flat array format - filter for V2 kinds (x402Version === 2)
+        v2Kinds = data.kinds.filter((kind: PaymentKind) => kind.x402Version === 2);
+      } else if (data.kinds && typeof data.kinds === 'object') {
+        // Grouped format - extract V2 kinds directly
+        v2Kinds = data.kinds['2'] ?? [];
+      } else {
+        v2Kinds = [];
+      }
 
       return {
         kinds: v2Kinds,
