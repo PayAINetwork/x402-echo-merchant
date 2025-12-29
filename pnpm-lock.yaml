@@ -14,12 +14,18 @@ importers:
       '@payai/x402':
         specifier: 2.0.0-payai.3
         version: 2.0.0-payai.3
+      '@payai/x402-evm':
+        specifier: 2.0.0-payai.3
+        version: 2.0.0-payai.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
       '@payai/x402-next':
         specifier: 2.0.0-payai.3
         version: 2.0.0-payai.3(next@16.1.0(@babel/core@7.28.5)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.97.1))
       '@payai/x402-solana-react':
         specifier: ^2.0.0-canary.1
         version: 2.0.0-canary.1(dfbdccd5cc93bde3b01bcef3300ca0bb)
+      '@payai/x402-svm':
+        specifier: 2.0.0-payai.3
+        version: 2.0.0-payai.3(@solana/sysvars@5.1.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))
       '@radix-ui/react-accordion':
         specifier: ^1.2.12
         version: 1.2.12(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -53,12 +59,6 @@ importers:
       '@solana/web3.js':
         specifier: ^1.98.4
         version: 1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
-      '@x402/evm':
-        specifier: ^2.0.0
-        version: 2.0.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
-      '@x402/svm':
-        specifier: ^2.0.0
-        version: 2.0.0(@solana/sysvars@5.1.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1362,6 +1362,9 @@ packages:
     resolution: {integrity: sha512-IHnV6A+zxU7XwmKFinmYjUcwlyK9+xkG3/s9KcQhI9BjQKycrJ1JRO+FbNYPwZiPKW3je/DR0k7w8/gLa5eaxQ==}
     deprecated: 'The package is now available as "qr": npm install qr'
 
+  '@payai/x402-evm@2.0.0-payai.3':
+    resolution: {integrity: sha512-EufXakDhB3I4BqFetmE3pumTYEfCLLfY9kO3I335kXz/qnBvu7aL3ruVyBaJkgjWeJx2G5tKH0cWVytzO46lng==}
+
   '@payai/x402-next@2.0.0-payai.3':
     resolution: {integrity: sha512-F4iZ4lfpG7mqLoW8O5ZbpSedNfx8rvxO7gVAhSJ7Lt76BDeCrfvbkZoA+LanIaXo3Eb2AhYjYELaeQi4Ms+oJw==}
     peerDependencies:
@@ -1386,6 +1389,9 @@ packages:
       '@solana/spl-token': '>=0.4.0'
       '@solana/web3.js': '>=1.90.0'
       zod: '>=3.20.0'
+
+  '@payai/x402-svm@2.0.0-payai.3':
+    resolution: {integrity: sha512-cNb6Wd+fYGohW7Vyy0JOMYvzn9JM3jWeByf+o41/19XH3orKnAXApEFiLZQFavzM7esjbapSINMbYCvL06HP6Q==}
 
   '@payai/x402@2.0.0-payai.3':
     resolution: {integrity: sha512-KjY5FYu1QEATMAjaJ3VimlcIsyQW9nhJYtWAzlfJBZ5tX1m5k++okHbwZSLFmPlw/LNsNnIDuHucRgI648OhKA==}
@@ -4040,12 +4046,6 @@ packages:
 
   '@x402/core@2.0.0':
     resolution: {integrity: sha512-tgC8Ujj8Bi9zU1318RAOcagffaHRMPupqj0tlmcOm4j/a/iWGoN58SIpqFV98qkZi7z6BpFAsScCyXnmaDvIyQ==}
-
-  '@x402/evm@2.0.0':
-    resolution: {integrity: sha512-BA8zC1/AWYq99tWRLNoqudJkeZJpkbPdHMEjrsEOjineVoijnz5N/0NO0klxT64oDG9kNbeczwLU/mTj7NneEw==}
-
-  '@x402/svm@2.0.0':
-    resolution: {integrity: sha512-VJdxUoiNZ18/wucXToEscVKNfN+x18jK9c6p0AscS7iJaNq3z3ST/guf8asRedEWX9Rus62SilTmq3UYdNcnvw==}
 
   '@xrplf/isomorphic@1.0.1':
     resolution: {integrity: sha512-0bIpgx8PDjYdrLFeC3csF305QQ1L7sxaWnL5y71mCvhenZzJgku9QsA+9QCXBC1eNYtxWO/xR91zrXJy2T/ixg==}
@@ -9479,6 +9479,15 @@ snapshots:
 
   '@paulmillr/qr@0.2.1': {}
 
+  '@payai/x402-evm@2.0.0-payai.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)':
+    dependencies:
+      viem: 2.43.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - bufferutil
+      - typescript
+      - utf-8-validate
+
   '@payai/x402-next@2.0.0-payai.3(next@16.1.0(@babel/core@7.28.5)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.97.1))':
     dependencies:
       next: 16.1.0(@babel/core@7.28.5)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.97.1)
@@ -9510,6 +9519,21 @@ snapshots:
       '@solana/web3.js': 1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
       '@x402/core': 2.0.0
       zod: 4.2.1
+
+  '@payai/x402-svm@2.0.0-payai.3(@solana/sysvars@5.1.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))':
+    dependencies:
+      '@scure/base': 1.2.6
+      '@solana-program/compute-budget': 0.8.0(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)))
+      '@solana-program/token': 0.5.1(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)))
+      '@solana-program/token-2022': 0.4.2(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)))(@solana/sysvars@5.1.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))
+      '@solana/kit': 2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))
+      '@solana/transaction-confirmation': 2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))
+      zod: 3.25.76
+    transitivePeerDependencies:
+      - '@solana/sysvars'
+      - fastestsmallesttextencoderdecoder
+      - typescript
+      - ws
 
   '@payai/x402@2.0.0-payai.3':
     dependencies:
@@ -14358,32 +14382,6 @@ snapshots:
   '@x402/core@2.0.0':
     dependencies:
       zod: 3.25.76
-
-  '@x402/evm@2.0.0(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)':
-    dependencies:
-      '@x402/core': 2.0.0
-      viem: 2.43.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
-      zod: 3.25.76
-    transitivePeerDependencies:
-      - bufferutil
-      - typescript
-      - utf-8-validate
-
-  '@x402/svm@2.0.0(@solana/sysvars@5.1.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))':
-    dependencies:
-      '@scure/base': 1.2.6
-      '@solana-program/compute-budget': 0.8.0(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)))
-      '@solana-program/token': 0.5.1(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)))
-      '@solana-program/token-2022': 0.4.2(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)))(@solana/sysvars@5.1.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))
-      '@solana/kit': 2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))
-      '@solana/transaction-confirmation': 2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))
-      '@x402/core': 2.0.0
-      zod: 3.25.76
-    transitivePeerDependencies:
-      - '@solana/sysvars'
-      - fastestsmallesttextencoderdecoder
-      - typescript
-      - ws
 
   '@xrplf/isomorphic@1.0.1(bufferutil@4.1.0)(utf-8-validate@5.0.10)':
     dependencies:
