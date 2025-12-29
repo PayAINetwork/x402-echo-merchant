@@ -118,7 +118,8 @@ export default function Home() {
             x402 protocol
           </a>{" "}
           for free.
-          <br />
+        </p>
+        <p className="text-lg sm:text-xl text-gray-600 dark:text-muted-foreground max-w-xl leading-relaxed">
           Your test payment will be instantly refunded on Mainnets and Testnets.
         </p>
 
@@ -139,7 +140,7 @@ export default function Home() {
           </div>
         </div>
 
-        <Card className="w-full bg-card border border-border shadow-none mb-4 mt-8">
+        <Card className="w-full bg-card border border-border shadow-none mb-4 mt-4">
           <CardContent className="py-4 px-4 sm:py-6 sm:px-6 flex flex-col gap-4">
             <div className="text-sm text-muted-foreground font-semibold mt-1 mb-1">
               Mainnets
