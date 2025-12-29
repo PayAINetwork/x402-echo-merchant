@@ -141,9 +141,6 @@ export default function Home() {
 
         <Card className="w-full bg-card border border-border shadow-none mb-4 mt-8">
           <CardContent className="py-4 px-4 sm:py-6 sm:px-6 flex flex-col gap-4">
-            <div className="text-base text-foreground font-medium mb-2">
-              Test your x402 client against:
-            </div>
             <div className="text-sm text-muted-foreground font-semibold mt-1 mb-1">
               Mainnets
             </div>
