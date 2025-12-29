@@ -119,7 +119,7 @@ export default function Home() {
           </a>{" "}
           for free.
           <br />
-          Your payment is instantly refunded.
+          Your test payment will be instantly refunded on Mainnets and Testnets.
         </p>
 
         {/* Inline Scroll Indicator */}
@@ -144,10 +144,10 @@ export default function Home() {
             <div className="text-base text-foreground font-medium mb-2">
               Test your x402 client against:
             </div>
-            <div className="text-sm text-muted-foreground font-semibold mt-4 mb-1">
-              Testnets
+            <div className="text-sm text-muted-foreground font-semibold mt-1 mb-1">
+              Mainnets
             </div>
-            {TESTNET_ENDPOINTS.map((ep) => (
+            {MAINNET_ENDPOINTS.map((ep) => (
               <div key={ep.label} className="mb-3">
                 <div className="text-sm text-foreground font-medium mb-2">
                   {ep.label}
@@ -170,10 +170,10 @@ export default function Home() {
                 </div>
               </div>
             ))}
-            <div className="text-sm text-muted-foreground font-semibold mt-1 mb-1">
-              Mainnets
+            <div className="text-sm text-muted-foreground font-semibold mt-4 mb-1">
+              Testnets
             </div>
-            {MAINNET_ENDPOINTS.map((ep) => (
+            {TESTNET_ENDPOINTS.map((ep) => (
               <div key={ep.label} className="mb-3">
                 <div className="text-sm text-foreground font-medium mb-2">
                   {ep.label}
