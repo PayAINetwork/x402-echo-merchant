@@ -12,20 +12,20 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@tanstack/query-core@5.90.12)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(bufferutil@4.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.3))(utf-8-validate@5.0.10)(viem@2.43.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.2.1))(wagmi@2.19.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.83.1(@babel/core@7.28.5)(@types/react@19.2.7)(bufferutil@4.1.0)(react@19.2.3)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.12)(@tanstack/react-query@5.90.12(react@19.2.3))(@types/react@19.2.7)(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(react-native@0.83.1(@babel/core@7.28.5)(@types/react@19.2.7)(bufferutil@4.1.0)(react@19.2.3)(utf-8-validate@5.0.10))(react@19.2.3)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.43.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.2.1))(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))(zod@4.2.1))(zod@4.2.1)
       '@payai/x402':
-        specifier: 2.0.0-payai.3
-        version: 2.0.0-payai.3
+        specifier: 2.0.0-payai.4
+        version: 2.0.0-payai.4
       '@payai/x402-evm':
-        specifier: 2.0.0-payai.3
-        version: 2.0.0-payai.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
+        specifier: 2.0.0-payai.4
+        version: 2.0.0-payai.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
       '@payai/x402-next':
-        specifier: 2.0.0-payai.3
-        version: 2.0.0-payai.3(next@16.1.0(@babel/core@7.28.5)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.97.1))
+        specifier: 2.0.0-payai.4
+        version: 2.0.0-payai.4(next@16.1.0(@babel/core@7.28.5)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.97.1))
       '@payai/x402-solana-react':
         specifier: ^2.0.0-canary.1
         version: 2.0.0-canary.1(dfbdccd5cc93bde3b01bcef3300ca0bb)
       '@payai/x402-svm':
-        specifier: 2.0.0-payai.3
-        version: 2.0.0-payai.3(@solana/sysvars@5.1.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))
+        specifier: 2.0.0-payai.4
+        version: 2.0.0-payai.4(@solana/sysvars@5.1.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))
       '@radix-ui/react-accordion':
         specifier: ^1.2.12
         version: 1.2.12(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -1362,11 +1362,11 @@ packages:
     resolution: {integrity: sha512-IHnV6A+zxU7XwmKFinmYjUcwlyK9+xkG3/s9KcQhI9BjQKycrJ1JRO+FbNYPwZiPKW3je/DR0k7w8/gLa5eaxQ==}
     deprecated: 'The package is now available as "qr": npm install qr'
 
-  '@payai/x402-evm@2.0.0-payai.3':
-    resolution: {integrity: sha512-EufXakDhB3I4BqFetmE3pumTYEfCLLfY9kO3I335kXz/qnBvu7aL3ruVyBaJkgjWeJx2G5tKH0cWVytzO46lng==}
+  '@payai/x402-evm@2.0.0-payai.4':
+    resolution: {integrity: sha512-i/6vh5eFnmt5zzgmIhToy7gS1L9SJQawnCpzAO5GWh8g4LBZ6VBiuOUktBaGTfXy41krdU+xAlGJqg0KMAsUZA==}
 
-  '@payai/x402-next@2.0.0-payai.3':
-    resolution: {integrity: sha512-F4iZ4lfpG7mqLoW8O5ZbpSedNfx8rvxO7gVAhSJ7Lt76BDeCrfvbkZoA+LanIaXo3Eb2AhYjYELaeQi4Ms+oJw==}
+  '@payai/x402-next@2.0.0-payai.4':
+    resolution: {integrity: sha512-MGsqtFHcxVqiYuH7v0OW9w0X0jghBHKhRA2AZ75PzzXB/V8iz6lDSIJKml6kUobvhUhNjEuqe+1dlN4at352TQ==}
     peerDependencies:
       next: ^16.0.10
 
@@ -1390,11 +1390,11 @@ packages:
       '@solana/web3.js': '>=1.90.0'
       zod: '>=3.20.0'
 
-  '@payai/x402-svm@2.0.0-payai.3':
-    resolution: {integrity: sha512-cNb6Wd+fYGohW7Vyy0JOMYvzn9JM3jWeByf+o41/19XH3orKnAXApEFiLZQFavzM7esjbapSINMbYCvL06HP6Q==}
+  '@payai/x402-svm@2.0.0-payai.4':
+    resolution: {integrity: sha512-QS0/kW7N2pQYTFjWyroFECkU/HW5xmD3KdEhOFGazmOqP3FKrwp6PVZUZzhL8a+Vski2SA4HDRnAxEJ6yQTlbQ==}
 
-  '@payai/x402@2.0.0-payai.3':
-    resolution: {integrity: sha512-KjY5FYu1QEATMAjaJ3VimlcIsyQW9nhJYtWAzlfJBZ5tX1m5k++okHbwZSLFmPlw/LNsNnIDuHucRgI648OhKA==}
+  '@payai/x402@2.0.0-payai.4':
+    resolution: {integrity: sha512-XYNLM7KNodQpI0qCeH+LToaeED1pyESCGAFin3LjQTW3yqaF61Q1Yld6ZAjQUfeRbo7xK/Ryy8HUlmH54Q0EJw==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -9479,7 +9479,7 @@ snapshots:
 
   '@paulmillr/qr@0.2.1': {}
 
-  '@payai/x402-evm@2.0.0-payai.3(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)':
+  '@payai/x402-evm@2.0.0-payai.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)':
     dependencies:
       viem: 2.43.2(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       zod: 3.25.76
@@ -9488,7 +9488,7 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@payai/x402-next@2.0.0-payai.3(next@16.1.0(@babel/core@7.28.5)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.97.1))':
+  '@payai/x402-next@2.0.0-payai.4(next@16.1.0(@babel/core@7.28.5)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.97.1))':
     dependencies:
       next: 16.1.0(@babel/core@7.28.5)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.97.1)
       zod: 3.25.76
@@ -9520,7 +9520,7 @@ snapshots:
       '@x402/core': 2.0.0
       zod: 4.2.1
 
-  '@payai/x402-svm@2.0.0-payai.3(@solana/sysvars@5.1.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))':
+  '@payai/x402-svm@2.0.0-payai.4(@solana/sysvars@5.1.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))':
     dependencies:
       '@scure/base': 1.2.6
       '@solana-program/compute-budget': 0.8.0(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)))
@@ -9535,7 +9535,7 @@ snapshots:
       - typescript
       - ws
 
-  '@payai/x402@2.0.0-payai.3':
+  '@payai/x402@2.0.0-payai.4':
     dependencies:
       zod: 3.25.76
 
