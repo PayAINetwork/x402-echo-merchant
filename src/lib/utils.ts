@@ -1,8 +1,38 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { CAIP2_TO_NETWORK } from "./x402-helpers";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+/**
+ * Convert a network identifier to a human-friendly display name
+ * @param network - Network identifier (can be friendly name or CAIP-2 format)
+ * @returns Human-friendly network name
+ */
+export function getHumanFriendlyNetworkName(network: string): string {
+  // If it's in CAIP-2 format (contains colon), convert to friendly name first
+  let friendlyName = network;
+  if (network.includes(':')) {
+    friendlyName = CAIP2_TO_NETWORK[network] || network;
+  }
+  
+  // Convert friendly name to human-readable format
+  // e.g., "base-sepolia" -> "Base Sepolia", "solana-devnet" -> "Solana Devnet"
+  return friendlyName
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+/**
+ * Check if a network identifier is in CAIP-2 format
+ * @param network - Network identifier
+ * @returns True if the network is in CAIP-2 format
+ */
+export function isCAIP2Format(network: string): boolean {
+  return network.includes(':');
 }
 
 export function getExplorerForNetwork(network: string) {
@@ -433,7 +463,10 @@ export function renderRizzlerHtml(
 
         <div class="info-grid">
           <div>
-            <div class="label" style="margin-bottom: 0.5rem;">Network: ${
+            <div class="label" style="margin-bottom: 0.5rem;">Network: ${getHumanFriendlyNetworkName(
+              paymentResponse.network
+            )}</div>
+            <div class="label" style="margin-bottom: 0.5rem;">Network Identifier: ${
               paymentResponse.network
             }</div>
             <div class="info-card">
