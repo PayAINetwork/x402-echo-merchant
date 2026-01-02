@@ -465,11 +465,10 @@ export function renderRizzlerHtml(
           <div>
             <div class="label" style="margin-bottom: 0.5rem;">Network: ${getHumanFriendlyNetworkName(
               paymentResponse.network
-            )}${
-    isCAIP2Format(paymentResponse.network)
-      ? `<br/><span style="font-size: 0.75rem; font-weight: 400; color: #9ca3af; text-transform: none; letter-spacing: normal;">${paymentResponse.network}</span>`
-      : ""
-  }</div>
+            )}</div>
+            <div class="label" style="margin-bottom: 0.5rem;">Network Identifier: ${
+              paymentResponse.network
+            }</div>
             <div class="info-card">
               <div class="tx">${
                 paymentTxLink
