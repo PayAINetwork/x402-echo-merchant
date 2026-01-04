@@ -64,6 +64,10 @@ export function getExplorerForNetwork(network: string) {
     return "https://www.oklink.com/x-layer/tx/";
   } else if (network === "xlayer-testnet") {
     return "https://www.oklink.com/x-layer-testnet/tx/";
+  } else if (network === "skale-base") {
+    return "https://skale-base-explorer.skalenodes.com/tx/";
+  } else if (network === "skale-base-sepolia") {
+    return "https://base-sepolia-testnet-explorer.skalenodes.com/tx/";
   }
 }
 
@@ -105,6 +109,10 @@ export function renderRizzlerHtml(
     explorerBase = "https://www.oklink.com/x-layer/tx/";
   } else if (paymentResponse.network === "xlayer-testnet") {
     explorerBase = "https://www.oklink.com/x-layer-testnet/tx/";
+  } else if (paymentResponse.network === "skale-base") {
+    explorerBase = "https://skale-base-explorer.skalenodes.com/tx/";
+  } else if (paymentResponse.network === "skale-base-sepolia") {
+    explorerBase = "https://base-sepolia-testnet-explorer.skalenodes.com/tx/";
   }
 
   const paymentTxLink = paymentTx

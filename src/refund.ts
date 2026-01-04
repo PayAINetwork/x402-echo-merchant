@@ -42,7 +42,7 @@ function getFriendlyNetworkName(network: string): string {
   // Otherwise, convert from CAIP-2 to friendly name
   return CAIP2_TO_NETWORK[network] || network;
 }
-import { xLayerTestnet1952 } from './lib/chains';
+import { xLayerTestnet1952, skaleBase, skaleBaseSepolia } from './lib/chains';
 import {
   appendTransactionMessageInstructions,
   createSolanaRpc,
@@ -144,6 +144,18 @@ const getSigner = async (network: Network) => {
     return createWalletClient({
       chain: peaq,
       transport: http(process.env.PEAQ_RPC_URL as `https://${string}`),
+      account,
+    }).extend(publicActions);
+  } else if (network === 'skale-base') {
+    return createWalletClient({
+      chain: skaleBase,
+      transport: http(process.env.SKALE_BASE_RPC_URL as `https://${string}`),
+      account,
+    }).extend(publicActions);
+  } else if (network === 'skale-base-sepolia') {
+    return createWalletClient({
+      chain: skaleBaseSepolia,
+      transport: http(process.env.SKALE_BASE_SEPOLIA_RPC_URL as `https://${string}`),
       account,
     }).extend(publicActions);
   } else if (network === 'solana-devnet') {

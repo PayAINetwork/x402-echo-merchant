@@ -70,6 +70,10 @@ function getRpcUrlForNetwork(network: Network): string | undefined {
       return process.env.PEAQ_RPC_URL;
     case 'iotex':
       return process.env.IOTEX_RPC_URL;
+    case 'skale-base':
+      return process.env.SKALE_BASE_RPC_URL;
+    case 'skale-base-sepolia':
+      return process.env.SKALE_BASE_SEPOLIA_RPC_URL;
     // SVM networks don't need RPC URLs for paywall (handled server-side)
     case 'solana':
     case 'solana-devnet':
@@ -180,6 +184,22 @@ const xlayerTestnetConfig = {
   network: 'xlayer-testnet' as Network,
   config: {
     description: 'Access to protected content on xlayer testnet',
+  },
+} as RouteConfig;
+
+const skaleBaseConfig = {
+  price: '$0.01' as Price,
+  network: 'skale-base' as Network,
+  config: {
+    description: 'Access to protected content on SKALE Base mainnet',
+  },
+} as RouteConfig;
+
+const skaleBaseSepoliaConfig = {
+  price: '$0.01' as Price,
+  network: 'skale-base-sepolia' as Network,
+  config: {
+    description: 'Access to protected content on SKALE Base Sepolia testnet',
   },
 } as RouteConfig;
 
@@ -483,6 +503,34 @@ export async function middleware(request: NextRequest) {
     return withCors(request, response);
   }
 
+  // skale-base mainnet
+  if (pathname.startsWith('/api/skale-base/')) {
+    const requestedAmount = await getRequestedAmount(request, skaleBaseConfig.price);
+    const dynamicConfig = { ...skaleBaseConfig, price: requestedAmount };
+    const response = await paymentMiddleware(
+      payToEVM,
+      { '/api/skale-base/paid-content': dynamicConfig },
+      {
+        url: facilitatorUrl,
+      }
+    )(request);
+    return withCors(request, response);
+  }
+
+  // skale-base-sepolia testnet
+  if (pathname.startsWith('/api/skale-base-sepolia/')) {
+    const requestedAmount = await getRequestedAmount(request, skaleBaseSepoliaConfig.price);
+    const dynamicConfig = { ...skaleBaseSepoliaConfig, price: requestedAmount };
+    const response = await paymentMiddleware(
+      payToEVM,
+      { '/api/skale-base-sepolia/paid-content': dynamicConfig },
+      {
+        url: facilitatorUrl,
+      }
+    )(request);
+    return withCors(request, response);
+  }
+
   // if not matched, continue without payment enforcement
   return withCors(request, NextResponse.next());
 }
@@ -685,7 +733,8 @@ export function paymentMiddleware(
                     network === 'avalanche-fuji' ||
                     network === 'sei-testnet' ||
                     network === 'polygon-amoy' ||
-                    network === ('xlayer-testnet' as unknown as Network),
+                    network === ('xlayer-testnet' as unknown as Network) ||
+                    network === ('skale-base-sepolia' as unknown as Network),
                   rpcUrl: getRpcUrlForNetwork(network),
                 }));
           return new NextResponse(html, {

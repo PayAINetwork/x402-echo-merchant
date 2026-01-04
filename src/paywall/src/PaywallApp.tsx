@@ -37,7 +37,7 @@ import { useAccount, useChainId, useSwitchChain, useWalletClient } from 'wagmi';
 
 import { ExactEvmScheme, toClientEvmSigner } from '@payai/x402-evm';
 import { safeBase64Encode } from '@payai/x402/utils';
-import { xLayerTestnet1952 } from '../../lib/chains';
+import { xLayerTestnet1952, skaleBase, skaleBaseSepolia } from '../../lib/chains';
 
 // ERC20 ABI for balanceOf function
 const ERC20_BALANCE_OF_ABI = [
@@ -101,6 +101,8 @@ const CAIP2_TO_CHAIN: Record<string, Chain> = {
   'eip155:3338': peaq,
   'eip155:196': xLayer,
   'eip155:1952': xLayerTestnet1952,
+  'eip155:1187947933': skaleBase,
+  'eip155:324705682': skaleBaseSepolia,
 };
 
 /**
@@ -130,7 +132,7 @@ function getChainName(network: string): string {
  * Check if network is a testnet based on CAIP-2 format
  */
 function isTestnet(network: string): boolean {
-  const testnetChainIds = [84532, 43113, 713715, 80002, 195]; // base-sepolia, avalanche-fuji, sei-testnet, polygon-amoy, xlayer-testnet
+  const testnetChainIds = [84532, 43113, 713715, 80002, 195, 324705682]; // base-sepolia, avalanche-fuji, sei-testnet, polygon-amoy, xlayer-testnet, skale-base-sepolia
   const { chainId } = parseCAIP2Network(network);
   return testnetChainIds.includes(chainId);
 }

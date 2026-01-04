@@ -86,6 +86,8 @@ export const NETWORK_TO_CAIP2: Record<string, string> = {
   'xlayer-testnet': 'eip155:1952',
   peaq: 'eip155:3338',
   iotex: 'eip155:4689',
+  'skale-base': 'eip155:1187947933',
+  'skale-base-sepolia': 'eip155:324705682',
   // SVM networks
   solana: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
   'solana-devnet': 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1',
@@ -114,6 +116,8 @@ export const SupportedEVMNetworks = [
   'xlayer-testnet',
   'peaq',
   'iotex',
+  'skale-base',
+  'skale-base-sepolia',
 ] as const;
 
 /**
@@ -377,6 +381,18 @@ const USDC_ADDRESSES: Record<
     address: '0xcb8bf24c6ce16ad21d707c9505421a17f2bec79d',
     decimals: 6,
     name: 'USDC',
+    version: '2',
+  },
+  'skale-base': {
+    address: '0x85889c8c714505E0c94b30fcfcF64fE3Ac8FCb20',
+    decimals: 6,
+    name: 'Bridged USDC (SKALE Bridge)',
+    version: '2',
+  },
+  'skale-base-sepolia': {
+    address: '0x2e08028E3C4c2356572E096d8EF835cD5C6030bD',
+    decimals: 6,
+    name: 'Bridged USDC (SKALE Bridge)',
     version: '2',
   },
   solana: {
