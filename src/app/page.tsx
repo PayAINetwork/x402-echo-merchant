@@ -44,6 +44,10 @@ const MAINNET_ENDPOINTS = [
     label: "Sei Mainnet",
     url: `${API_URL}/api/sei/paid-content`,
   },
+  {
+    label: "SKALE Base",
+    url: `${API_URL}/api/skale-base/paid-content`,
+  },
 ];
 
 const TESTNET_ENDPOINTS = [
@@ -70,6 +74,10 @@ const TESTNET_ENDPOINTS = [
   {
     label: "Sei Testnet",
     url: `${API_URL}/api/sei-testnet/paid-content`,
+  },
+  {
+    label: "SKALE Base Sepolia",
+    url: `${API_URL}/api/skale-base-sepolia/paid-content`,
   },
 ];
 

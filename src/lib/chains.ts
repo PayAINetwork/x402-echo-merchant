@@ -31,4 +31,57 @@ export const xLayerTestnet1952: Chain = {
   testnet: true,
 };
 
+/**
+ * SKALE Base Mainnet chain definition.
+ * Chain ID: 1187947933
+ * Documentation: https://docs.skale.space/get-started/quick-start/skale-on-base#skale-base-mainnet
+ */
+export const skaleBase: Chain = {
+  id: 1187947933,
+  name: 'SKALE Base',
+  nativeCurrency: {
+    name: 'Credits',
+    symbol: 'CREDIT',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://skale-base.skalenodes.com/v1/base'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Blockscout',
+      url: 'https://skale-base-explorer.skalenodes.com',
+    },
+  },
+};
+
+/**
+ * SKALE Base Sepolia Testnet chain definition.
+ * Chain ID: 324705682
+ * Documentation: https://docs.skale.space/get-started/quick-start/skale-on-base#skale-base-testnet
+ */
+export const skaleBaseSepolia: Chain = {
+  id: 324705682,
+  name: 'SKALE Base Sepolia',
+  nativeCurrency: {
+    name: 'Credits',
+    symbol: 'CREDITS',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://base-sepolia-testnet.skalenodes.com/v1/jubilant-horrible-ancha'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Blockscout',
+      url: 'https://base-sepolia-testnet-explorer.skalenodes.com',
+    },
+  },
+  testnet: true,
+};
+
 
