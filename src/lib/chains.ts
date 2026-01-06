@@ -66,8 +66,8 @@ export const skaleBaseSepolia: Chain = {
   id: 324705682,
   name: 'SKALE Base Sepolia',
   nativeCurrency: {
-    name: 'Credits',
-    symbol: 'CREDITS',
+    name: 'CREDIT',
+    symbol: 'CREDIT',
     decimals: 18,
   },
   rpcUrls: {
