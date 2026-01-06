@@ -40,7 +40,7 @@ export const skaleBase: Chain = {
   id: 1187947933,
   name: 'SKALE Base',
   nativeCurrency: {
-    name: 'Credits',
+    name: 'CREDIT',
     symbol: 'CREDIT',
     decimals: 18,
   },
