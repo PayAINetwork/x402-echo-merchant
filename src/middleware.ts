@@ -903,32 +903,28 @@ export function paymentMiddleware(
           return handlerResponse;
         }
       } else {
-        // Settlement was attempted but did not succeed. Surface this as a 402 so
-        // the client can handle it explicitly instead of treating it as a successful
-        // content response (which would currently be downloaded as a blob).
+        // Settlement failed - return 500 (not 402, which means "payment required")
+        // 402 should only be used when content hasn't been paid for yet
         return new NextResponse(
           JSON.stringify({
-            x402Version,
             error: 'Settlement failed',
             // expose the underlying errorReason from the facilitator when available
             errorReason: settlement.errorReason,
-            accepts: paymentRequirements,
           }),
-          { status: 402, headers: { 'Content-Type': 'application/json' } }
+          { status: 500, headers: { 'Content-Type': 'application/json' } }
         );
       }
     } catch (error) {
       console.error('error', error);
 
+      // Settlement error - return 500 (not 402)
       return new NextResponse(
         JSON.stringify({
-          x402Version,
           error:
             errorMessages?.settlementFailed ||
-            (error instanceof Error ? error : 'Settlement failed'),
-          accepts: paymentRequirements,
+            (error instanceof Error ? error.message : 'Settlement failed'),
         }),
-        { status: 402, headers: { 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
