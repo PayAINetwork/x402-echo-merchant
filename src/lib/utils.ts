@@ -1,6 +1,6 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { CAIP2_TO_NETWORK } from "./x402-helpers";
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+import { CAIP2_TO_NETWORK } from './x402-helpers';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -17,7 +17,7 @@ export function getHumanFriendlyNetworkName(network: string): string {
   if (network.includes(':')) {
     friendlyName = CAIP2_TO_NETWORK[network] || network;
   }
-  
+
   // Convert friendly name to human-readable format
   // e.g., "base-sepolia" -> "Base Sepolia", "solana-devnet" -> "Solana Devnet"
   return friendlyName
@@ -36,38 +36,38 @@ export function isCAIP2Format(network: string): boolean {
 }
 
 export function getExplorerForNetwork(network: string) {
-  if (network === "base-sepolia") {
-    return "https://sepolia.basescan.org/tx/";
-  } else if (network === "base") {
-    return "https://basescan.org/tx/";
-  } else if (network === "solana-devnet") {
-    return "https://solscan.io/tx/";
-  } else if (network === "solana") {
-    return "https://solscan.io/tx/";
-  } else if (network === "avalanche") {
-    return "https://snowtrace.io/tx/";
-  } else if (network === "avalanche-fuji") {
-    return "https://testnet.snowtrace.io/tx/";
-  } else if (network === "sei") {
-    return "https://seistream.app/transactions/";
-  } else if (network === "sei-testnet") {
-    return "https://testnet.seistream.app/transactions/";
-  } else if (network === "iotex") {
-    return "https://iotexscan.io/tx/";
-  } else if (network === "polygon") {
-    return "https://polygonscan.com/tx/";
-  } else if (network === "polygon-amoy") {
-    return "https://amoy.polygonscan.com/tx/";
-  } else if (network === "peaq") {
-    return "https://peaq.subscan.io/tx/";
-  } else if (network === "xlayer") {
-    return "https://www.oklink.com/x-layer/tx/";
-  } else if (network === "xlayer-testnet") {
-    return "https://www.oklink.com/x-layer-testnet/tx/";
-  } else if (network === "skale-base") {
-    return "https://skale-base-explorer.skalenodes.com/tx/";
-  } else if (network === "skale-base-sepolia") {
-    return "https://base-sepolia-testnet-explorer.skalenodes.com/tx/";
+  if (network === 'base-sepolia') {
+    return 'https://sepolia.basescan.org/tx/';
+  } else if (network === 'base') {
+    return 'https://basescan.org/tx/';
+  } else if (network === 'solana-devnet') {
+    return 'https://solscan.io/tx/';
+  } else if (network === 'solana') {
+    return 'https://solscan.io/tx/';
+  } else if (network === 'avalanche') {
+    return 'https://snowtrace.io/tx/';
+  } else if (network === 'avalanche-fuji') {
+    return 'https://testnet.snowtrace.io/tx/';
+  } else if (network === 'sei') {
+    return 'https://seistream.app/transactions/';
+  } else if (network === 'sei-testnet') {
+    return 'https://testnet.seistream.app/transactions/';
+  } else if (network === 'iotex') {
+    return 'https://iotexscan.io/tx/';
+  } else if (network === 'polygon') {
+    return 'https://polygonscan.com/tx/';
+  } else if (network === 'polygon-amoy') {
+    return 'https://amoy.polygonscan.com/tx/';
+  } else if (network === 'peaq') {
+    return 'https://peaq.subscan.io/tx/';
+  } else if (network === 'xlayer') {
+    return 'https://www.oklink.com/x-layer/tx/';
+  } else if (network === 'xlayer-testnet') {
+    return 'https://www.oklink.com/x-layer-testnet/tx/';
+  } else if (network === 'skale-base') {
+    return 'https://skale-base-explorer.skalenodes.com/tx/';
+  } else if (network === 'skale-base-sepolia') {
+    return 'https://base-sepolia-testnet-explorer.skalenodes.com/tx/';
   }
 }
 
@@ -75,51 +75,56 @@ export function renderRizzlerHtml(
   paymentResponse: { transaction: string; network: string; payer: string },
   refundTxHash?: string
 ) {
-  const paymentTx = paymentResponse.transaction || "N/A";
+  const paymentTx = paymentResponse.transaction || 'N/A';
   const refundFailed = !refundTxHash;
 
-  // Determine explorer base URL
-  let explorerBase = "";
-  const isSolanaDevnet = paymentResponse.network === "solana-devnet";
-  if (paymentResponse.network === "base-sepolia") {
-    explorerBase = "https://sepolia.basescan.org/tx/";
-  } else if (paymentResponse.network === "base") {
-    explorerBase = "https://basescan.org/tx/";
-  } else if (paymentResponse.network === "solana-devnet") {
-    explorerBase = "https://solscan.io/tx/";
-  } else if (paymentResponse.network === "solana") {
-    explorerBase = "https://solscan.io/tx/";
-  } else if (paymentResponse.network === "avalanche") {
-    explorerBase = "https://snowtrace.io/tx/";
-  } else if (paymentResponse.network === "avalanche-fuji") {
-    explorerBase = "https://testnet.snowtrace.io/tx/";
-  } else if (paymentResponse.network === "sei") {
-    explorerBase = "https://seistream.app/transactions/";
-  } else if (paymentResponse.network === "sei-testnet") {
-    explorerBase = "https://testnet.seistream.app/transactions/";
-  } else if (paymentResponse.network === "iotex") {
-    explorerBase = "https://iotexscan.io/tx/";
-  } else if (paymentResponse.network === "polygon") {
-    explorerBase = "https://polygonscan.com/tx/";
-  } else if (paymentResponse.network === "polygon-amoy") {
-    explorerBase = "https://amoy.polygonscan.com/tx/";
-  } else if (paymentResponse.network === "peaq") {
-    explorerBase = "https://peaq.subscan.io/tx/";
-  } else if (paymentResponse.network === "xlayer") {
-    explorerBase = "https://www.oklink.com/x-layer/tx/";
-  } else if (paymentResponse.network === "xlayer-testnet") {
-    explorerBase = "https://www.oklink.com/x-layer-testnet/tx/";
-  } else if (paymentResponse.network === "skale-base") {
-    explorerBase = "https://skale-base-explorer.skalenodes.com/tx/";
-  } else if (paymentResponse.network === "skale-base-sepolia") {
-    explorerBase = "https://base-sepolia-testnet-explorer.skalenodes.com/tx/";
+  // Normalize network to friendly name (handles both CAIP-2 format like "eip155:8453" and friendly names like "base")
+  const network = paymentResponse.network.includes(':')
+    ? CAIP2_TO_NETWORK[paymentResponse.network] || paymentResponse.network
+    : paymentResponse.network;
+
+  // Determine explorer base URL using normalized network name
+  let explorerBase = '';
+  const isSolanaDevnet = network === 'solana-devnet';
+  if (network === 'base-sepolia') {
+    explorerBase = 'https://sepolia.basescan.org/tx/';
+  } else if (network === 'base') {
+    explorerBase = 'https://basescan.org/tx/';
+  } else if (network === 'solana-devnet') {
+    explorerBase = 'https://solscan.io/tx/';
+  } else if (network === 'solana') {
+    explorerBase = 'https://solscan.io/tx/';
+  } else if (network === 'avalanche') {
+    explorerBase = 'https://snowtrace.io/tx/';
+  } else if (network === 'avalanche-fuji') {
+    explorerBase = 'https://testnet.snowtrace.io/tx/';
+  } else if (network === 'sei') {
+    explorerBase = 'https://seistream.app/transactions/';
+  } else if (network === 'sei-testnet') {
+    explorerBase = 'https://testnet.seistream.app/transactions/';
+  } else if (network === 'iotex') {
+    explorerBase = 'https://iotexscan.io/tx/';
+  } else if (network === 'polygon') {
+    explorerBase = 'https://polygonscan.com/tx/';
+  } else if (network === 'polygon-amoy') {
+    explorerBase = 'https://amoy.polygonscan.com/tx/';
+  } else if (network === 'peaq') {
+    explorerBase = 'https://peaq.subscan.io/tx/';
+  } else if (network === 'xlayer') {
+    explorerBase = 'https://www.oklink.com/x-layer/tx/';
+  } else if (network === 'xlayer-testnet') {
+    explorerBase = 'https://www.oklink.com/x-layer-testnet/tx/';
+  } else if (network === 'skale-base') {
+    explorerBase = 'https://skale-base-explorer.skalenodes.com/tx/';
+  } else if (network === 'skale-base-sepolia') {
+    explorerBase = 'https://base-sepolia-testnet-explorer.skalenodes.com/tx/';
   }
 
   const paymentTxLink = paymentTx
-    ? `${explorerBase}${paymentTx}${isSolanaDevnet ? "?cluster=devnet" : ""}`
+    ? `${explorerBase}${paymentTx}${isSolanaDevnet ? '?cluster=devnet' : ''}`
     : null;
   const refundTxLink = refundTxHash
-    ? `${explorerBase}${refundTxHash}${isSolanaDevnet ? "?cluster=devnet" : ""}`
+    ? `${explorerBase}${refundTxHash}${isSolanaDevnet ? '?cluster=devnet' : ''}`
     : null;
 
   const paymentResponseJson = JSON.stringify(paymentResponse, null, 2);
@@ -128,7 +133,7 @@ export function renderRizzlerHtml(
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Payment Successful - x402 Echo</title>
   <link rel="icon" href="/favicon.ico" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -141,10 +146,43 @@ export function renderRizzlerHtml(
       color: #1f2937;
       min-height: 100vh;
       padding: 2rem 1rem;
+      padding-top: calc(env(safe-area-inset-top, 0px) + 2rem);
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+      padding-bottom: max(2rem, env(safe-area-inset-bottom));
     }
-    .container {
+    .page-wrapper {
       max-width: 1400px;
       margin: 0 auto;
+    }
+    .home-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.875rem;
+      background: #fff;
+      color: #111827;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+      margin-bottom: 1rem;
+    }
+    .home-btn:hover {
+      background: #f9fafb;
+      border-color: #111827;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .home-btn:active {
+      transform: scale(0.98);
+    }
+    .home-btn-icon {
+      font-size: 1rem;
+    }
+    .container {
       background: #fff;
       border-radius: 16px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -162,6 +200,7 @@ export function renderRizzlerHtml(
       gap: 2rem;
       padding: 3rem 2.5rem;
       border-right: 1px solid #e5e7eb;
+      overflow: hidden;
     }
     .right-column {
       display: flex;
@@ -413,7 +452,18 @@ export function renderRizzlerHtml(
       text-decoration: underline;
     }
     @media (max-width: 640px) {
-      body { padding: 1rem 0.5rem; }
+      body {
+        padding: 1rem 0.5rem;
+        padding-top: calc(env(safe-area-inset-top, 0px) + 1rem);
+        padding-left: max(0.5rem, env(safe-area-inset-left));
+        padding-right: max(0.5rem, env(safe-area-inset-right));
+        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+      }
+      .home-btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+        margin-bottom: 0.75rem;
+      }
       .main-content {
         grid-template-columns: 1fr;
         gap: 1.5rem;
@@ -453,7 +503,12 @@ export function renderRizzlerHtml(
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="page-wrapper">
+    <a href="/" class="home-btn" aria-label="Back to Home">
+      <span class="home-btn-icon">←</span>
+      <span>Home</span>
+    </a>
+    <div class="container">
     <div class="main-content">
       <div class="left-column">
         <div class="success-header">
@@ -486,12 +541,10 @@ export function renderRizzlerHtml(
             </div>
           </div>
           <div class="info-card">
-            <div class="label">Refund ${
-              refundFailed ? "Status" : "Transaction"
-            }</div>
-            <div class="tx ${refundFailed ? "refund-failed" : "refund"}">${
+            <div class="label">Refund ${refundFailed ? 'Status' : 'Transaction'}</div>
+            <div class="tx ${refundFailed ? 'refund-failed' : 'refund'}">${
     refundFailed
-      ? "Refund failed - Please contact support"
+      ? 'Refund failed - Please contact support'
       : `<a href="${refundTxLink}" class="tx-link" target="_blank" rel="noopener noreferrer">${refundTxHash}</a>`
   }
             </div>
@@ -553,6 +606,7 @@ export function renderRizzlerHtml(
     <div class="footer">
       Made with <span class="footer-heart">♥</span> by <a href="https://payai.network" target="_blank" rel="noopener noreferrer">PayAI</a>
     </div>
+  </div>
   </div>
 
   <script>

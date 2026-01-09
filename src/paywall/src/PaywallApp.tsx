@@ -424,8 +424,10 @@ export function PaywallApp() {
       if (response.ok) {
         await handleSuccessfulResponse(response);
       } else if (response.status === 402) {
-        // Try to parse error data, fallback to empty object if parsing fails
+        // 402 = Payment Required (content not yet paid for)
+        // This may indicate a version mismatch - try to parse and retry with correct version
         const errorData = await response.json().catch(() => ({}));
+
         if (errorData && typeof errorData.x402Version === 'number') {
           // Retry with server's x402Version
           const retryPartialPayload = await scheme.createPaymentPayload(
@@ -458,8 +460,13 @@ export function PaywallApp() {
             throw new Error(`Payment retry failed: ${retryResponse.statusText}`);
           }
         } else {
-          throw new Error(`Payment failed: ${response.statusText}`);
+          throw new Error(`Payment required: ${response.statusText}`);
         }
+      } else if (response.status === 500) {
+        // 500 = Settlement failed (payment was attempted but failed on server)
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.errorReason || errorData.error || 'Settlement failed';
+        throw new Error(`Settlement failed: ${errorMessage}`);
       } else {
         throw new Error(`Request failed: ${response.status} ${response.statusText}`);
       }
