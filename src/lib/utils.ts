@@ -78,40 +78,45 @@ export function renderRizzlerHtml(
   const paymentTx = paymentResponse.transaction || 'N/A';
   const refundFailed = !refundTxHash;
 
-  // Determine explorer base URL
+  // Normalize network to friendly name (handles both CAIP-2 format like "eip155:8453" and friendly names like "base")
+  const network = paymentResponse.network.includes(':')
+    ? CAIP2_TO_NETWORK[paymentResponse.network] || paymentResponse.network
+    : paymentResponse.network;
+
+  // Determine explorer base URL using normalized network name
   let explorerBase = '';
-  const isSolanaDevnet = paymentResponse.network === 'solana-devnet';
-  if (paymentResponse.network === 'base-sepolia') {
+  const isSolanaDevnet = network === 'solana-devnet';
+  if (network === 'base-sepolia') {
     explorerBase = 'https://sepolia.basescan.org/tx/';
-  } else if (paymentResponse.network === 'base') {
+  } else if (network === 'base') {
     explorerBase = 'https://basescan.org/tx/';
-  } else if (paymentResponse.network === 'solana-devnet') {
+  } else if (network === 'solana-devnet') {
     explorerBase = 'https://solscan.io/tx/';
-  } else if (paymentResponse.network === 'solana') {
+  } else if (network === 'solana') {
     explorerBase = 'https://solscan.io/tx/';
-  } else if (paymentResponse.network === 'avalanche') {
+  } else if (network === 'avalanche') {
     explorerBase = 'https://snowtrace.io/tx/';
-  } else if (paymentResponse.network === 'avalanche-fuji') {
+  } else if (network === 'avalanche-fuji') {
     explorerBase = 'https://testnet.snowtrace.io/tx/';
-  } else if (paymentResponse.network === 'sei') {
+  } else if (network === 'sei') {
     explorerBase = 'https://seistream.app/transactions/';
-  } else if (paymentResponse.network === 'sei-testnet') {
+  } else if (network === 'sei-testnet') {
     explorerBase = 'https://testnet.seistream.app/transactions/';
-  } else if (paymentResponse.network === 'iotex') {
+  } else if (network === 'iotex') {
     explorerBase = 'https://iotexscan.io/tx/';
-  } else if (paymentResponse.network === 'polygon') {
+  } else if (network === 'polygon') {
     explorerBase = 'https://polygonscan.com/tx/';
-  } else if (paymentResponse.network === 'polygon-amoy') {
+  } else if (network === 'polygon-amoy') {
     explorerBase = 'https://amoy.polygonscan.com/tx/';
-  } else if (paymentResponse.network === 'peaq') {
+  } else if (network === 'peaq') {
     explorerBase = 'https://peaq.subscan.io/tx/';
-  } else if (paymentResponse.network === 'xlayer') {
+  } else if (network === 'xlayer') {
     explorerBase = 'https://www.oklink.com/x-layer/tx/';
-  } else if (paymentResponse.network === 'xlayer-testnet') {
+  } else if (network === 'xlayer-testnet') {
     explorerBase = 'https://www.oklink.com/x-layer-testnet/tx/';
-  } else if (paymentResponse.network === 'skale-base') {
+  } else if (network === 'skale-base') {
     explorerBase = 'https://skale-base-explorer.skalenodes.com/tx/';
-  } else if (paymentResponse.network === 'skale-base-sepolia') {
+  } else if (network === 'skale-base-sepolia') {
     explorerBase = 'https://base-sepolia-testnet-explorer.skalenodes.com/tx/';
   }
 
