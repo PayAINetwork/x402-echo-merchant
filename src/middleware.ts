@@ -747,14 +747,28 @@ export function paymentMiddleware(
         }
       }
 
-      return new NextResponse(
+      // Create the payment required response
+      const paymentRequiredBody = {
+        x402Version,
+        error: 'PAYMENT-SIGNATURE header is required',
+        accepts: paymentRequirements,
+      };
+
+      // Encode for PAYMENT-REQUIRED header (v2 protocol signal)
+      const paymentRequiredHeader = safeBase64Encode(
         JSON.stringify({
           x402Version,
-          error: 'PAYMENT-SIGNATURE header is required',
           accepts: paymentRequirements,
-        }),
-        { status: 402, headers: { 'Content-Type': 'application/json' } }
+        })
       );
+
+      return new NextResponse(JSON.stringify(paymentRequiredBody), {
+        status: 402,
+        headers: {
+          'Content-Type': 'application/json',
+          'PAYMENT-REQUIRED': paymentRequiredHeader,
+        },
+      });
     }
 
     // Verify payment
