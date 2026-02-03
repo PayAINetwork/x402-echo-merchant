@@ -21,8 +21,8 @@ importers:
         specifier: 2.0.0-payai.6
         version: 2.0.0-payai.6(next@16.1.1(@babel/core@7.28.5)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.97.1))
       '@payai/x402-solana-react':
-        specifier: 2.0.0
-        version: 2.0.0(400db2c45b4ec7ebac1e247c0510673a)
+        specifier: ^2.0.1
+        version: 2.0.1(400db2c45b4ec7ebac1e247c0510673a)
       '@payai/x402-svm':
         specifier: 2.0.0-payai.6
         version: 2.0.0-payai.6(@solana/sysvars@5.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.18.3(bufferutil@4.1.0)(utf-8-validate@5.0.10))
@@ -1370,8 +1370,8 @@ packages:
     peerDependencies:
       next: ^16.0.10
 
-  '@payai/x402-solana-react@2.0.0':
-    resolution: {integrity: sha512-XF91K0A6Rld/ENDn7ae9Nb37Dhe9/1nEfh3ecyyUp2PZrjrMnf1Gy9TqfFD+3+64vi9jzjSj2gMp3eV5zixhbA==}
+  '@payai/x402-solana-react@2.0.1':
+    resolution: {integrity: sha512-p08XzpEzqIUMVGDeXgIg9+oCCFVX9QsuVTSpQOHoaqcGE0u8O2ZWYi8yUIAxpUCa6BIgOd5EN7hdNge1pVU1Tg==}
     peerDependencies:
       '@solana/spl-token': ^0.4.14
       '@solana/wallet-adapter-base': ^0.9.27
@@ -7980,8 +7980,8 @@ packages:
       utf-8-validate:
         optional: true
 
-  x402-solana@2.0.0:
-    resolution: {integrity: sha512-05BrXfLV2+X8HLMGvf9t5WEJ2Vbes0r8KGoxRxzNhJPMYT/Ctn2/MshJQbhXFjRiotNFD9cNujxsiNOkEzBgXg==}
+  x402-solana@2.0.2:
+    resolution: {integrity: sha512-DqcIhqg4dhBmNor+KIazUjYhkFTM2OAdYHXtOIRBcsmSJ/B75V2lJmjQ5dhOv4s16Jc6Ui9Wj63qoQFmR56wng==}
     engines: {node: '>=18.0.0'}
     peerDependencies:
       '@solana/spl-token': '>=0.4.14'
@@ -9244,7 +9244,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
       '@types/debug': 4.1.12
-      debug: 4.3.4
+      debug: 4.4.3
       pony-cause: 2.1.11
       semver: 7.7.3
       uuid: 9.0.1
@@ -9258,7 +9258,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
       '@types/debug': 4.1.12
-      debug: 4.3.4
+      debug: 4.4.3
       pony-cause: 2.1.11
       semver: 7.7.3
       uuid: 9.0.1
@@ -9491,7 +9491,7 @@ snapshots:
       next: 16.1.1(@babel/core@7.28.5)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(sass@1.97.1)
       zod: 3.25.76
 
-  '@payai/x402-solana-react@2.0.0(400db2c45b4ec7ebac1e247c0510673a)':
+  '@payai/x402-solana-react@2.0.1(400db2c45b4ec7ebac1e247c0510673a)':
     dependencies:
       '@radix-ui/react-slot': 1.2.4(@types/react@19.2.7)(react@19.2.3)
       '@solana/spl-token': 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@5.0.10)
@@ -9506,7 +9506,7 @@ snapshots:
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
       tailwind-merge: 3.4.0
-      x402-solana: 2.0.0(@solana/spl-token@0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@5.0.10))(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))
+      x402-solana: 2.0.2(@solana/spl-token@0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@5.0.10))(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))
     transitivePeerDependencies:
       - '@types/react'
 
@@ -15751,7 +15751,7 @@ snapshots:
 
   extension-port-stream@3.0.0:
     dependencies:
-      readable-stream: 3.6.2
+      readable-stream: 4.7.0
       webextension-polyfill: 0.10.0
 
   eyes@0.1.8: {}
@@ -19049,7 +19049,7 @@ snapshots:
       bufferutil: 4.1.0
       utf-8-validate: 5.0.10
 
-  x402-solana@2.0.0(@solana/spl-token@0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@5.0.10))(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)):
+  x402-solana@2.0.2(@solana/spl-token@0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@5.0.10))(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)):
     dependencies:
       '@payai/x402': 2.0.0-payai.6
       '@solana/spl-token': 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@5.0.10)
