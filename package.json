@@ -20,7 +20,7 @@
     "@payai/x402": "2.0.0-payai.6",
     "@payai/x402-evm": "2.0.0-payai.6",
     "@payai/x402-next": "2.0.0-payai.6",
-    "@payai/x402-solana-react": "2.0.0",
+    "@payai/x402-solana-react": "^2.0.1",
     "@payai/x402-svm": "2.0.0-payai.6",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-slot": "^1.2.4",
