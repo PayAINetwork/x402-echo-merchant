@@ -62,11 +62,26 @@ import {
   getTransferCheckedInstruction,
 } from '@solana-program/token-2022';
 
-// load the private key from the .env file
-const evmPrivateKey = process.env.EVM_PRIVATE_KEY as `0x${string}`;
-const account = privateKeyToAccount(evmPrivateKey);
+// Lazy initialization for private keys (avoid build-time errors)
+let _evmAccount: ReturnType<typeof privateKeyToAccount> | undefined;
+function getEvmAccount() {
+  if (!_evmAccount) {
+    const evmPrivateKey = process.env.EVM_PRIVATE_KEY as `0x${string}`;
+    if (!evmPrivateKey) {
+      throw new Error('EVM_PRIVATE_KEY environment variable is not set');
+    }
+    _evmAccount = privateKeyToAccount(evmPrivateKey);
+  }
+  return _evmAccount;
+}
 
-const svmPrivateKey = process.env.SVM_PRIVATE_KEY as string;
+function getSvmPrivateKey() {
+  const svmPrivateKey = process.env.SVM_PRIVATE_KEY as string;
+  if (!svmPrivateKey) {
+    throw new Error('SVM_PRIVATE_KEY environment variable is not set');
+  }
+  return svmPrivateKey;
+}
 
 /**
  * Get a signer for the network
@@ -74,6 +89,16 @@ const svmPrivateKey = process.env.SVM_PRIVATE_KEY as string;
  * @returns The signer
  */
 const getSigner = async (network: Network) => {
+  // Handle Solana networks first (don't require EVM keys)
+  if (network === 'solana-devnet') {
+    return await createSigner(network, getSvmPrivateKey());
+  } else if (network === 'solana') {
+    return await createSigner(network, getSvmPrivateKey());
+  }
+  
+  // For EVM networks, get the account
+  const account = getEvmAccount();
+  
   if (network === 'avalanche') {
     return createWalletClient({
       chain: avalanche,
@@ -158,10 +183,6 @@ const getSigner = async (network: Network) => {
       transport: http(process.env.SKALE_BASE_SEPOLIA_RPC_URL as `https://${string}`),
       account,
     }).extend(publicActions);
-  } else if (network === 'solana-devnet') {
-    return await createSigner(network, svmPrivateKey);
-  } else if (network === 'solana') {
-    return await createSigner(network, svmPrivateKey);
   } else {
     throw new Error(`Unsupported network: ${network}`);
   }
@@ -194,7 +215,7 @@ export const refund = async (
       abi: erc20Abi,
       functionName: 'transfer',
       args: [toAddress, selectedPaymentRequirements.amount as unknown as bigint],
-      account: account,
+      account: getEvmAccount(),
     });
 
     return result;
