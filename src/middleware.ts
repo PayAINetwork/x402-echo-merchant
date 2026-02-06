@@ -11,12 +11,10 @@ import {
   safeBase64Encode,
   toJsonSafe,
   decodePayment,
-  useFacilitator,
   moneySchema,
   SupportedEVMNetworks,
   SupportedSVMNetworks,
   NETWORK_TO_CAIP2,
-  type FacilitatorConfig,
   type ERC20TokenAmount,
   type PaymentPayload,
   type PaymentRequirements,
@@ -27,6 +25,7 @@ import {
   type VerifyResponse,
   type Network,
 } from './lib/x402-helpers';
+import { useFacilitator, type FacilitatorConfig } from './lib/facilitator';
 
 // SolanaAddress is just a string type alias
 type SolanaAddress = string;
@@ -40,6 +39,17 @@ const log = (...args: unknown[]) => {
 const facilitatorUrl = process.env.FACILITATOR_URL as `${string}://${string}`;
 const payToEVM = process.env.EVM_RECEIVE_PAYMENTS_ADDRESS as `0x${string}`;
 const payToSVM = process.env.SVM_RECEIVE_PAYMENTS_ADDRESS as SolanaAddress;
+
+/**
+ * Facilitator configuration.
+ * JWT authentication is enabled when apiKeyId and apiKeySecret are provided,
+ * bypassing free tier limits.
+ */
+const facilitatorConfig: FacilitatorConfig = {
+  url: facilitatorUrl,
+  apiKeyId: process.env.PAYAI_API_KEY_ID,
+  apiKeySecret: process.env.PAYAI_API_KEY_SECRET,
+};
 
 /**
  * Get RPC URL for a given network from environment variables
@@ -322,7 +332,7 @@ export async function middleware(request: NextRequest) {
     const response = await paymentMiddleware(
       payToSVM,
       { '/api/solana-devnet/paid-content': dynamicConfig },
-      { url: facilitatorUrl }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -337,7 +347,7 @@ export async function middleware(request: NextRequest) {
     const response = await paymentMiddleware(
       payToSVM,
       { '/api/solana/paid-content': dynamicConfig },
-      { url: facilitatorUrl }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -353,9 +363,7 @@ export async function middleware(request: NextRequest) {
       {
         '/api/base/paid-content': dynamicConfig,
       },
-      {
-        url: facilitatorUrl,
-      }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -370,9 +378,7 @@ export async function middleware(request: NextRequest) {
       // routes
       { '/api/base-sepolia/paid-content': dynamicConfig },
       // facilitator
-      {
-        url: facilitatorUrl,
-      }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -384,9 +390,7 @@ export async function middleware(request: NextRequest) {
     const response = await paymentMiddleware(
       payToEVM,
       { '/api/avalanche/paid-content': dynamicConfig },
-      {
-        url: facilitatorUrl,
-      }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -398,9 +402,7 @@ export async function middleware(request: NextRequest) {
     const response = await paymentMiddleware(
       payToEVM,
       { '/api/avalanche-fuji/paid-content': dynamicConfig },
-      {
-        url: facilitatorUrl,
-      }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -412,9 +414,7 @@ export async function middleware(request: NextRequest) {
     const response = await paymentMiddleware(
       payToEVM,
       { '/api/polygon/paid-content': dynamicConfig },
-      {
-        url: facilitatorUrl,
-      }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -426,9 +426,7 @@ export async function middleware(request: NextRequest) {
     const response = await paymentMiddleware(
       payToEVM,
       { '/api/polygon-amoy/paid-content': dynamicConfig },
-      {
-        url: facilitatorUrl,
-      }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -440,9 +438,7 @@ export async function middleware(request: NextRequest) {
     const response = await paymentMiddleware(
       payToEVM,
       { '/api/xlayer/paid-content': dynamicConfig },
-      {
-        url: facilitatorUrl,
-      }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -454,9 +450,7 @@ export async function middleware(request: NextRequest) {
     const response = await paymentMiddleware(
       payToEVM,
       { '/api/xlayer-testnet/paid-content': dynamicConfig },
-      {
-        url: facilitatorUrl,
-      }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -468,9 +462,7 @@ export async function middleware(request: NextRequest) {
     const response = await paymentMiddleware(
       payToEVM,
       { '/api/peaq/paid-content': dynamicConfig },
-      {
-        url: facilitatorUrl,
-      }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -482,9 +474,7 @@ export async function middleware(request: NextRequest) {
     const response = await paymentMiddleware(
       payToEVM,
       { '/api/sei/paid-content': dynamicConfig },
-      {
-        url: facilitatorUrl,
-      }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -496,9 +486,7 @@ export async function middleware(request: NextRequest) {
     const response = await paymentMiddleware(
       payToEVM,
       { '/api/sei-testnet/paid-content': dynamicConfig },
-      {
-        url: facilitatorUrl,
-      }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -510,9 +498,7 @@ export async function middleware(request: NextRequest) {
     const response = await paymentMiddleware(
       payToEVM,
       { '/api/skale-base/paid-content': dynamicConfig },
-      {
-        url: facilitatorUrl,
-      }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -524,9 +510,7 @@ export async function middleware(request: NextRequest) {
     const response = await paymentMiddleware(
       payToEVM,
       { '/api/skale-base-sepolia/paid-content': dynamicConfig },
-      {
-        url: facilitatorUrl,
-      }
+      facilitatorConfig
     )(request);
     return withCors(request, response);
   }
@@ -719,8 +703,8 @@ export function paymentMiddleware(
                   apiEndpoint: request.url,
                   rpcUrl:
                     network === 'solana-devnet'
-                      ? process.env.SOLANA_DEVNET_RPC_URL ?? 'https://api.devnet.solana.com'
-                      : process.env.SOLANA_RPC_URL ?? 'https://api.mainnet-beta.solana.com',
+                      ? (process.env.SOLANA_DEVNET_RPC_URL ?? 'https://api.devnet.solana.com')
+                      : (process.env.SOLANA_RPC_URL ?? 'https://api.mainnet-beta.solana.com'),
                 })
               : getLocalPaywallHtml({
                   amount: displayAmount,

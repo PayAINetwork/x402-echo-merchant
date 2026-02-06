@@ -132,14 +132,6 @@ export type Network = string;
 // Local Type Definitions
 // =============================================================================
 
-export interface FacilitatorConfig {
-  url: `${string}://${string}`;
-  createAuthHeaders?: () => Promise<{
-    verify?: Record<string, string>;
-    settle?: Record<string, string>;
-  }>;
-}
-
 export interface RouteConfig {
   price: Price;
   network: Network;
@@ -505,82 +497,6 @@ export interface FacilitatorHooks {
     extensions?: string[];
     signers?: Record<string, string[]>;
   }>;
-}
-
-/**
- * Creates facilitator hooks for verifying and settling payments
- */
-export function useFacilitator(config?: FacilitatorConfig): FacilitatorHooks {
-  const baseUrl = config?.url || 'https://x402.org/facilitator';
-
-  const getHeaders = async (type: 'verify' | 'settle'): Promise<Record<string, string>> => {
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (config?.createAuthHeaders) {
-      const authHeaders = await config.createAuthHeaders();
-      if (type === 'verify' && authHeaders.verify) {
-        Object.assign(headers, authHeaders.verify);
-      } else if (type === 'settle' && authHeaders.settle) {
-        Object.assign(headers, authHeaders.settle);
-      }
-    }
-    return headers;
-  };
-
-  return {
-    verify: async (paymentPayload, paymentRequirements) => {
-      const headers = await getHeaders('verify');
-      const res = await fetch(`${baseUrl}/verify`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          x402Version: paymentPayload.x402Version,
-          paymentPayload: toJsonSafe(paymentPayload),
-          paymentRequirements: toJsonSafe(paymentRequirements),
-        }),
-      });
-      return res.json();
-    },
-
-    settle: async (paymentPayload, paymentRequirements) => {
-      const headers = await getHeaders('settle');
-      const res = await fetch(`${baseUrl}/settle`, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify({
-          x402Version: paymentPayload.x402Version,
-          paymentPayload: toJsonSafe(paymentPayload),
-          paymentRequirements: toJsonSafe(paymentRequirements),
-        }),
-      });
-      return res.json();
-    },
-
-    supported: async () => {
-      const res = await fetch(`${baseUrl}/supported`);
-      const data = await res.json();
-
-      // Support both response formats:
-      // 1. Current: flat array with x402Version on each kind
-      // 2. Future: grouped object { '1': [...], '2': [...] }
-      let v2Kinds: PaymentKind[];
-
-      if (Array.isArray(data.kinds)) {
-        // Flat array format - filter for V2 kinds (x402Version === 2)
-        v2Kinds = data.kinds.filter((kind: PaymentKind) => kind.x402Version === 2);
-      } else if (data.kinds && typeof data.kinds === 'object') {
-        // Grouped format - extract V2 kinds directly
-        v2Kinds = data.kinds['2'] ?? [];
-      } else {
-        v2Kinds = [];
-      }
-
-      return {
-        kinds: v2Kinds,
-        extensions: data.extensions,
-        signers: data.signers,
-      };
-    },
-  };
 }
 
 // =============================================================================
