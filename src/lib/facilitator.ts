@@ -6,7 +6,7 @@
  * env vars are set (or passed via config), bypassing free tier limits.
  */
 
-import { getOrGenerateJwt } from './jwtUtils';
+import { getOrGenerateJwt } from '@payai/x402/auth';
 import {
   toJsonSafe,
   type FacilitatorHooks,
@@ -127,7 +127,7 @@ function extractErrorMessage(data: FacilitatorErrorResponse | null, fallback: st
  * });
  */
 export function useFacilitator(config?: FacilitatorConfig): FacilitatorHooks {
-  const baseUrl = config?.url || 'https://x402.org/facilitator';
+  const baseUrl = config?.url || 'https://facilitator.payai.network';
   const apiKeyId = config?.apiKeyId;
   const apiKeySecret = config?.apiKeySecret;
 
