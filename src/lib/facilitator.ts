@@ -6,7 +6,7 @@
  * env vars are set (or passed via config), bypassing free tier limits.
  */
 
-import { getOrGenerateJwt } from '@payai/x402/auth';
+import { getOrGenerateJwt } from '@payai/facilitator';
 import {
   toJsonSafe,
   type FacilitatorHooks,
