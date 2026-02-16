@@ -11,21 +11,24 @@ importers:
       '@coinbase/onchainkit':
         specifier: ^1.1.2
         version: 1.1.2(@tanstack/query-core@5.90.12)(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(bufferutil@4.1.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(typescript@5.9.3)(use-sync-external-store@1.4.0(react@19.2.4))(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(wagmi@2.19.5(@react-native-async-storage/async-storage@1.24.0(react-native@0.83.1(@babel/core@7.28.5)(@types/react@19.2.10)(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@5.0.10)))(@tanstack/query-core@5.90.12)(@tanstack/react-query@5.90.12(react@19.2.4))(@types/react@19.2.10)(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(react-native@0.83.1(@babel/core@7.28.5)(@types/react@19.2.10)(bufferutil@4.1.0)(react@19.2.4)(utf-8-validate@5.0.10))(react@19.2.4)(typescript@5.9.3)(utf-8-validate@5.0.10)(viem@2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@4.3.6))(ws@8.19.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))(zod@4.3.6))(zod@4.3.6)
+      '@payai/facilitator':
+        specifier: 2.2.4
+        version: 2.2.4
       '@payai/x402':
-        specifier: 2.2.1
-        version: 2.2.1
+        specifier: 2.2.4
+        version: 2.2.4
       '@payai/x402-evm':
-        specifier: 2.2.1
-        version: 2.2.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
+        specifier: 2.2.4
+        version: 2.2.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
       '@payai/x402-next':
-        specifier: 2.2.1
-        version: 2.2.1(@payai/x402-extensions@2.2.1)(@payai/x402@2.2.1)(next@16.1.6(@babel/core@7.28.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.97.1))
+        specifier: 2.2.4
+        version: 2.2.4(@payai/x402-extensions@2.2.1)(@payai/x402@2.2.4)(next@16.1.6(@babel/core@7.28.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.97.1))
       '@payai/x402-solana-react':
         specifier: 2.0.2
         version: 2.0.2(e76163067d9272cbb0d3a8802c7c9f9a)
       '@payai/x402-svm':
-        specifier: 2.2.1
-        version: 2.2.1(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.19.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))
+        specifier: 2.2.4
+        version: 2.2.4(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.19.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))
       '@radix-ui/react-accordion':
         specifier: ^1.2.12
         version: 1.2.12(@types/react-dom@19.2.3(@types/react@19.2.10))(@types/react@19.2.10)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -1413,14 +1416,22 @@ packages:
     resolution: {integrity: sha512-IHnV6A+zxU7XwmKFinmYjUcwlyK9+xkG3/s9KcQhI9BjQKycrJ1JRO+FbNYPwZiPKW3je/DR0k7w8/gLa5eaxQ==}
     deprecated: 'The package is now available as "qr": npm install qr'
 
-  '@payai/x402-evm@2.2.1':
-    resolution: {integrity: sha512-V1mIAfq8PqC7vd4wObeXmQ6vZXJ/+ejShbSPMazaKn1IhXQpo3F3wrKFsvTGWfq/cLzmOxaUo7tVooeKzmhz1A==}
+  '@payai/facilitator@2.2.4':
+    resolution: {integrity: sha512-y5Tx4kkzc0kOVv02mHjua0Is9FfITDoI6lUHc3Mh+HitBlBJImHWlnSAIL18gVxC/jl9AJ7b/7MQqpjfQ+XO5A==}
+    peerDependencies:
+      '@x402/core': '>=2.2.0'
+    peerDependenciesMeta:
+      '@x402/core':
+        optional: true
+
+  '@payai/x402-evm@2.2.4':
+    resolution: {integrity: sha512-ddDk8G16BCZOI/6TiQ0DKz+CVtun/1zR1EgDE6D9LO+f51jv7xB5ynT744+nqUTn3/RVadjkP6yAR5xFxMpkEw==}
 
   '@payai/x402-extensions@2.2.1':
     resolution: {integrity: sha512-E3Qu6GGQgGiC00fLXqEBmrovYr+0gNgIlHqJrvTd66AI3wNTz1xmj3u8dy4gNpMS5EX14hXUg8sTM5k7h3PzPg==}
 
-  '@payai/x402-next@2.2.1':
-    resolution: {integrity: sha512-u5EK/8cew0vyENuR1mZwYzxMSj6mQxX9NThOGvi6X/qls6dBShVHOy4DpGwbTAq+RWg5TOpJTb/mlD9gxvmVRg==}
+  '@payai/x402-next@2.2.4':
+    resolution: {integrity: sha512-JfNruwn98A6N4Zh/mT9+cUNlrA6HeFlRoD0fyAJ7PDUfNSOW/g5Ogwzq9bOM+bkSF7tbEamXnL3MsDyubEkMmQ==}
     peerDependencies:
       '@payai/x402': ^2.2.0
       '@payai/x402-extensions': ^2.2.0
@@ -1438,11 +1449,11 @@ packages:
       react: ^19.2.3
       react-dom: ^19.2.3
 
-  '@payai/x402-svm@2.2.1':
-    resolution: {integrity: sha512-Nqtjt+Za/+II6IigDjjdNM4ke+6k60cGlrPUWrdbbXVGLpLqfe7q3s4ERUa2P7RfmmpvpGvGNjK8JvwCOJJreQ==}
+  '@payai/x402-svm@2.2.4':
+    resolution: {integrity: sha512-lxHAX6MGLMrOUA67ADhvlf7i4z4Ta9bJgoe2o1PlHzUDcZaYAGJzs+xfrr1IgNQabN9Yyk69qvnX6RIdomrsvA==}
 
-  '@payai/x402@2.2.1':
-    resolution: {integrity: sha512-F8dDYB9PKjZb4Dpx/tMWrDtgkWSFEdyQkVBEBTjqWRHHp60ujeZ9gAEpTnsXLvJTydXKhGWB/pECHEZyM/4dqw==}
+  '@payai/x402@2.2.4':
+    resolution: {integrity: sha512-P1ZVXTa4HMatsLaO2mU/mw0EnYpkw4uEshjsOIL0g1MgxDTxVDPNikNiYXFTs0ROttXCNQPZhu4KBcDcb0Ee2A==}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -9238,7 +9249,7 @@ snapshots:
 
   '@jest/transform@29.7.0':
     dependencies:
-      '@babel/core': 7.28.5
+      '@babel/core': 7.29.0
       '@jest/types': 29.6.3
       '@jridgewell/trace-mapping': 0.3.31
       babel-plugin-istanbul: 6.1.1
@@ -9768,7 +9779,9 @@ snapshots:
 
   '@paulmillr/qr@0.2.1': {}
 
-  '@payai/x402-evm@2.2.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)':
+  '@payai/facilitator@2.2.4': {}
+
+  '@payai/x402-evm@2.2.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)':
     dependencies:
       viem: 2.45.1(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)(zod@3.25.76)
       zod: 3.25.76
@@ -9782,9 +9795,9 @@ snapshots:
       ajv: 8.17.1
       zod: 3.25.76
 
-  '@payai/x402-next@2.2.1(@payai/x402-extensions@2.2.1)(@payai/x402@2.2.1)(next@16.1.6(@babel/core@7.28.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.97.1))':
+  '@payai/x402-next@2.2.4(@payai/x402-extensions@2.2.1)(@payai/x402@2.2.4)(next@16.1.6(@babel/core@7.28.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.97.1))':
     dependencies:
-      '@payai/x402': 2.2.1
+      '@payai/x402': 2.2.4
       '@payai/x402-extensions': 2.2.1
       next: 16.1.6(@babel/core@7.28.5)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.97.1)
       zod: 3.25.76
@@ -9808,7 +9821,7 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@payai/x402-svm@2.2.1(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.19.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))':
+  '@payai/x402-svm@2.2.4(@solana/sysvars@5.5.1(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3))(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.19.0(bufferutil@4.1.0)(utf-8-validate@5.0.10))':
     dependencies:
       '@scure/base': 1.2.6
       '@solana-program/compute-budget': 0.8.0(@solana/kit@2.3.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(ws@8.19.0(bufferutil@4.1.0)(utf-8-validate@5.0.10)))
@@ -9823,7 +9836,7 @@ snapshots:
       - typescript
       - ws
 
-  '@payai/x402@2.2.1':
+  '@payai/x402@2.2.4':
     dependencies:
       zod: 3.25.76
 
@@ -10242,7 +10255,7 @@ snapshots:
   '@react-native/codegen@0.83.1(@babel/core@7.28.5)':
     dependencies:
       '@babel/core': 7.28.5
-      '@babel/parser': 7.28.5
+      '@babel/parser': 7.29.0
       glob: 7.2.3
       hermes-parser: 0.32.0
       invariant: 2.2.4
@@ -12905,7 +12918,7 @@ snapshots:
 
   '@testing-library/dom@10.4.1':
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.29.0
       '@babel/runtime': 7.28.4
       '@types/aria-query': 5.0.4
       aria-query: 5.3.0
@@ -14973,8 +14986,8 @@ snapshots:
 
   babel-plugin-jest-hoist@29.6.3:
     dependencies:
-      '@babel/template': 7.27.2
-      '@babel/types': 7.28.5
+      '@babel/template': 7.28.6
+      '@babel/types': 7.29.0
       '@types/babel__core': 7.20.5
       '@types/babel__traverse': 7.28.0
 
@@ -16685,8 +16698,8 @@ snapshots:
 
   istanbul-lib-instrument@5.2.1:
     dependencies:
-      '@babel/core': 7.28.5
-      '@babel/parser': 7.28.5
+      '@babel/core': 7.29.0
+      '@babel/parser': 7.29.0
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
       semver: 6.3.1
@@ -16766,7 +16779,7 @@ snapshots:
 
   jest-message-util@29.7.0:
     dependencies:
-      '@babel/code-frame': 7.27.1
+      '@babel/code-frame': 7.29.0
       '@jest/types': 29.6.3
       '@types/stack-utils': 2.0.3
       chalk: 4.1.2
@@ -17123,7 +17136,7 @@ snapshots:
 
   metro-babel-transformer@0.83.3:
     dependencies:
-      '@babel/core': 7.28.5
+      '@babel/core': 7.29.0
       flow-enums-runtime: 0.0.6
       hermes-parser: 0.32.0
       nullthrows: 1.1.1
@@ -17194,9 +17207,9 @@ snapshots:
 
   metro-source-map@0.83.3:
     dependencies:
-      '@babel/traverse': 7.28.5
-      '@babel/traverse--for-generate-function-map': '@babel/traverse@7.28.5'
-      '@babel/types': 7.28.5
+      '@babel/traverse': 7.29.0
+      '@babel/traverse--for-generate-function-map': '@babel/traverse@7.29.0'
+      '@babel/types': 7.29.0
       flow-enums-runtime: 0.0.6
       invariant: 2.2.4
       metro-symbolicate: 0.83.3
@@ -17220,10 +17233,10 @@ snapshots:
 
   metro-transform-plugins@0.83.3:
     dependencies:
-      '@babel/core': 7.28.5
-      '@babel/generator': 7.28.5
-      '@babel/template': 7.27.2
-      '@babel/traverse': 7.28.5
+      '@babel/core': 7.29.0
+      '@babel/generator': 7.29.0
+      '@babel/template': 7.28.6
+      '@babel/traverse': 7.29.0
       flow-enums-runtime: 0.0.6
       nullthrows: 1.1.1
     transitivePeerDependencies:
@@ -17231,10 +17244,10 @@ snapshots:
 
   metro-transform-worker@0.83.3(bufferutil@4.1.0)(utf-8-validate@5.0.10):
     dependencies:
-      '@babel/core': 7.28.5
-      '@babel/generator': 7.28.5
-      '@babel/parser': 7.28.5
-      '@babel/types': 7.28.5
+      '@babel/core': 7.29.0
+      '@babel/generator': 7.29.0
+      '@babel/parser': 7.29.0
+      '@babel/types': 7.29.0
       flow-enums-runtime: 0.0.6
       metro: 0.83.3(bufferutil@4.1.0)(utf-8-validate@5.0.10)
       metro-babel-transformer: 0.83.3
@@ -17251,13 +17264,13 @@ snapshots:
 
   metro@0.83.3(bufferutil@4.1.0)(utf-8-validate@5.0.10):
     dependencies:
-      '@babel/code-frame': 7.27.1
-      '@babel/core': 7.28.5
-      '@babel/generator': 7.28.5
-      '@babel/parser': 7.28.5
-      '@babel/template': 7.27.2
-      '@babel/traverse': 7.28.5
-      '@babel/types': 7.28.5
+      '@babel/code-frame': 7.29.0
+      '@babel/core': 7.29.0
+      '@babel/generator': 7.29.0
+      '@babel/parser': 7.29.0
+      '@babel/template': 7.28.6
+      '@babel/traverse': 7.29.0
+      '@babel/types': 7.29.0
       accepts: 1.3.8
       chalk: 4.1.2
       ci-info: 2.0.0
@@ -19390,7 +19403,7 @@ snapshots:
 
   x402-solana@2.0.3(@solana/spl-token@0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@5.0.10))(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)):
     dependencies:
-      '@payai/x402': 2.2.1
+      '@payai/x402': 2.2.4
       '@solana/spl-token': 0.4.14(@solana/web3.js@1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10))(bufferutil@4.1.0)(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.9.3)(utf-8-validate@5.0.10)
       '@solana/web3.js': 1.98.4(bufferutil@4.1.0)(typescript@5.9.3)(utf-8-validate@5.0.10)
       zod: 4.3.6
