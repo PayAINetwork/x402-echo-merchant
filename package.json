@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@coinbase/onchainkit": "^1.1.2",
-    "@payai/facilitator": "^1.0.0",
+    "@payai/facilitator": "2.2.4",
     "@payai/x402": "2.2.4",
     "@payai/x402-evm": "2.2.4",
     "@payai/x402-next": "2.2.4",
