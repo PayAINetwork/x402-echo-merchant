@@ -42,6 +42,8 @@ export interface PaymentRequired {
     mimeType: string;
   };
   accepts: PaymentRequirements[];
+  /** V2: server-declared facilitator extensions (e.g. gas sponsoring for Permit2). */
+  extensions?: Record<string, unknown>;
 }
 
 /**
@@ -56,6 +58,8 @@ export interface PaymentPayload {
   };
   accepted?: PaymentRequirements;
   payload: Record<string, unknown>;
+  /** V2: client-populated extension payloads merged with server declarations. */
+  extensions?: Record<string, unknown>;
 }
 
 // =============================================================================
@@ -135,6 +139,20 @@ export type Network = string;
 export interface RouteConfig {
   price: Price;
   network: Network;
+  /**
+   * EVM: how the client should authorize the transfer. Defaults to EIP-3009 (USDC).
+   * Use `permit2` for Permit2-based settlement (required for many non–EIP-3009 tokens).
+   */
+  assetTransferMethod?: 'eip3009' | 'permit2';
+  /**
+   * When `assetTransferMethod` is `permit2`, optionally advertise gas-sponsoring extensions.
+   * Declarations are merged only if the facilitator lists the matching keys on `/supported`.
+   */
+  permit2GasSponsoring?: 'none' | 'eip2612' | 'erc20' | 'both';
+  /**
+   * Optional paywall copy for Permit2 routes (avoid raw protocol names in user-facing text).
+   */
+  permit2UserHint?: string;
   config?: {
     description?: string;
     mimeType?: string;

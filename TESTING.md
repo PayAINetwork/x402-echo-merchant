@@ -64,15 +64,15 @@ When adding new routes or features:
 Example:
 
 ```typescript
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { POST } from "./route";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { POST } from './route';
 
-describe("/api/your-route", () => {
+describe('/api/your-route', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("should handle successful requests", async () => {
+  it('should handle successful requests', async () => {
     // Your test here
   });
 });
@@ -89,3 +89,9 @@ The test suite uses Vitest's mocking capabilities:
 ## Environment Variables
 
 Tests use mock environment variables. Update `vitest.setup.ts` if you need to configure default env vars for tests.
+
+## Facilitator version & Permit2 demos
+
+- Keep `FACILITATOR_URL` pointed at a facilitator whose `@payai/*` versions align with this app’s `package.json`. Drift can break `/verify`, `/settle`, or extension negotiation.
+- For the **Base Sepolia** demo route, middleware may call `GET /supported` to merge **Permit2 gas-sponsoring** declarations. The facilitator must register those extensions and expose `eip2612GasSponsoring` / `erc20ApprovalGasSponsoring` on `/supported` when you configure `permit2GasSponsoring` other than `none`.
+- Unit coverage for extension merging lives in `src/lib/permit2Extensions.test.ts`.

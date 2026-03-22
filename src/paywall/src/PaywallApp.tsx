@@ -37,6 +37,7 @@ import { useAccount, useChainId, useSwitchChain, useWalletClient } from 'wagmi';
 
 import { ExactEvmScheme, toClientEvmSigner } from '@payai/x402-evm';
 import { safeBase64Encode } from '@payai/x402/utils';
+import type { PaymentPayloadContext } from '@payai/x402/types';
 import { xLayerTestnet1952, skaleBase, skaleBaseSepolia } from '../../lib/chains';
 
 // ERC20 ABI for balanceOf function
@@ -381,13 +382,21 @@ export function PaywallApp() {
       setStatus('Creating payment signature...');
       const validPaymentRequirements = ensureValidAmount(paymentRequirements);
 
-      // Create signer for ExactEvmScheme
-      const signer = toClientEvmSigner({
-        address: address as Address,
-        signTypedData: walletClientForSigning.signTypedData.bind(walletClientForSigning),
-      });
+      /**
+       * Full client signer: EIP-3009 only needs `signTypedData`; Permit2 + gas-sponsoring
+       * extensions also use `readContract`, raw tx signing, nonce, and fee estimates.
+       * `toClientEvmSigner` fills reads/fees from the public client when omitted on the wallet.
+       */
+      const signer = toClientEvmSigner(
+        {
+          address: address as Address,
+          signTypedData: walletClientForSigning.signTypedData.bind(walletClientForSigning),
+          signTransaction: walletClientForSigning.signTransaction.bind(walletClientForSigning),
+        },
+        publicClient
+      );
 
-      const scheme = new ExactEvmScheme(signer);
+      const scheme = new ExactEvmScheme(signer, x402.rpcUrl ? { rpcUrl: x402.rpcUrl } : undefined);
 
       // Cast requirements to expected format (CAIP-2 network with required extra)
       const paymentReqs = {
@@ -396,8 +405,17 @@ export function PaywallApp() {
         extra: validPaymentRequirements.extra || {},
       };
 
-      // Create payment payload
-      const partialPayload = await scheme.createPaymentPayload(2, paymentReqs);
+      const paymentPayloadContext: PaymentPayloadContext | undefined =
+        x402.extensions && Object.keys(x402.extensions).length > 0
+          ? { extensions: x402.extensions }
+          : undefined;
+
+      // Create payment payload (server extensions inform Permit2 enrichment paths)
+      const partialPayload = await scheme.createPaymentPayload(
+        2,
+        paymentReqs,
+        paymentPayloadContext
+      );
 
       // Construct full payment payload with accepted requirements
       const fullPaymentPayload = {
@@ -432,7 +450,8 @@ export function PaywallApp() {
           // Retry with server's x402Version
           const retryPartialPayload = await scheme.createPaymentPayload(
             errorData.x402Version,
-            paymentReqs
+            paymentReqs,
+            paymentPayloadContext
           );
 
           // Construct full payment payload for retry
@@ -499,6 +518,7 @@ export function PaywallApp() {
   }
 
   const description = paymentRequirements.extra?.description;
+  const permit2UserHint = paymentRequirements.extra?.permit2UserHint as string | undefined;
 
   return (
     <div className="container gap-8">
@@ -508,6 +528,7 @@ export function PaywallApp() {
           {description && `${description}.`} To access this content, please pay ${amount}{' '}
           {chainName} USDC.
         </p>
+        {permit2UserHint && <p className="instructions">{permit2UserHint}</p>}
         {testnet && (
           <p className="instructions">
             Need {chainName} USDC?{' '}

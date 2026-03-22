@@ -48,7 +48,6 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
    ```
 
 2. **Set up environment variables:**
-
    - Copy `.env.example` to `.env` and fill in required values (see below)
 
 3. **Run the dev server:**
@@ -57,6 +56,7 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
    # or
    yarn dev
    ```
+
    - The app will be available at [http://localhost:3000](http://localhost:3000)
 
 ---
@@ -88,6 +88,26 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 - `XLAYER_RPC_URL` - xLayer Mainnet RPC URL (https)
 - `XLAYER_TESTNET_RPC_URL` - xLayer Testnet RPC URL (https)
 
+### Dependency & facilitator alignment
+
+Pin `@payai/x402`, `@payai/x402-evm`, `@payai/x402-next`, `@payai/facilitator`, `@payai/x402-svm`, and `@payai/x402-extensions` to the **same minor version** as the facilitator you run against (see `payai-x402-facilitator`’s `apps/api/package.json`). Mismatched versions can break verify/settle or extension handling.
+
+---
+
+## Optional: Permit2 and gas-sponsoring extensions
+
+EVM routes default to **EIP-3009** USDC. To opt into **Permit2** (testnet demos or tokens without EIP-3009), extend `RouteConfig` in `src/lib/x402-helpers.ts` on each route:
+
+| Field                                                             | Purpose                                                                                                                                                                                                        |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `assetTransferMethod?: 'eip3009' \| 'permit2'`                    | Sets `extra.assetTransferMethod` on `PaymentRequirements`. Omit or use `eip3009` for the legacy USDC path.                                                                                                     |
+| `permit2GasSponsoring?: 'none' \| 'eip2612' \| 'erc20' \| 'both'` | Merges top-level `PaymentRequired.extensions` using `@payai/x402-extensions` **only if** `GET /supported` on `FACILITATOR_URL` lists the matching keys (`eip2612GasSponsoring`, `erc20ApprovalGasSponsoring`). |
+| `permit2UserHint?: string`                                        | Optional user-facing paywall line (e.g. one-time approval / gas coverage) without exposing raw protocol names.                                                                                                 |
+
+The **Base Sepolia** route (`sepoliaConfig` in `src/middleware.ts`) demonstrates `permit2` + `both` gas-sponsoring declarations for integration testing.
+
+Non-USDC or custom tokens need correct metadata (`ERC20TokenAmount` / EIP-712 domain) per SDK rules; wrong metadata will fail signing or settlement.
+
 ---
 
 ## Deployment
@@ -111,13 +131,11 @@ To add a new network (example: `peaq`) across the Echo Merchant UI, middleware, 
 1. Make sure that you `npm install` the `x402` package version that contains the new network.
 
 2. Frontend link on homepage
-
    - Edit `src/app/page.tsx`
    - Add a new entry to `MAINNET_ENDPOINTS` or `TESTNET_ENDPOINTS`:
      - `{ label: 'Peaq Mainnet', url: `${API_URL}/api/peaq/paid-content` }`
 
 3. Middleware route & config
-
    - Edit `src/middleware.ts`
    - Create a route config for the network:
      - `const peaqConfig = { price: '$0.01', network: 'peaq', config: { description: '...' } }`
@@ -127,31 +145,26 @@ To add a new network (example: `peaq`) across the Echo Merchant UI, middleware, 
      - include `'/api/peaq/paid-content/:path*'` in `export const config.matcher`.
 
 4. API route file
-
    - Create `src/app/api/<network>/paid-content/route.ts` with a basic `GET` that returns `{ ok: true }`.
    - The actual paywall logic is enforced in middleware; the route acts as the endpoint.
 
 5. Paywall app (wallet flow)
-
    - Edit `src/paywall/src/PaywallApp.tsx`
    - Import the chain from `viem/chains` and map it:
      - Import: `import { peaq } from 'viem/chains'`
      - Add to `paymentChain` switch and to `chainName` mapping.
 
 6. Explorer links
-
    - Edit `src/lib/utils.ts` if you want explorer links for the new network in the rizzler page:
      - Update `getExplorerForNetwork` and `renderRizzlerHtml` to include the new network.
 
 7. Environment variables
-
    - Set `<NETWORK>_RPC_URL` to a private custom RPC from Alchemy if possible, otherwise find a suitable RPC for the network and add it here. `<NETWORK>` is to be replaced by the network name.
    - Ensure you have `FACILITATOR_URL` pointing to your facilitator (which must support the network).
    - Ensure `EVM_RECEIVE_PAYMENTS_ADDRESS` is set for EVM networks.
    - For SVM networks, set `SVM_RECEIVE_PAYMENTS_ADDRESS`.
 
 8. Refund flow
-
    - Edit `src/refund.ts` and update the EVM signer factory:
      - Import your chain from `viem/chains` (e.g., `peaq`).
      - Add a `network === '<network>'` branch in `getSigner` that returns a `createWalletClient` with the chain and `process.env.<NETWORK>_RPC_URL`.

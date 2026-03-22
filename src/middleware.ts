@@ -26,6 +26,7 @@ import {
   type Network,
 } from './lib/x402-helpers';
 import { useFacilitator, type FacilitatorConfig } from './lib/facilitator';
+import { mergePermit2GasSponsoringDeclarations } from './lib/permit2Extensions';
 
 // SolanaAddress is just a string type alias
 type SolanaAddress = string;
@@ -555,7 +556,28 @@ export function paymentMiddleware(
 
     log('Matched route config:', JSON.stringify(matchingRoute.config, null, 2));
 
-    const { price, network, config = {} } = matchingRoute.config;
+    const {
+      price,
+      network,
+      assetTransferMethod: configTransferMethod = 'eip3009',
+      permit2GasSponsoring: configGasSponsoring = 'none',
+      permit2UserHint: configUserHint,
+      config = {},
+    } = matchingRoute.config;
+
+    // ?assetTransferMethod=permit2 overrides eip3009 -> permit2 on EVM networks
+    const permit2Override =
+      request.nextUrl.searchParams.get('assetTransferMethod') === 'permit2' &&
+      (SupportedEVMNetworks as readonly string[]).includes(network);
+    const assetTransferMethod = permit2Override ? ('permit2' as const) : configTransferMethod;
+    const permit2GasSponsoring =
+      permit2Override && configGasSponsoring === 'none'
+        ? ('both' as const)
+        : configGasSponsoring;
+    const permit2UserHint = permit2Override
+      ? (configUserHint ??
+          'You may need a one-time USDC approval. Approval fees may be covered when the facilitator advertises gas sponsoring.')
+      : configUserHint;
     const {
       description,
       mimeType,
@@ -582,7 +604,53 @@ export function paymentMiddleware(
 
     const paymentRequirements: PaymentRequirements[] = [];
 
+    /** Top-level V2 extensions on PaymentRequired (Permit2 gas sponsoring, etc.). */
+    let paymentRequiredExtensions: Record<string, unknown> | undefined;
+
     if ((SupportedEVMNetworks as readonly string[]).includes(network)) {
+      if (assetTransferMethod === 'permit2' && permit2GasSponsoring !== 'none') {
+        try {
+          const supportedResult = await supported();
+          paymentRequiredExtensions = mergePermit2GasSponsoringDeclarations(
+            permit2GasSponsoring,
+            supportedResult.extensions
+          );
+        } catch (error) {
+          if (VERBOSE) {
+            console.warn(
+              '[x402-middleware] facilitator /supported failed; omitting extensions',
+              error
+            );
+          }
+          paymentRequiredExtensions = undefined;
+        }
+      }
+
+      const evmExtra: Record<string, unknown> = {
+        // EIP-712 domain info
+        ...(asset as ERC20TokenAmount['asset']).eip712,
+        // Additional metadata for paywall display
+        description: description ?? '',
+        mimeType: mimeType ?? 'application/json',
+        resource: resourceUrl,
+        outputSchema: {
+          input: {
+            type: 'http',
+            method,
+            discoverable: discoverable ?? true,
+            ...(inputSchema && typeof inputSchema === 'object' ? inputSchema : {}),
+          },
+          output: outputSchema,
+        },
+      };
+
+      if (assetTransferMethod === 'permit2') {
+        evmExtra.assetTransferMethod = 'permit2';
+      }
+      if (permit2UserHint) {
+        evmExtra.permit2UserHint = permit2UserHint;
+      }
+
       paymentRequirements.push({
         scheme: 'exact',
         network: caip2Network,
@@ -590,23 +658,7 @@ export function paymentMiddleware(
         payTo: getAddress(payTo),
         maxTimeoutSeconds: maxTimeoutSeconds ?? 300,
         asset: getAddress(asset.address),
-        extra: {
-          // EIP-712 domain info
-          ...(asset as ERC20TokenAmount['asset']).eip712,
-          // Additional metadata for paywall display
-          description: description ?? '',
-          mimeType: mimeType ?? 'application/json',
-          resource: resourceUrl,
-          outputSchema: {
-            input: {
-              type: 'http',
-              method,
-              discoverable: discoverable ?? true,
-              ...(inputSchema && typeof inputSchema === 'object' ? inputSchema : {}),
-            },
-            output: outputSchema,
-          },
-        },
+        extra: evmExtra,
       });
     }
     // svm networks
@@ -657,6 +709,12 @@ export function paymentMiddleware(
     } else {
       throw new Error(`Unsupported network: ${network}`);
     }
+
+    /** Spread onto JSON 402 bodies / PAYMENT-REQUIRED when the route advertised extensions. */
+    const extensionsForPaymentRequired =
+      paymentRequiredExtensions && Object.keys(paymentRequiredExtensions).length > 0
+        ? { extensions: paymentRequiredExtensions }
+        : {};
 
     const paymentHeader = request.headers.get('PAYMENT-SIGNATURE');
     log('Payment header present:', !!paymentHeader);
@@ -720,6 +778,7 @@ export function paymentMiddleware(
                     network === ('xlayer-testnet' as unknown as Network) ||
                     network === ('skale-base-sepolia' as unknown as Network),
                   rpcUrl: getRpcUrlForNetwork(network),
+                  extensions: paymentRequiredExtensions,
                 }));
           return new NextResponse(html, {
             status: 402,
@@ -736,6 +795,7 @@ export function paymentMiddleware(
         x402Version,
         error: 'PAYMENT-SIGNATURE header is required',
         accepts: paymentRequirements,
+        ...extensionsForPaymentRequired,
       };
 
       // Encode for PAYMENT-REQUIRED header (v2 protocol signal)
@@ -743,6 +803,7 @@ export function paymentMiddleware(
         JSON.stringify({
           x402Version,
           accepts: paymentRequirements,
+          ...extensionsForPaymentRequired,
         })
       );
 
@@ -766,6 +827,7 @@ export function paymentMiddleware(
           x402Version,
           error: error instanceof Error ? error : 'Invalid payment',
           accepts: paymentRequirements,
+          ...extensionsForPaymentRequired,
         }),
         { status: 402, headers: { 'Content-Type': 'application/json' } }
       );
@@ -781,6 +843,7 @@ export function paymentMiddleware(
           x402Version,
           error: 'Unable to find matching payment requirements',
           accepts: toJsonSafe(paymentRequirements),
+          ...extensionsForPaymentRequired,
         }),
         { status: 402, headers: { 'Content-Type': 'application/json' } }
       );
@@ -801,6 +864,7 @@ export function paymentMiddleware(
           error: errorMessages?.verificationFailed || verification.invalidReason,
           accepts: paymentRequirements,
           payer: verification.payer,
+          ...extensionsForPaymentRequired,
         }),
         { status: 402, headers: { 'Content-Type': 'application/json' } }
       );
