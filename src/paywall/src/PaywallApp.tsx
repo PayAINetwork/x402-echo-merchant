@@ -38,7 +38,13 @@ import { useAccount, useChainId, useSwitchChain, useWalletClient } from 'wagmi';
 import { ExactEvmScheme, toClientEvmSigner } from '@payai/x402-evm';
 import { safeBase64Encode } from '@payai/x402/utils';
 import type { PaymentPayloadContext } from '@payai/x402/types';
-import { xLayerTestnet1952, skaleBase, skaleBaseSepolia } from '../../lib/chains';
+import {
+  xLayerTestnet1952,
+  skaleBase,
+  skaleBaseSepolia,
+  kiteai,
+  kiteaiTestnet,
+} from '../../lib/chains';
 
 // ERC20 ABI for balanceOf function
 const ERC20_BALANCE_OF_ABI = [
@@ -47,6 +53,16 @@ const ERC20_BALANCE_OF_ABI = [
     inputs: [{ name: '_owner', type: 'address' }],
     name: 'balanceOf',
     outputs: [{ name: 'balance', type: 'uint256' }],
+    type: 'function',
+  },
+] as const;
+
+const ERC20_DECIMALS_ABI = [
+  {
+    constant: true,
+    inputs: [],
+    name: 'decimals',
+    outputs: [{ name: '', type: 'uint8' }],
     type: 'function',
   },
 ] as const;
@@ -104,6 +120,8 @@ const CAIP2_TO_CHAIN: Record<string, Chain> = {
   'eip155:1952': xLayerTestnet1952,
   'eip155:1187947933': skaleBase,
   'eip155:324705682': skaleBaseSepolia,
+  'eip155:2366': kiteai,
+  'eip155:2368': kiteaiTestnet,
 };
 
 /**
@@ -133,7 +151,7 @@ function getChainName(network: string): string {
  * Check if network is a testnet based on CAIP-2 format
  */
 function isTestnet(network: string): boolean {
-  const testnetChainIds = [84532, 43113, 713715, 80002, 195, 324705682]; // base-sepolia, avalanche-fuji, sei-testnet, polygon-amoy, xlayer-testnet, skale-base-sepolia
+  const testnetChainIds = [84532, 43113, 713715, 80002, 195, 324705682, 2368]; // base-sepolia, avalanche-fuji, sei-testnet, polygon-amoy, xlayer-testnet, skale-base-sepolia, kiteai-testnet
   const { chainId } = parseCAIP2Network(network);
   return testnetChainIds.includes(chainId);
 }
@@ -249,7 +267,21 @@ export function PaywallApp() {
     console.log('getUSDCBalance', address, usdcAddress, publicClient);
     const balance = await getUSDCBalance(publicClient, address, usdcAddress);
     console.log('balance', balance);
-    const formattedBalance = formatUnits(balance, 6);
+
+    // Read on-chain decimals instead of assuming 6 (e.g. pieUSD on KiteAI testnet uses 18)
+    let decimals = 6;
+    try {
+      const result = await publicClient.readContract({
+        address: usdcAddress,
+        abi: ERC20_DECIMALS_ABI,
+        functionName: 'decimals',
+      });
+      decimals = Number(result);
+    } catch {
+      console.warn('Failed to read token decimals, falling back to 6');
+    }
+
+    const formattedBalance = formatUnits(balance, decimals);
     console.log('formattedBalance', formattedBalance);
     setFormattedUsdcBalance(formattedBalance);
   }, [address, publicClient, paymentRequirements?.asset]);

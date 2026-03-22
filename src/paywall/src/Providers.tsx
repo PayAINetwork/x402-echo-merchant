@@ -1,5 +1,5 @@
-import { OnchainKitProvider } from "@coinbase/onchainkit";
-import type { ReactNode } from "react";
+import { OnchainKitProvider } from '@coinbase/onchainkit';
+import type { ReactNode } from 'react';
 import {
   base,
   baseSepolia,
@@ -12,9 +12,9 @@ import {
   polygonAmoy,
   peaq,
   xLayer,
-} from "viem/chains";
-import { xLayerTestnet1952 } from "../../lib/chains";
-import "./window.d.ts";
+} from 'viem/chains';
+import { xLayerTestnet1952, kiteai, kiteaiTestnet } from '../../lib/chains';
+import './window.d.ts';
 
 type ProvidersProps = {
   children: ReactNode;
@@ -35,45 +35,49 @@ export function Providers({ children }: ProvidersProps) {
 
   const network = requirements?.network;
   const paymentChain =
-    network === "base-sepolia"
+    network === 'base-sepolia'
       ? baseSepolia
-      : network === "avalanche-fuji"
-      ? avalancheFuji
-      : network === "sei-testnet"
-      ? seiTestnet
-      : network === "xlayer-testnet"
-      ? xLayerTestnet1952
-      : network === "sei"
-      ? sei
-      : network === "avalanche"
-      ? avalanche
-      : network === "iotex"
-      ? iotex
-      : network === "polygon"
-      ? polygon
-      : network === "polygon-amoy"
-      ? polygonAmoy
-      : network === "peaq"
-      ? peaq
-      : network === "xlayer"
-      ? xLayer
-      : base;
+      : network === 'avalanche-fuji'
+        ? avalancheFuji
+        : network === 'sei-testnet'
+          ? seiTestnet
+          : network === 'xlayer-testnet'
+            ? xLayerTestnet1952
+            : network === 'sei'
+              ? sei
+              : network === 'avalanche'
+                ? avalanche
+                : network === 'iotex'
+                  ? iotex
+                  : network === 'polygon'
+                    ? polygon
+                    : network === 'polygon-amoy'
+                      ? polygonAmoy
+                      : network === 'peaq'
+                        ? peaq
+                        : network === 'xlayer'
+                          ? xLayer
+                          : network === 'kiteai'
+                            ? kiteai
+                            : network === 'kiteai-testnet'
+                              ? kiteaiTestnet
+                              : base;
 
-  console.log("paymentChain", paymentChain);
-  console.log("network", network);
+  console.log('paymentChain', paymentChain);
+  console.log('network', network);
   return (
     <OnchainKitProvider
       apiKey={cdpClientKey || undefined}
       chain={paymentChain}
       config={{
         appearance: {
-          mode: "light",
-          theme: "hacker",
+          mode: 'light',
+          theme: 'hacker',
           name: appName || undefined,
           logo: appLogo || undefined,
         },
         wallet: {
-          display: "modal",
+          display: 'modal',
           supportedWallets: {
             rabby: true,
             trust: true,

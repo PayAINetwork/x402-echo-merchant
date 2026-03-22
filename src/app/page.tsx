@@ -54,6 +54,11 @@ const MAINNET_ENDPOINTS: EndpointInfo[] = [
     url: `${API_URL}/api/skale-base/paid-content`,
     supportsPermit2: true,
   },
+  {
+    label: 'KiteAI Mainnet',
+    url: `${API_URL}/api/kiteai/paid-content`,
+    supportsPermit2: false,
+  },
 ];
 
 const TESTNET_ENDPOINTS: EndpointInfo[] = [
@@ -92,6 +97,11 @@ const TESTNET_ENDPOINTS: EndpointInfo[] = [
     url: `${API_URL}/api/skale-base-sepolia/paid-content`,
     supportsPermit2: true,
   },
+  // {
+  //   label: 'KiteAI Testnet',
+  //   url: `${API_URL}/api/kiteai-testnet/paid-content`,
+  //   supportsPermit2: false,
+  // },
 ];
 
 // Quickstart examples removed in favor of docs links

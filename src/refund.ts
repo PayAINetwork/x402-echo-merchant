@@ -42,7 +42,13 @@ function getFriendlyNetworkName(network: string): string {
   // Otherwise, convert from CAIP-2 to friendly name
   return CAIP2_TO_NETWORK[network] || network;
 }
-import { xLayerTestnet1952, skaleBase, skaleBaseSepolia } from './lib/chains';
+import {
+  xLayerTestnet1952,
+  skaleBase,
+  skaleBaseSepolia,
+  kiteai,
+  kiteaiTestnet,
+} from './lib/chains';
 import {
   appendTransactionMessageInstructions,
   createSolanaRpc,
@@ -95,10 +101,10 @@ const getSigner = async (network: Network) => {
   } else if (network === 'solana') {
     return await createSigner(network, getSvmPrivateKey());
   }
-  
+
   // For EVM networks, get the account
   const account = getEvmAccount();
-  
+
   if (network === 'avalanche') {
     return createWalletClient({
       chain: avalanche,
@@ -183,6 +189,18 @@ const getSigner = async (network: Network) => {
       transport: http(process.env.SKALE_BASE_SEPOLIA_RPC_URL as `https://${string}`),
       account,
     }).extend(publicActions);
+  } else if (network === 'kiteai') {
+    return createWalletClient({
+      chain: kiteai,
+      transport: http(process.env.KITEAI_RPC_URL as `https://${string}`),
+      account,
+    }).extend(publicActions);
+  } else if (network === 'kiteai-testnet') {
+    return createWalletClient({
+      chain: kiteaiTestnet,
+      transport: http(process.env.KITEAI_TESTNET_RPC_URL as `https://${string}`),
+      account,
+    }).extend(publicActions);
   } else {
     throw new Error(`Unsupported network: ${network}`);
   }
@@ -224,11 +242,11 @@ export const refund = async (
     const kitSigner = signer as unknown as TransactionSigner<string>;
     const isDevnet = networkForSigner === 'solana-devnet';
     const rpcUrl = isDevnet
-      ? process.env.SOLANA_DEVNET_RPC_URL ?? 'https://api.devnet.solana.com'
-      : process.env.SOLANA_RPC_URL ?? 'https://api.mainnet-beta.solana.com';
+      ? (process.env.SOLANA_DEVNET_RPC_URL ?? 'https://api.devnet.solana.com')
+      : (process.env.SOLANA_RPC_URL ?? 'https://api.mainnet-beta.solana.com');
     const wsUrl = isDevnet
-      ? process.env.SOLANA_DEVNET_WS_URL ?? 'wss://api.devnet.solana.com'
-      : process.env.SOLANA_WS_URL ?? 'wss://api.mainnet-beta.solana.com';
+      ? (process.env.SOLANA_DEVNET_WS_URL ?? 'wss://api.devnet.solana.com')
+      : (process.env.SOLANA_WS_URL ?? 'wss://api.mainnet-beta.solana.com');
 
     const rpc = createSolanaRpc(rpcUrl);
     const rpcSubscriptions = createSolanaRpcSubscriptions(wsUrl);

@@ -85,6 +85,10 @@ function getRpcUrlForNetwork(network: Network): string | undefined {
       return process.env.SKALE_BASE_RPC_URL;
     case 'skale-base-sepolia':
       return process.env.SKALE_BASE_SEPOLIA_RPC_URL;
+    case 'kiteai':
+      return process.env.KITEAI_RPC_URL;
+    case 'kiteai-testnet':
+      return process.env.KITEAI_TESTNET_RPC_URL;
     // SVM networks don't need RPC URLs for paywall (handled server-side)
     case 'solana':
     case 'solana-devnet':
@@ -211,6 +215,22 @@ const skaleBaseSepoliaConfig = {
   network: 'skale-base-sepolia' as Network,
   config: {
     description: 'Access to protected content on SKALE Base Sepolia testnet',
+  },
+} as RouteConfig;
+
+const kiteaiConfig = {
+  price: '$0.01' as Price,
+  network: 'kiteai' as Network,
+  config: {
+    description: 'Access to protected content on KiteAI mainnet',
+  },
+} as RouteConfig;
+
+const kiteaiTestnetConfig = {
+  price: '$0.01' as Price,
+  network: 'kiteai-testnet' as Network,
+  config: {
+    description: 'Access to protected content on KiteAI testnet',
   },
 } as RouteConfig;
 
@@ -516,6 +536,30 @@ export async function middleware(request: NextRequest) {
     return withCors(request, response);
   }
 
+  // kiteai mainnet
+  if (pathname.startsWith('/api/kiteai/')) {
+    const requestedAmount = await getRequestedAmount(request, kiteaiConfig.price);
+    const dynamicConfig = { ...kiteaiConfig, price: requestedAmount };
+    const response = await paymentMiddleware(
+      payToEVM,
+      { '/api/kiteai/paid-content': dynamicConfig },
+      facilitatorConfig
+    )(request);
+    return withCors(request, response);
+  }
+
+  // kiteai-testnet
+  if (pathname.startsWith('/api/kiteai-testnet/')) {
+    const requestedAmount = await getRequestedAmount(request, kiteaiTestnetConfig.price);
+    const dynamicConfig = { ...kiteaiTestnetConfig, price: requestedAmount };
+    const response = await paymentMiddleware(
+      payToEVM,
+      { '/api/kiteai-testnet/paid-content': dynamicConfig },
+      facilitatorConfig
+    )(request);
+    return withCors(request, response);
+  }
+
   // if not matched, continue without payment enforcement
   return withCors(request, NextResponse.next());
 }
@@ -571,12 +615,10 @@ export function paymentMiddleware(
       (SupportedEVMNetworks as readonly string[]).includes(network);
     const assetTransferMethod = permit2Override ? ('permit2' as const) : configTransferMethod;
     const permit2GasSponsoring =
-      permit2Override && configGasSponsoring === 'none'
-        ? ('both' as const)
-        : configGasSponsoring;
+      permit2Override && configGasSponsoring === 'none' ? ('both' as const) : configGasSponsoring;
     const permit2UserHint = permit2Override
       ? (configUserHint ??
-          'You may need a one-time USDC approval. Approval fees may be covered when the facilitator advertises gas sponsoring.')
+        'You may need a one-time USDC approval. Approval fees may be covered when the facilitator advertises gas sponsoring.')
       : configUserHint;
     const {
       description,
@@ -776,7 +818,8 @@ export function paymentMiddleware(
                     network === 'sei-testnet' ||
                     network === 'polygon-amoy' ||
                     network === ('xlayer-testnet' as unknown as Network) ||
-                    network === ('skale-base-sepolia' as unknown as Network),
+                    network === ('skale-base-sepolia' as unknown as Network) ||
+                    network === ('kiteai-testnet' as unknown as Network),
                   rpcUrl: getRpcUrlForNetwork(network),
                   extensions: paymentRequiredExtensions,
                 }));
