@@ -68,6 +68,10 @@ export function getExplorerForNetwork(network: string) {
     return 'https://skale-base-explorer.skalenodes.com/tx/';
   } else if (network === 'skale-base-sepolia') {
     return 'https://base-sepolia-testnet-explorer.skalenodes.com/tx/';
+  } else if (network === 'kiteai') {
+    return 'https://kitescan.ai/tx/';
+  } else if (network === 'kiteai-testnet') {
+    return 'https://testnet.kitescan.ai/tx/';
   }
 }
 
@@ -83,42 +87,8 @@ export function renderRizzlerHtml(
     ? CAIP2_TO_NETWORK[paymentResponse.network] || paymentResponse.network
     : paymentResponse.network;
 
-  // Determine explorer base URL using normalized network name
-  let explorerBase = '';
+  const explorerBase = getExplorerForNetwork(network) ?? '';
   const isSolanaDevnet = network === 'solana-devnet';
-  if (network === 'base-sepolia') {
-    explorerBase = 'https://sepolia.basescan.org/tx/';
-  } else if (network === 'base') {
-    explorerBase = 'https://basescan.org/tx/';
-  } else if (network === 'solana-devnet') {
-    explorerBase = 'https://solscan.io/tx/';
-  } else if (network === 'solana') {
-    explorerBase = 'https://solscan.io/tx/';
-  } else if (network === 'avalanche') {
-    explorerBase = 'https://snowtrace.io/tx/';
-  } else if (network === 'avalanche-fuji') {
-    explorerBase = 'https://testnet.snowtrace.io/tx/';
-  } else if (network === 'sei') {
-    explorerBase = 'https://seistream.app/transactions/';
-  } else if (network === 'sei-testnet') {
-    explorerBase = 'https://testnet.seistream.app/transactions/';
-  } else if (network === 'iotex') {
-    explorerBase = 'https://iotexscan.io/tx/';
-  } else if (network === 'polygon') {
-    explorerBase = 'https://polygonscan.com/tx/';
-  } else if (network === 'polygon-amoy') {
-    explorerBase = 'https://amoy.polygonscan.com/tx/';
-  } else if (network === 'peaq') {
-    explorerBase = 'https://peaq.subscan.io/tx/';
-  } else if (network === 'xlayer') {
-    explorerBase = 'https://www.oklink.com/x-layer/tx/';
-  } else if (network === 'xlayer-testnet') {
-    explorerBase = 'https://www.oklink.com/x-layer-testnet/tx/';
-  } else if (network === 'skale-base') {
-    explorerBase = 'https://skale-base-explorer.skalenodes.com/tx/';
-  } else if (network === 'skale-base-sepolia') {
-    explorerBase = 'https://base-sepolia-testnet-explorer.skalenodes.com/tx/';
-  }
 
   const paymentTxLink = paymentTx
     ? `${explorerBase}${paymentTx}${isSolanaDevnet ? '?cluster=devnet' : ''}`
@@ -543,10 +513,10 @@ export function renderRizzlerHtml(
           <div class="info-card">
             <div class="label">Refund ${refundFailed ? 'Status' : 'Transaction'}</div>
             <div class="tx ${refundFailed ? 'refund-failed' : 'refund'}">${
-    refundFailed
-      ? 'Refund failed - Please contact support'
-      : `<a href="${refundTxLink}" class="tx-link" target="_blank" rel="noopener noreferrer">${refundTxHash}</a>`
-  }
+              refundFailed
+                ? 'Refund failed - Please contact support'
+                : `<a href="${refundTxLink}" class="tx-link" target="_blank" rel="noopener noreferrer">${refundTxHash}</a>`
+            }
             </div>
           </div>
         </div>

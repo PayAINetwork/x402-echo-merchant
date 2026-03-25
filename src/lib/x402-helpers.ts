@@ -42,6 +42,8 @@ export interface PaymentRequired {
     mimeType: string;
   };
   accepts: PaymentRequirements[];
+  /** V2: server-declared facilitator extensions (e.g. gas sponsoring for Permit2). */
+  extensions?: Record<string, unknown>;
 }
 
 /**
@@ -56,6 +58,8 @@ export interface PaymentPayload {
   };
   accepted?: PaymentRequirements;
   payload: Record<string, unknown>;
+  /** V2: client-populated extension payloads merged with server declarations. */
+  extensions?: Record<string, unknown>;
 }
 
 // =============================================================================
@@ -88,6 +92,8 @@ export const NETWORK_TO_CAIP2: Record<string, string> = {
   iotex: 'eip155:4689',
   'skale-base': 'eip155:1187947933',
   'skale-base-sepolia': 'eip155:324705682',
+  kiteai: 'eip155:2366',
+  'kiteai-testnet': 'eip155:2368',
   // SVM networks
   solana: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
   'solana-devnet': 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1',
@@ -118,6 +124,8 @@ export const SupportedEVMNetworks = [
   'iotex',
   'skale-base',
   'skale-base-sepolia',
+  'kiteai',
+  'kiteai-testnet',
 ] as const;
 
 /**
@@ -135,6 +143,20 @@ export type Network = string;
 export interface RouteConfig {
   price: Price;
   network: Network;
+  /**
+   * EVM: how the client should authorize the transfer. Defaults to EIP-3009 (USDC).
+   * Use `permit2` for Permit2-based settlement (required for many non–EIP-3009 tokens).
+   */
+  assetTransferMethod?: 'eip3009' | 'permit2';
+  /**
+   * When `assetTransferMethod` is `permit2`, optionally advertise gas-sponsoring extensions.
+   * Declarations are merged only if the facilitator lists the matching keys on `/supported`.
+   */
+  permit2GasSponsoring?: 'none' | 'eip2612' | 'erc20' | 'both';
+  /**
+   * Optional paywall copy for Permit2 routes (avoid raw protocol names in user-facing text).
+   */
+  permit2UserHint?: string;
   config?: {
     description?: string;
     mimeType?: string;
@@ -386,6 +408,18 @@ const USDC_ADDRESSES: Record<
     decimals: 6,
     name: 'Bridged USDC (SKALE Bridge)',
     version: '2',
+  },
+  kiteai: {
+    address: '0x7aB6f3ed87C42eF0aDb67Ed95090f8bF5240149e',
+    decimals: 6,
+    name: 'Bridged USDC (Kite AI)',
+    version: '2',
+  },
+  'kiteai-testnet': {
+    address: '0x38129cf4CE5E183eFF248F42A7D345Bb1B47621A',
+    decimals: 18,
+    name: 'pieUSD',
+    version: '1',
   },
   solana: {
     address: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',

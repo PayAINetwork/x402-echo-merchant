@@ -33,27 +33,24 @@ function safeClone<T>(obj: T): T {
 }
 
 /**
- * Ensures a valid amount is set in payment requirements
+ * Ensures a valid amount is set in payment requirements.
  *
- * @param paymentRequirements - The payment requirements to validate and update
- * @returns Updated payment requirements with valid amount
+ * The server already computes the correct atomic amount using the token's
+ * actual decimals, so we only validate the field exists and is well-formed
+ * rather than re-computing (which would break tokens with non-6 decimals).
+ *
+ * @param paymentRequirements - The payment requirements to validate
+ * @returns Payment requirements with a guaranteed valid amount string
  */
 export function ensureValidAmount(paymentRequirements: PaymentRequirements): PaymentRequirements {
   const updatedRequirements = safeClone(paymentRequirements);
-
-  if (window.x402?.amount) {
-    try {
-      const amountInBaseUnits = Math.round(window.x402.amount * 1_000_000);
-      updatedRequirements.amount = amountInBaseUnits.toString();
-    } catch (error) {
-      console.error('Failed to parse amount:', error);
-    }
-  }
-
-  // Validate amount field
+  console.log('ENSURE VALID AMOUNT1', updatedRequirements);
+  console.log('ENSURE VALID AMOUNT1', updatedRequirements.amount);
   if (!updatedRequirements.amount || !/^\d+$/.test(updatedRequirements.amount)) {
     updatedRequirements.amount = '10000';
   }
+  console.log('ENSURE VALID AMOUNT2', updatedRequirements);
+  console.log('ENSURE VALID AMOUNT2', updatedRequirements.amount);
 
   return updatedRequirements;
 }

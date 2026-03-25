@@ -27,6 +27,9 @@ export interface PaymentRequirements {
     };
     // SVM specific
     feePayer?: string;
+    /** Permit2 / client routing */
+    assetTransferMethod?: string;
+    permit2UserHint?: string;
     [key: string]: unknown;
   };
 }
@@ -43,6 +46,8 @@ declare global {
       appLogo?: string;
       sessionTokenEndpoint?: string;
       rpcUrl?: string;
+      /** Copied from PaymentRequired.extensions for ExactEvmScheme enrichment. */
+      extensions?: Record<string, unknown>;
       config: {
         chainConfig: Record<
           string,

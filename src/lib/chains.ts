@@ -84,4 +84,55 @@ export const skaleBaseSepolia: Chain = {
   testnet: true,
 };
 
+/**
+ * KiteAI Mainnet chain definition.
+ * Chain ID: 2366
+ * Explorer: https://kitescan.ai/
+ */
+export const kiteai: Chain = {
+  id: 2366,
+  name: 'KiteAI',
+  nativeCurrency: {
+    name: 'KITE',
+    symbol: 'KITE',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.gokite.ai/'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'KiteScan',
+      url: 'https://kitescan.ai',
+    },
+  },
+};
 
+/**
+ * KiteAI Testnet chain definition.
+ * Chain ID: 2368
+ * Explorer: https://testnet.kitescan.ai/
+ */
+export const kiteaiTestnet: Chain = {
+  id: 2368,
+  name: 'KiteAI Testnet',
+  nativeCurrency: {
+    name: 'KITE',
+    symbol: 'KITE',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc-testnet.gokite.ai/'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'KiteScan Testnet',
+      url: 'https://testnet.kitescan.ai',
+    },
+  },
+  testnet: true,
+};

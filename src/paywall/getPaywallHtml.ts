@@ -1,4 +1,4 @@
-import { PAYWALL_TEMPLATE } from "./gen/template";
+import { PAYWALL_TEMPLATE } from './gen/template';
 
 type PaywallOptions = {
   amount: number;
@@ -11,16 +11,18 @@ type PaywallOptions = {
   sessionTokenEndpoint?: string;
   config?: Record<string, unknown>;
   rpcUrl?: string;
+  /** V2 PaymentRequired.extensions (server-declared facilitator extensions). */
+  extensions?: Record<string, unknown>;
 };
 
 function escapeString(str: string): string {
   return str
-    .replace(/\\/g, "\\\\")
+    .replace(/\\/g, '\\\\')
     .replace(/"/g, '\\"')
     .replace(/'/g, "\\'")
-    .replace(/\n/g, "\\n")
-    .replace(/\r/g, "\\r")
-    .replace(/\t/g, "\\t");
+    .replace(/\n/g, '\\n')
+    .replace(/\r/g, '\\r')
+    .replace(/\t/g, '\\t');
 }
 
 export function getLocalPaywallHtml({
@@ -34,7 +36,10 @@ export function getLocalPaywallHtml({
   sessionTokenEndpoint,
   config = {},
   rpcUrl,
+  extensions,
 }: PaywallOptions): string {
+  const extensionsJson =
+    extensions && Object.keys(extensions).length > 0 ? JSON.stringify(extensions) : 'undefined';
   const configScript = `
   <script>
     window.x402 = {
@@ -45,13 +50,14 @@ export function getLocalPaywallHtml({
       config: {
         chainConfig: ${JSON.stringify(config)},
       },
-      cdpClientKey: "${escapeString(cdpClientKey || "")}",
-      appName: "${escapeString(appName || "")}",
-      appLogo: "${escapeString(appLogo || "")}",
-      sessionTokenEndpoint: "${escapeString(sessionTokenEndpoint || "")}",
-      rpcUrl: "${escapeString(rpcUrl || "")}",
+      cdpClientKey: "${escapeString(cdpClientKey || '')}",
+      appName: "${escapeString(appName || '')}",
+      appLogo: "${escapeString(appLogo || '')}",
+      sessionTokenEndpoint: "${escapeString(sessionTokenEndpoint || '')}",
+      rpcUrl: "${escapeString(rpcUrl || '')}",
+      extensions: ${extensionsJson},
     };
   </script>`;
 
-  return PAYWALL_TEMPLATE.replace("</head>", `${configScript}\n</head>`);
+  return PAYWALL_TEMPLATE.replace('</head>', `${configScript}\n</head>`);
 }
