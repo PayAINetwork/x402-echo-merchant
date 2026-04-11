@@ -153,7 +153,8 @@ export default function Home() {
         </p>
 
         {/* Inline Scroll Indicator */}
-        <div
+        <button
+          type="button"
           className="flex flex-col items-center gap-3 mt-6 mb-4 cursor-pointer group"
           onClick={() =>
             document.getElementById('quickstart-section')?.scrollIntoView({ behavior: 'smooth' })
@@ -165,7 +166,7 @@ export default function Home() {
           <div className="scroll-indicator">
             <ChevronDown className="w-5 h-5 text-muted-foreground/60 group-hover:text-foreground/80 transition-colors" />
           </div>
-        </div>
+        </button>
 
         <Card className="w-full bg-card border border-border shadow-none mb-4 mt-4">
           <CardContent className="py-4 px-4 sm:py-6 sm:px-6 flex flex-col gap-4">
@@ -316,6 +317,7 @@ export default function Home() {
 function EndpointCard({ ep }: { ep: EndpointInfo }) {
   const [expanded, setExpanded] = React.useState(false);
   const permit2Url = `${ep.url}?assetTransferMethod=permit2`;
+  const uptoUrl = `${ep.url}?scheme=upto&assetTransferMethod=permit2`;
   return (
     <div className="mb-3">
       <div className="text-sm text-foreground font-medium mb-2">{ep.label}</div>
@@ -393,6 +395,28 @@ function EndpointCard({ ep }: { ep: EndpointInfo }) {
                   <ExternalLink className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300" />
                 </a>
                 <CopyButton url={permit2Url} />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                <span className="inline-flex items-center text-[10px] font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-950/50 px-1.5 py-0.5 rounded flex-shrink-0">
+                  Upto
+                </span>
+                <a
+                  href={uptoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-amber-600 dark:text-amber-400 underline hover:text-amber-800 dark:hover:text-amber-300 text-xs font-medium truncate min-w-0 font-mono"
+                >
+                  {ep.url.replace(API_URL || '', '')}?scheme=upto&assetTransferMethod=permit2
+                </a>
+              </div>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <a href={uptoUrl} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-300" />
+                </a>
+                <CopyButton url={uptoUrl} />
               </div>
             </div>
           </div>
