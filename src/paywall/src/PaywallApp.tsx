@@ -33,9 +33,9 @@ import {
   peaq,
   xLayer,
 } from 'viem/chains';
-import { useAccount, useChainId, useSwitchChain, useWalletClient } from 'wagmi';
+import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 
-import { ExactEvmScheme, toClientEvmSigner } from '@payai/x402-evm';
+import { ExactEvmScheme, UptoEvmScheme, toClientEvmSigner } from '@payai/x402-evm';
 import { safeBase64Encode } from '@payai/x402/utils';
 import type { PaymentPayloadContext } from '@payai/x402/types';
 import {
@@ -165,7 +165,6 @@ export function PaywallApp() {
   const { address, isConnected } = useAccount();
   const walletChainId = useChainId();
   const { switchChainAsync, chains: switchableChains } = useSwitchChain();
-  const { data: wagmiWalletClient } = useWalletClient();
   const { sessionToken } = useOnrampSessionToken(address);
 
   const [status, setStatus] = useState<string>('');
@@ -178,10 +177,23 @@ export function PaywallApp() {
 
   const x402 = window.x402;
   const amount = x402.amount || 0;
-  const requirements = Array.isArray(x402.paymentRequirements)
-    ? x402.paymentRequirements[0]
-    : x402.paymentRequirements;
-  const network = requirements?.network;
+  const currentUrl = x402.currentUrl;
+  const rpcUrl = x402.rpcUrl;
+  const extensions = x402.extensions;
+  const rawPaymentRequirements = x402.paymentRequirements;
+  const paymentRequirementList = useMemo(
+    () => (Array.isArray(rawPaymentRequirements) ? rawPaymentRequirements : [rawPaymentRequirements]),
+    [rawPaymentRequirements]
+  );
+  const network = paymentRequirementList[0]?.network;
+  const requestedScheme = (() => {
+    try {
+      const requestUrl = new URL(currentUrl);
+      return requestUrl.searchParams.get('scheme') === 'upto' ? 'upto' : 'exact';
+    } catch {
+      return 'exact';
+    }
+  })();
 
   // Parse CAIP-2 network to get chain
   const paymentChain = useMemo(() => {
@@ -208,22 +220,21 @@ export function PaywallApp() {
     () =>
       createPublicClient({
         chain: paymentChain,
-        transport: http(x402.rpcUrl || undefined),
+        transport: http(rpcUrl || undefined),
       }).extend(publicActions),
-    [paymentChain, x402.rpcUrl]
+    [paymentChain, rpcUrl]
   );
 
-  // Select the first payment requirement that matches the network and scheme
+  // Prefer the scheme requested in the protected resource URL so the local paywall
+  // stays aligned when the middleware advertises both exact-like and upto flows.
   const paymentRequirements = useMemo(() => {
-    if (!x402) return null;
-    const requirements = [x402.paymentRequirements].flat();
-    // Find the first requirement matching the network and exact scheme
     return (
-      requirements.find(r => r.network === network && r.scheme === 'exact') ||
-      requirements[0] ||
+      paymentRequirementList.find(r => r.network === network && r.scheme === requestedScheme) ||
+      paymentRequirementList.find(r => r.network === network) ||
+      paymentRequirementList[0] ||
       null
     );
-  }, [x402, network]);
+  }, [paymentRequirementList, network, requestedScheme]);
 
   // Extract chain checking logic so it can be reused
   const checkChain = useCallback(async () => {
@@ -299,7 +310,7 @@ export function PaywallApp() {
 
   const handleSuccessfulResponse = useCallback(async (response: Response) => {
     const contentType = response.headers.get('content-type');
-    if (contentType && contentType.includes('text/html')) {
+    if (contentType?.includes('text/html')) {
       document.documentElement.innerHTML = await response.text();
     } else {
       const blob = await response.blob();
@@ -380,7 +391,7 @@ export function PaywallApp() {
   }, [address, isConnected, checkUSDCBalance]);
 
   const handlePayment = useCallback(async () => {
-    if (!address || !x402 || !paymentRequirements) {
+    if (!address || !paymentRequirements) {
       return;
     }
 
@@ -428,8 +439,6 @@ export function PaywallApp() {
         publicClient
       );
 
-      const scheme = new ExactEvmScheme(signer, x402.rpcUrl ? { rpcUrl: x402.rpcUrl } : undefined);
-
       // Cast requirements to expected format (CAIP-2 network with required extra)
       const paymentReqs = {
         ...validPaymentRequirements,
@@ -437,9 +446,14 @@ export function PaywallApp() {
         extra: validPaymentRequirements.extra || {},
       };
 
+      const scheme =
+        paymentReqs.scheme === 'upto'
+          ? new UptoEvmScheme(signer, rpcUrl ? { rpcUrl } : undefined)
+          : new ExactEvmScheme(signer, rpcUrl ? { rpcUrl } : undefined);
+
       const paymentPayloadContext: PaymentPayloadContext | undefined =
-        x402.extensions && Object.keys(x402.extensions).length > 0
-          ? { extensions: x402.extensions }
+        extensions && Object.keys(extensions).length > 0
+          ? { extensions }
           : undefined;
 
       // Create payment payload (server extensions inform Permit2 enrichment paths)
@@ -453,7 +467,7 @@ export function PaywallApp() {
       const fullPaymentPayload = {
         ...partialPayload,
         resource: {
-          url: x402.currentUrl,
+          url: currentUrl,
           description: validPaymentRequirements.extra?.description || '',
           mimeType: validPaymentRequirements.extra?.mimeType || 'application/json',
         },
@@ -464,7 +478,7 @@ export function PaywallApp() {
       const paymentHeader = safeBase64Encode(JSON.stringify(fullPaymentPayload));
 
       setStatus('Requesting content with payment...');
-      const response = await fetch(x402.currentUrl, {
+      const response = await fetch(currentUrl, {
         headers: {
           'PAYMENT-SIGNATURE': paymentHeader,
           'Access-Control-Expose-Headers': 'PAYMENT-RESPONSE',
@@ -490,7 +504,7 @@ export function PaywallApp() {
           const retryFullPayload = {
             ...retryPartialPayload,
             resource: {
-              url: x402.currentUrl,
+              url: currentUrl,
               description: validPaymentRequirements.extra?.description || '',
               mimeType: validPaymentRequirements.extra?.mimeType || 'application/json',
             },
@@ -498,7 +512,7 @@ export function PaywallApp() {
           };
 
           const retryHeader = safeBase64Encode(JSON.stringify(retryFullPayload));
-          const retryResponse = await fetch(x402.currentUrl, {
+          const retryResponse = await fetch(currentUrl, {
             headers: {
               'PAYMENT-SIGNATURE': retryHeader,
               'Access-Control-Expose-Headers': 'PAYMENT-RESPONSE',
@@ -528,14 +542,15 @@ export function PaywallApp() {
     }
   }, [
     address,
-    x402,
     paymentRequirements,
     publicClient,
     paymentChain,
     handleSwitchChain,
     chainName,
     handleSuccessfulResponse,
-    wagmiWalletClient,
+    currentUrl,
+    extensions,
+    rpcUrl,
   ]);
 
   if (!x402 || !paymentRequirements) {
@@ -593,7 +608,11 @@ export function PaywallApp() {
               <div className="payment-row">
                 <span className="payment-label">Available balance:</span>
                 <span className="payment-value">
-                  <button className="balance-button" onClick={() => setHideBalance(prev => !prev)}>
+                  <button
+                    type="button"
+                    className="balance-button"
+                    onClick={() => setHideBalance(prev => !prev)}
+                  >
                     {formattedUsdcBalance && !hideBalance
                       ? `$${formattedUsdcBalance} USDC`
                       : '••••• USDC'}
@@ -616,6 +635,7 @@ export function PaywallApp() {
                   <FundButton fundingUrl={onrampBuyUrl} className="button button-positive" />
                 )}
                 <button
+                  type="button"
                   className="button button-primary"
                   onClick={handlePayment}
                   disabled={isPaying}
@@ -624,7 +644,7 @@ export function PaywallApp() {
                 </button>
               </div>
             ) : (
-              <button className="button button-primary" onClick={handleSwitchChain}>
+              <button type="button" className="button button-primary" onClick={handleSwitchChain}>
                 Switch to {chainName}
               </button>
             )}

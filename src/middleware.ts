@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { Address, getAddress } from 'viem';
+import { getAddress } from 'viem';
+import type { Address } from 'viem';
 import { getLocalPaywallHtml } from './paywall/getPaywallHtml';
 import { getSolanaPaywallHtml } from './paywall/getSolanaPaywallHtml';
 import { handlePaidContentRequest } from './lib/paidContentHandler';
@@ -25,7 +26,7 @@ import {
   type VerifyResponse,
   type Network,
 } from './lib/x402-helpers';
-import { useFacilitator, type FacilitatorConfig } from './lib/facilitator';
+import { useFacilitator as createFacilitatorClient, type FacilitatorConfig } from './lib/facilitator';
 import { mergePermit2GasSponsoringDeclarations } from './lib/permit2Extensions';
 
 // SolanaAddress is just a string type alias
@@ -578,7 +579,7 @@ export function paymentMiddleware(
   routes: RoutesConfig,
   facilitator?: FacilitatorConfig
 ) {
-  const { verify, settle, supported } = useFacilitator(facilitator);
+  const { verify, settle, supported } = createFacilitatorClient(facilitator);
   const x402Version = 2; // V2 protocol
 
   // Pre-compile route patterns to regex and extract verbs
@@ -609,17 +610,25 @@ export function paymentMiddleware(
       config = {},
     } = matchingRoute.config;
 
-    // ?assetTransferMethod=permit2 overrides eip3009 -> permit2 on EVM networks
+    const isEvmNetwork = (SupportedEVMNetworks as readonly string[]).includes(network);
+    const useUptoScheme =
+      request.nextUrl.searchParams.get('scheme') === 'upto' && isEvmNetwork;
+    // ?assetTransferMethod=permit2 overrides eip3009 -> permit2 on EVM networks.
+    // The upto scheme is EVM-only and always uses Permit2 settlement.
     const permit2Override =
-      request.nextUrl.searchParams.get('assetTransferMethod') === 'permit2' &&
-      (SupportedEVMNetworks as readonly string[]).includes(network);
-    const assetTransferMethod = permit2Override ? ('permit2' as const) : configTransferMethod;
+      request.nextUrl.searchParams.get('assetTransferMethod') === 'permit2' && isEvmNetwork;
+    const shouldUsePermit2 = permit2Override || useUptoScheme;
+    const scheme = useUptoScheme ? ('upto' as const) : ('exact' as const);
+    const assetTransferMethod = shouldUsePermit2 ? ('permit2' as const) : configTransferMethod;
     const permit2GasSponsoring =
-      permit2Override && configGasSponsoring === 'none' ? ('both' as const) : configGasSponsoring;
-    const permit2UserHint = permit2Override
+      shouldUsePermit2 && configGasSponsoring === 'none' ? ('both' as const) : configGasSponsoring;
+    const permit2UserHint = useUptoScheme
       ? (configUserHint ??
-        'You may need a one-time USDC approval. Approval fees may be covered when the facilitator advertises gas sponsoring.')
-      : configUserHint;
+        'You may need a one-time USDC approval. Each payment then signs an authorization for a maximum amount, and settlement uses the final amount without a second wallet prompt.')
+      : permit2Override
+        ? (configUserHint ??
+          'You may need a one-time USDC approval. Approval fees may be covered when the facilitator advertises gas sponsoring.')
+        : configUserHint;
     const {
       description,
       mimeType,
@@ -649,10 +658,14 @@ export function paymentMiddleware(
     /** Top-level V2 extensions on PaymentRequired (Permit2 gas sponsoring, etc.). */
     let paymentRequiredExtensions: Record<string, unknown> | undefined;
 
-    if ((SupportedEVMNetworks as readonly string[]).includes(network)) {
-      if (assetTransferMethod === 'permit2' && permit2GasSponsoring !== 'none') {
+    if (isEvmNetwork) {
+      let supportedResult:
+        | Awaited<ReturnType<typeof supported>>
+        | undefined;
+
+      if (assetTransferMethod === 'permit2' && (permit2GasSponsoring !== 'none' || scheme === 'upto')) {
         try {
-          const supportedResult = await supported();
+          supportedResult = await supported();
           paymentRequiredExtensions = mergePermit2GasSponsoringDeclarations(
             permit2GasSponsoring,
             supportedResult.extensions
@@ -692,9 +705,26 @@ export function paymentMiddleware(
       if (permit2UserHint) {
         evmExtra.permit2UserHint = permit2UserHint;
       }
+      if (scheme === 'upto') {
+        const uptoKind = supportedResult?.kinds.find(kind => {
+          return kind.network === caip2Network && kind.scheme === 'upto';
+        });
+        const facilitatorAddress =
+          typeof uptoKind?.extra?.facilitatorAddress === 'string'
+            ? uptoKind.extra.facilitatorAddress
+            : undefined;
+
+        if (!facilitatorAddress) {
+          throw new Error(
+            `The facilitator did not provide an upto facilitatorAddress for network: ${network}.`
+          );
+        }
+
+        evmExtra.facilitatorAddress = facilitatorAddress;
+      }
 
       paymentRequirements.push({
-        scheme: 'exact',
+        scheme,
         network: caip2Network,
         amount,
         payTo: getAddress(payTo),
@@ -1033,7 +1063,6 @@ export function paymentMiddleware(
       );
     }
 
-    return response;
   };
 }
 
