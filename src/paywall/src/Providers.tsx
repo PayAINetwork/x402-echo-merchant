@@ -1,4 +1,5 @@
 import { OnchainKitProvider } from '@coinbase/onchainkit';
+import type { Chain } from 'viem';
 import type { ReactNode } from 'react';
 import {
   base,
@@ -12,12 +13,37 @@ import {
   polygonAmoy,
   peaq,
   xLayer,
+  arbitrum,
+  arbitrumSepolia,
 } from 'viem/chains';
-import { xLayerTestnet1952, kiteai, kiteaiTestnet } from '../../lib/chains';
+import { xLayerTestnet1952, skaleBase, skaleBaseSepolia, kiteai, kiteaiTestnet } from '../../lib/chains';
 import './window.d.ts';
 
 type ProvidersProps = {
   children: ReactNode;
+};
+
+// Merchant middleware writes payment requirements in V2 CAIP-2 form
+// (e.g. "eip155:8453"), so the chain lookup is keyed by chain id.
+const CHAIN_BY_CAIP2: Record<string, Chain> = {
+  'eip155:8453': base,
+  'eip155:84532': baseSepolia,
+  'eip155:43114': avalanche,
+  'eip155:43113': avalancheFuji,
+  'eip155:1329': sei,
+  'eip155:713715': seiTestnet,
+  'eip155:4689': iotex,
+  'eip155:137': polygon,
+  'eip155:80002': polygonAmoy,
+  'eip155:3338': peaq,
+  'eip155:196': xLayer,
+  'eip155:1952': xLayerTestnet1952,
+  'eip155:1187947933': skaleBase,
+  'eip155:324705682': skaleBaseSepolia,
+  'eip155:2366': kiteai,
+  'eip155:2368': kiteaiTestnet,
+  'eip155:42161': arbitrum,
+  'eip155:421614': arbitrumSepolia,
 };
 
 /**
@@ -34,34 +60,7 @@ export function Providers({ children }: ProvidersProps) {
     : window.x402.paymentRequirements;
 
   const network = requirements?.network;
-  const paymentChain =
-    network === 'base-sepolia'
-      ? baseSepolia
-      : network === 'avalanche-fuji'
-        ? avalancheFuji
-        : network === 'sei-testnet'
-          ? seiTestnet
-          : network === 'xlayer-testnet'
-            ? xLayerTestnet1952
-            : network === 'sei'
-              ? sei
-              : network === 'avalanche'
-                ? avalanche
-                : network === 'iotex'
-                  ? iotex
-                  : network === 'polygon'
-                    ? polygon
-                    : network === 'polygon-amoy'
-                      ? polygonAmoy
-                      : network === 'peaq'
-                        ? peaq
-                        : network === 'xlayer'
-                          ? xLayer
-                          : network === 'kiteai'
-                            ? kiteai
-                            : network === 'kiteai-testnet'
-                              ? kiteaiTestnet
-                              : base;
+  const paymentChain = (network && CHAIN_BY_CAIP2[network]) || base;
 
   console.log('paymentChain', paymentChain);
   console.log('network', network);

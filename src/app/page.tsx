@@ -59,6 +59,11 @@ const MAINNET_ENDPOINTS: EndpointInfo[] = [
     url: `${API_URL}/api/kiteai/paid-content`,
     supportsPermit2: false,
   },
+  {
+    label: 'Arbitrum One',
+    url: `${API_URL}/api/arbitrum/paid-content`,
+    supportsPermit2: false,
+  },
 ];
 
 const TESTNET_ENDPOINTS: EndpointInfo[] = [
@@ -102,6 +107,11 @@ const TESTNET_ENDPOINTS: EndpointInfo[] = [
   //   url: `${API_URL}/api/kiteai-testnet/paid-content`,
   //   supportsPermit2: false,
   // },
+  {
+    label: 'Arbitrum Sepolia',
+    url: `${API_URL}/api/arbitrum-sepolia/paid-content`,
+    supportsPermit2: false,
+  },
 ];
 
 // Quickstart examples removed in favor of docs links
