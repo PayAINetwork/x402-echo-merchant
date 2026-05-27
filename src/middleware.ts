@@ -90,6 +90,10 @@ function getRpcUrlForNetwork(network: Network): string | undefined {
       return process.env.KITEAI_RPC_URL;
     case 'kiteai-testnet':
       return process.env.KITEAI_TESTNET_RPC_URL;
+    case 'arbitrum':
+      return process.env.ARBITRUM_RPC_URL;
+    case 'arbitrum-sepolia':
+      return process.env.ARBITRUM_SEPOLIA_RPC_URL;
     // SVM networks don't need RPC URLs for paywall (handled server-side)
     case 'solana':
     case 'solana-devnet':
@@ -232,6 +236,22 @@ const kiteaiTestnetConfig = {
   network: 'kiteai-testnet' as Network,
   config: {
     description: 'Access to protected content on KiteAI testnet',
+  },
+} as RouteConfig;
+
+const arbitrumConfig = {
+  price: '$0.01' as Price,
+  network: 'arbitrum' as Network,
+  config: {
+    description: 'Access to protected content on Arbitrum One',
+  },
+} as RouteConfig;
+
+const arbitrumSepoliaConfig = {
+  price: '$0.01' as Price,
+  network: 'arbitrum-sepolia' as Network,
+  config: {
+    description: 'Access to protected content on Arbitrum Sepolia',
   },
 } as RouteConfig;
 
@@ -561,6 +581,30 @@ export async function middleware(request: NextRequest) {
     return withCors(request, response);
   }
 
+  // arbitrum mainnet
+  if (pathname.startsWith('/api/arbitrum/')) {
+    const requestedAmount = await getRequestedAmount(request, arbitrumConfig.price);
+    const dynamicConfig = { ...arbitrumConfig, price: requestedAmount };
+    const response = await paymentMiddleware(
+      payToEVM,
+      { '/api/arbitrum/paid-content': dynamicConfig },
+      facilitatorConfig
+    )(request);
+    return withCors(request, response);
+  }
+
+  // arbitrum-sepolia
+  if (pathname.startsWith('/api/arbitrum-sepolia/')) {
+    const requestedAmount = await getRequestedAmount(request, arbitrumSepoliaConfig.price);
+    const dynamicConfig = { ...arbitrumSepoliaConfig, price: requestedAmount };
+    const response = await paymentMiddleware(
+      payToEVM,
+      { '/api/arbitrum-sepolia/paid-content': dynamicConfig },
+      facilitatorConfig
+    )(request);
+    return withCors(request, response);
+  }
+
   // if not matched, continue without payment enforcement
   return withCors(request, NextResponse.next());
 }
@@ -849,7 +893,8 @@ export function paymentMiddleware(
                     network === 'polygon-amoy' ||
                     network === ('xlayer-testnet' as unknown as Network) ||
                     network === ('skale-base-sepolia' as unknown as Network) ||
-                    network === ('kiteai-testnet' as unknown as Network),
+                    network === ('kiteai-testnet' as unknown as Network) ||
+                    network === ('arbitrum-sepolia' as unknown as Network),
                   rpcUrl: getRpcUrlForNetwork(network),
                   extensions: paymentRequiredExtensions,
                 }));

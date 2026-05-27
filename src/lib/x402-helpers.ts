@@ -94,6 +94,8 @@ export const NETWORK_TO_CAIP2: Record<string, string> = {
   'skale-base-sepolia': 'eip155:324705682',
   kiteai: 'eip155:2366',
   'kiteai-testnet': 'eip155:2368',
+  arbitrum: 'eip155:42161',
+  'arbitrum-sepolia': 'eip155:421614',
   // SVM networks
   solana: 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
   'solana-devnet': 'solana:EtWTRABZaYq6iMfeYKouRu166VU2xqa1',
@@ -126,6 +128,8 @@ export const SupportedEVMNetworks = [
   'skale-base-sepolia',
   'kiteai',
   'kiteai-testnet',
+  'arbitrum',
+  'arbitrum-sepolia',
 ] as const;
 
 /**
@@ -420,6 +424,18 @@ const USDC_ADDRESSES: Record<
     decimals: 18,
     name: 'pieUSD',
     version: '1',
+  },
+  arbitrum: {
+    address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',
+    decimals: 6,
+    name: 'USD Coin',
+    version: '2',
+  },
+  'arbitrum-sepolia': {
+    address: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
+    decimals: 6,
+    name: 'USD Coin',
+    version: '2',
   },
   solana: {
     address: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',

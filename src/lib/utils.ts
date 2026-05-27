@@ -72,6 +72,10 @@ export function getExplorerForNetwork(network: string) {
     return 'https://kitescan.ai/tx/';
   } else if (network === 'kiteai-testnet') {
     return 'https://testnet.kitescan.ai/tx/';
+  } else if (network === 'arbitrum') {
+    return 'https://arbiscan.io/tx/';
+  } else if (network === 'arbitrum-sepolia') {
+    return 'https://sepolia.arbiscan.io/tx/';
   }
 }
 

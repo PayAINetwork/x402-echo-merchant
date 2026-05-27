@@ -19,6 +19,8 @@ import {
   polygonAmoy,
   peaq,
   xLayer,
+  arbitrum,
+  arbitrumSepolia,
 } from 'viem/chains';
 import {
   createSigner,
@@ -199,6 +201,18 @@ const getSigner = async (network: Network) => {
     return createWalletClient({
       chain: kiteaiTestnet,
       transport: http(process.env.KITEAI_TESTNET_RPC_URL as `https://${string}`),
+      account,
+    }).extend(publicActions);
+  } else if (network === 'arbitrum') {
+    return createWalletClient({
+      chain: arbitrum,
+      transport: http(process.env.ARBITRUM_RPC_URL as `https://${string}`),
+      account,
+    }).extend(publicActions);
+  } else if (network === 'arbitrum-sepolia') {
+    return createWalletClient({
+      chain: arbitrumSepolia,
+      transport: http(process.env.ARBITRUM_SEPOLIA_RPC_URL as `https://${string}`),
       account,
     }).extend(publicActions);
   } else {
