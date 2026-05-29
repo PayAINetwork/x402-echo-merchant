@@ -359,7 +359,7 @@ function convertPriceToString(price: Price): string {
   return '$0.01';
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   // Handle CORS preflight
   if (request.method.toUpperCase() === 'OPTIONS') {
     const preflight = new NextResponse(null, { status: 204 });
