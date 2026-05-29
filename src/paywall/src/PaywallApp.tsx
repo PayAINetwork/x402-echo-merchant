@@ -32,6 +32,8 @@ import {
   polygonAmoy,
   peaq,
   xLayer,
+  arbitrum,
+  arbitrumSepolia,
 } from 'viem/chains';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 
@@ -122,6 +124,8 @@ const CAIP2_TO_CHAIN: Record<string, Chain> = {
   'eip155:324705682': skaleBaseSepolia,
   'eip155:2366': kiteai,
   'eip155:2368': kiteaiTestnet,
+  'eip155:42161': arbitrum,
+  'eip155:421614': arbitrumSepolia,
 };
 
 /**
@@ -151,7 +155,7 @@ function getChainName(network: string): string {
  * Check if network is a testnet based on CAIP-2 format
  */
 function isTestnet(network: string): boolean {
-  const testnetChainIds = [84532, 43113, 713715, 80002, 195, 324705682, 2368]; // base-sepolia, avalanche-fuji, sei-testnet, polygon-amoy, xlayer-testnet, skale-base-sepolia, kiteai-testnet
+  const testnetChainIds = [84532, 43113, 713715, 80002, 195, 324705682, 2368, 421614]; // base-sepolia, avalanche-fuji, sei-testnet, polygon-amoy, xlayer-testnet, skale-base-sepolia, kiteai-testnet, arbitrum-sepolia
   const { chainId } = parseCAIP2Network(network);
   return testnetChainIds.includes(chainId);
 }
