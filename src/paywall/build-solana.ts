@@ -1,5 +1,5 @@
 import * as esbuild from "esbuild";
-import { htmlPlugin } from "@craftamap/esbuild-plugin-html";
+import { inlineHtmlPlugin } from "./inlineHtmlPlugin";
 import fs from "node:fs";
 import path from "node:path";
 import { getBaseTemplate } from "./baseTemplate";
@@ -30,17 +30,13 @@ const options: esbuild.BuildOptions = {
   mainFields: ["browser", "module", "main"],
   conditions: ["browser"],
   plugins: [
-    htmlPlugin({
+    inlineHtmlPlugin({
       files: [
         {
           entryPoints: ["src/paywall/solana-index.tsx"],
           filename: "solana-paywall.html",
           title: "Solana Payment Required",
           scriptLoading: "module",
-          inline: {
-            css: true,
-            js: true,
-          },
           htmlTemplate: getBaseTemplate(),
         },
       ],

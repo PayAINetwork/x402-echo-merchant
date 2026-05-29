@@ -1,5 +1,5 @@
 import * as esbuild from 'esbuild';
-import { htmlPlugin } from '@craftamap/esbuild-plugin-html';
+import { inlineHtmlPlugin } from './inlineHtmlPlugin';
 import fs from 'node:fs';
 import path from 'node:path';
 import postcss from 'postcss';
@@ -88,17 +88,13 @@ const options: esbuild.BuildOptions = {
   plugins: [
     // Process CSS through PostCSS/Tailwind before bundling
     postcssPlugin,
-    htmlPlugin({
+    inlineHtmlPlugin({
       files: [
         {
           entryPoints: ['src/paywall/index.tsx', 'src/paywall/styles.css'],
           filename: 'paywall.html',
           title: 'Payment Required',
           scriptLoading: 'module',
-          inline: {
-            css: true,
-            js: true,
-          },
           htmlTemplate: getBaseTemplate(),
         },
       ],

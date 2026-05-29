@@ -51,5 +51,7 @@ export function getSolanaPaywallHtml({
     };
   </script>`;
 
-  return SOLANA_PAYWALL_TEMPLATE.replace("</head>", `${configScript}\n</head>`);
+  // Function replacer prevents `$` sequences in the injected config (e.g. a `$`
+  // in a price/description) from being treated as replacement patterns.
+  return SOLANA_PAYWALL_TEMPLATE.replace("</head>", () => `${configScript}\n</head>`);
 }

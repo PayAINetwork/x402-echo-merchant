@@ -59,5 +59,7 @@ export function getLocalPaywallHtml({
     };
   </script>`;
 
-  return PAYWALL_TEMPLATE.replace('</head>', `${configScript}\n</head>`);
+  // Function replacer prevents `$` sequences in the injected config from being
+  // treated as `String.prototype.replace` patterns (e.g. `$&`, `$'`).
+  return PAYWALL_TEMPLATE.replace('</head>', () => `${configScript}\n</head>`);
 }
