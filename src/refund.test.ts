@@ -57,8 +57,6 @@ vi.mock('viem/chains', () => ({
   polygonAmoy: { id: 80002, name: 'Polygon Amoy' },
   sei: { id: 1329, name: 'Sei' },
   seiTestnet: { id: 1328, name: 'Sei Testnet' },
-  iotex: { id: 4689, name: 'IoTeX' },
-  peaq: { id: 3338, name: 'Peaq' },
 }));
 
 // Mock Solana functions

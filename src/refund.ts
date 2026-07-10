@@ -12,12 +12,10 @@ import {
   avalancheFuji,
   base,
   baseSepolia,
-  iotex,
   sei,
   seiTestnet,
   polygon,
   polygonAmoy,
-  peaq,
   xLayer,
   arbitrum,
   arbitrumSepolia,
@@ -48,8 +46,6 @@ import {
   xLayerTestnet1952,
   skaleBase,
   skaleBaseSepolia,
-  kiteai,
-  kiteaiTestnet,
 } from './lib/chains';
 import {
   appendTransactionMessageInstructions,
@@ -155,12 +151,6 @@ const getSigner = async (network: Network) => {
       transport: http(process.env.XLAYER_TESTNET_RPC_URL as `https://${string}`),
       account,
     }).extend(publicActions);
-  } else if (network === 'iotex') {
-    return createWalletClient({
-      chain: iotex,
-      transport: http(process.env.IOTEX_RPC_URL as `https://${string}`),
-      account,
-    }).extend(publicActions);
   } else if (network === 'polygon') {
     return createWalletClient({
       chain: polygon,
@@ -173,12 +163,6 @@ const getSigner = async (network: Network) => {
       transport: http(process.env.POLYGON_AMOY_RPC_URL as `https://${string}`),
       account,
     }).extend(publicActions);
-  } else if (network === 'peaq') {
-    return createWalletClient({
-      chain: peaq,
-      transport: http(process.env.PEAQ_RPC_URL as `https://${string}`),
-      account,
-    }).extend(publicActions);
   } else if (network === 'skale-base') {
     return createWalletClient({
       chain: skaleBase,
@@ -189,18 +173,6 @@ const getSigner = async (network: Network) => {
     return createWalletClient({
       chain: skaleBaseSepolia,
       transport: http(process.env.SKALE_BASE_SEPOLIA_RPC_URL as `https://${string}`),
-      account,
-    }).extend(publicActions);
-  } else if (network === 'kiteai') {
-    return createWalletClient({
-      chain: kiteai,
-      transport: http(process.env.KITEAI_RPC_URL as `https://${string}`),
-      account,
-    }).extend(publicActions);
-  } else if (network === 'kiteai-testnet') {
-    return createWalletClient({
-      chain: kiteaiTestnet,
-      transport: http(process.env.KITEAI_TESTNET_RPC_URL as `https://${string}`),
       account,
     }).extend(publicActions);
   } else if (network === 'arbitrum') {

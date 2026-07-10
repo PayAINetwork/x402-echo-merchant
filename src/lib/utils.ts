@@ -52,14 +52,10 @@ export function getExplorerForNetwork(network: string) {
     return 'https://seistream.app/transactions/';
   } else if (network === 'sei-testnet') {
     return 'https://testnet.seistream.app/transactions/';
-  } else if (network === 'iotex') {
-    return 'https://iotexscan.io/tx/';
   } else if (network === 'polygon') {
     return 'https://polygonscan.com/tx/';
   } else if (network === 'polygon-amoy') {
     return 'https://amoy.polygonscan.com/tx/';
-  } else if (network === 'peaq') {
-    return 'https://peaq.subscan.io/tx/';
   } else if (network === 'xlayer') {
     return 'https://www.oklink.com/x-layer/tx/';
   } else if (network === 'xlayer-testnet') {
@@ -68,10 +64,6 @@ export function getExplorerForNetwork(network: string) {
     return 'https://skale-base-explorer.skalenodes.com/tx/';
   } else if (network === 'skale-base-sepolia') {
     return 'https://base-sepolia-testnet-explorer.skalenodes.com/tx/';
-  } else if (network === 'kiteai') {
-    return 'https://kitescan.ai/tx/';
-  } else if (network === 'kiteai-testnet') {
-    return 'https://testnet.kitescan.ai/tx/';
   } else if (network === 'arbitrum') {
     return 'https://arbiscan.io/tx/';
   } else if (network === 'arbitrum-sepolia') {
