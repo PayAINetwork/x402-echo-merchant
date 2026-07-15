@@ -78,18 +78,10 @@ function getRpcUrlForNetwork(network: Network): string | undefined {
       return process.env.POLYGON_RPC_URL;
     case 'polygon-amoy':
       return process.env.POLYGON_AMOY_RPC_URL;
-    case 'peaq':
-      return process.env.PEAQ_RPC_URL;
-    case 'iotex':
-      return process.env.IOTEX_RPC_URL;
     case 'skale-base':
       return process.env.SKALE_BASE_RPC_URL;
     case 'skale-base-sepolia':
       return process.env.SKALE_BASE_SEPOLIA_RPC_URL;
-    case 'kiteai':
-      return process.env.KITEAI_RPC_URL;
-    case 'kiteai-testnet':
-      return process.env.KITEAI_TESTNET_RPC_URL;
     case 'arbitrum':
       return process.env.ARBITRUM_RPC_URL;
     case 'arbitrum-sepolia':
@@ -183,14 +175,6 @@ const polygonAmoyConfig = {
   },
 } as RouteConfig;
 
-const peaqConfig = {
-  price: '$0.01' as Price,
-  network: 'peaq' as Network,
-  config: {
-    description: 'Access to protected content on peaq mainnet',
-  },
-} as RouteConfig;
-
 const xlayerConfig = {
   price: '$0.01' as Price,
   network: 'xlayer' as Network,
@@ -220,22 +204,6 @@ const skaleBaseSepoliaConfig = {
   network: 'skale-base-sepolia' as Network,
   config: {
     description: 'Access to protected content on SKALE Base Sepolia testnet',
-  },
-} as RouteConfig;
-
-const kiteaiConfig = {
-  price: '$0.01' as Price,
-  network: 'kiteai' as Network,
-  config: {
-    description: 'Access to protected content on KiteAI mainnet',
-  },
-} as RouteConfig;
-
-const kiteaiTestnetConfig = {
-  price: '$0.01' as Price,
-  network: 'kiteai-testnet' as Network,
-  config: {
-    description: 'Access to protected content on KiteAI testnet',
   },
 } as RouteConfig;
 
@@ -497,18 +465,6 @@ export async function proxy(request: NextRequest) {
     return withCors(request, response);
   }
 
-  // peaq mainnet
-  if (pathname.startsWith('/api/peaq/')) {
-    const requestedAmount = await getRequestedAmount(request, peaqConfig.price);
-    const dynamicConfig = { ...peaqConfig, price: requestedAmount };
-    const response = await paymentMiddleware(
-      payToEVM,
-      { '/api/peaq/paid-content': dynamicConfig },
-      facilitatorConfig
-    )(request);
-    return withCors(request, response);
-  }
-
   // sei mainnet
   if (pathname.startsWith('/api/sei/')) {
     const requestedAmount = await getRequestedAmount(request, seiConfig.price);
@@ -552,30 +508,6 @@ export async function proxy(request: NextRequest) {
     const response = await paymentMiddleware(
       payToEVM,
       { '/api/skale-base-sepolia/paid-content': dynamicConfig },
-      facilitatorConfig
-    )(request);
-    return withCors(request, response);
-  }
-
-  // kiteai mainnet
-  if (pathname.startsWith('/api/kiteai/')) {
-    const requestedAmount = await getRequestedAmount(request, kiteaiConfig.price);
-    const dynamicConfig = { ...kiteaiConfig, price: requestedAmount };
-    const response = await paymentMiddleware(
-      payToEVM,
-      { '/api/kiteai/paid-content': dynamicConfig },
-      facilitatorConfig
-    )(request);
-    return withCors(request, response);
-  }
-
-  // kiteai-testnet
-  if (pathname.startsWith('/api/kiteai-testnet/')) {
-    const requestedAmount = await getRequestedAmount(request, kiteaiTestnetConfig.price);
-    const dynamicConfig = { ...kiteaiTestnetConfig, price: requestedAmount };
-    const response = await paymentMiddleware(
-      payToEVM,
-      { '/api/kiteai-testnet/paid-content': dynamicConfig },
       facilitatorConfig
     )(request);
     return withCors(request, response);
@@ -893,7 +825,6 @@ export function paymentMiddleware(
                     network === 'polygon-amoy' ||
                     network === ('xlayer-testnet' as unknown as Network) ||
                     network === ('skale-base-sepolia' as unknown as Network) ||
-                    network === ('kiteai-testnet' as unknown as Network) ||
                     network === ('arbitrum-sepolia' as unknown as Network),
                   rpcUrl: getRpcUrlForNetwork(network),
                   extensions: paymentRequiredExtensions,

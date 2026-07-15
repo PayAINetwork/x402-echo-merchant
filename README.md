@@ -13,7 +13,7 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 ## Features
 
 - **x402 V2 protocol support**: Uses CAIP-2 network format (e.g., `eip155:8453`) and V2 headers (`PAYMENT-SIGNATURE`, `PAYMENT-RESPONSE`)
-- **Pay-per-use API endpoints** on multiple networks (Base, Polygon, Avalanche, Sei, Solana, IoTeX, Peaq)
+- **Pay-per-use API endpoints** on multiple networks (Base, Polygon, Avalanche, Sei, Solana)
 - **x402 paywall middleware**: Enforces payment before serving protected content
 - **Rizzler GIF reward**: After payment, receive a fun GIF and full transaction/refund details
 - **100% refunds**: All payments are instantly refunded for demo/testing
@@ -83,8 +83,6 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 - `SOLANA_DEVNET_RPC_URL` - Solana Devnet RPC URL (https)
 - `SOLANA_WS_URL` - (optional) Solana Mainnet WebSocket URL (wss)
 - `SOLANA_DEVNET_WS_URL` - (optional) Solana Devnet WebSocket URL (wss)
-- `IOTEX_RPC_URL` - (optional) IoTeX Mainnet RPC URL (https)
-- `PEAQ_RPC_URL` - Peaq Mainnet RPC URL (https)
 - `XLAYER_RPC_URL` - xLayer Mainnet RPC URL (https)
 - `XLAYER_TESTNET_RPC_URL` - xLayer Testnet RPC URL (https)
 
@@ -126,33 +124,29 @@ Apache V2
 
 ## Adding support for a new network (Echo Merchant)
 
-To add a new network (example: `peaq`) across the Echo Merchant UI, middleware, and API:
+To add a new network (example: `sei`) across the Echo Merchant UI, middleware, and API:
 
 1. Make sure that you `npm install` the `x402` package version that contains the new network.
 
 2. Frontend link on homepage
    - Edit `src/app/page.tsx`
    - Add a new entry to `MAINNET_ENDPOINTS` or `TESTNET_ENDPOINTS`:
-     - `{ label: 'Peaq Mainnet', url: `${API_URL}/api/peaq/paid-content` }`
+     - `{ label: 'Sei Mainnet', url: `${API_URL}/api/sei/paid-content` }`
 
 3. Middleware route & config
-   - Edit `src/middleware.ts`
+   - Edit `src/proxy.ts`
    - Create a route config for the network:
-     - `const peaqConfig = { price: '$0.01', network: 'peaq', config: { description: '...' } }`
+     - `const seiConfig = { price: '$0.01', network: 'sei', config: { description: '...' } }`
    - Wire the path to the paywall middleware:
-     - `if (pathname.startsWith('/api/peaq/')) { return paymentMiddleware(payToEVM, { '/api/peaq/paid-content': peaqConfig }, { url: facilitatorUrl })(request); }`
-   - Add the matcher so the middleware runs:
-     - include `'/api/peaq/paid-content/:path*'` in `export const config.matcher`.
+     - `if (pathname.startsWith('/api/sei/')) { return paymentMiddleware(payToEVM, { '/api/sei/paid-content': seiConfig }, facilitatorConfig)(request); }`
 
 4. API route file
    - Create `src/app/api/<network>/paid-content/route.ts` with a basic `GET` that returns `{ ok: true }`.
    - The actual paywall logic is enforced in middleware; the route acts as the endpoint.
 
 5. Paywall app (wallet flow)
-   - Edit `src/paywall/src/PaywallApp.tsx`
-   - Import the chain from `viem/chains` and map it:
-     - Import: `import { peaq } from 'viem/chains'`
-     - Add to `paymentChain` switch and to `chainName` mapping.
+   - Edit `src/paywall/src/Providers.tsx` and `src/paywall/src/PaywallApp.tsx`
+   - Import the chain from `viem/chains` and add CAIP-2 map entries (e.g. `'eip155:1329': sei`).
 
 6. Explorer links
    - Edit `src/lib/utils.ts` if you want explorer links for the new network in the rizzler page:
@@ -166,9 +160,9 @@ To add a new network (example: `peaq`) across the Echo Merchant UI, middleware, 
 
 8. Refund flow
    - Edit `src/refund.ts` and update the EVM signer factory:
-     - Import your chain from `viem/chains` (e.g., `peaq`).
+     - Import your chain from `viem/chains` (e.g., `sei`).
      - Add a `network === '<network>'` branch in `getSigner` that returns a `createWalletClient` with the chain and `process.env.<NETWORK>_RPC_URL`.
-   - Ensure the `x402` package version you installed includes the new network in `SupportedEVMNetworks` so the refund path triggers for EVM.
+   - Add the network to `NETWORK_TO_CAIP2`, `SupportedEVMNetworks`, and `USDC_ADDRESSES` in `src/lib/x402-helpers.ts`.
    - Set `<NETWORK>_RPC_URL` in your `.env` (same value used by `getSigner`).
 
 9. Test

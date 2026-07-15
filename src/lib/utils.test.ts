@@ -25,8 +25,6 @@ describe('Network Display Functions', () => {
       expect(getHumanFriendlyNetworkName('eip155:713715')).toBe('Sei Testnet');
       expect(getHumanFriendlyNetworkName('eip155:196')).toBe('Xlayer');
       expect(getHumanFriendlyNetworkName('eip155:1952')).toBe('Xlayer Testnet');
-      expect(getHumanFriendlyNetworkName('eip155:3338')).toBe('Peaq');
-      expect(getHumanFriendlyNetworkName('eip155:4689')).toBe('Iotex');
 
       // SVM networks
       expect(getHumanFriendlyNetworkName('solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp')).toBe('Solana');

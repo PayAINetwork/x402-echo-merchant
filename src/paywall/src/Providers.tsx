@@ -8,15 +8,13 @@ import {
   avalancheFuji,
   sei,
   seiTestnet,
-  iotex,
   polygon,
   polygonAmoy,
-  peaq,
   xLayer,
   arbitrum,
   arbitrumSepolia,
 } from 'viem/chains';
-import { xLayerTestnet1952, skaleBase, skaleBaseSepolia, kiteai, kiteaiTestnet } from '../../lib/chains';
+import { xLayerTestnet1952, skaleBase, skaleBaseSepolia } from '../../lib/chains';
 import './window.d.ts';
 
 type ProvidersProps = {
@@ -32,16 +30,12 @@ const CHAIN_BY_CAIP2: Record<string, Chain> = {
   'eip155:43113': avalancheFuji,
   'eip155:1329': sei,
   'eip155:713715': seiTestnet,
-  'eip155:4689': iotex,
   'eip155:137': polygon,
   'eip155:80002': polygonAmoy,
-  'eip155:3338': peaq,
   'eip155:196': xLayer,
   'eip155:1952': xLayerTestnet1952,
   'eip155:1187947933': skaleBase,
   'eip155:324705682': skaleBaseSepolia,
-  'eip155:2366': kiteai,
-  'eip155:2368': kiteaiTestnet,
   'eip155:42161': arbitrum,
   'eip155:421614': arbitrumSepolia,
 };

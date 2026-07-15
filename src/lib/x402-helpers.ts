@@ -88,12 +88,8 @@ export const NETWORK_TO_CAIP2: Record<string, string> = {
   'sei-testnet': 'eip155:713715',
   xlayer: 'eip155:196',
   'xlayer-testnet': 'eip155:1952',
-  peaq: 'eip155:3338',
-  iotex: 'eip155:4689',
   'skale-base': 'eip155:1187947933',
   'skale-base-sepolia': 'eip155:324705682',
-  kiteai: 'eip155:2366',
-  'kiteai-testnet': 'eip155:2368',
   arbitrum: 'eip155:42161',
   'arbitrum-sepolia': 'eip155:421614',
   // SVM networks
@@ -122,12 +118,8 @@ export const SupportedEVMNetworks = [
   'sei-testnet',
   'xlayer',
   'xlayer-testnet',
-  'peaq',
-  'iotex',
   'skale-base',
   'skale-base-sepolia',
-  'kiteai',
-  'kiteai-testnet',
   'arbitrum',
   'arbitrum-sepolia',
 ] as const;
@@ -377,18 +369,6 @@ const USDC_ADDRESSES: Record<
     name: 'USDC',
     version: '2',
   },
-  peaq: {
-    address: '0x7A98288740407E1A0db5E18C4BE9a6F42FE77e40',
-    decimals: 6,
-    name: 'USDC',
-    version: '2',
-  },
-  iotex: {
-    address: '0x3B2bf2b523f54C4E454F08Aa286D03115aFF326c',
-    decimals: 6,
-    name: 'USDC',
-    version: '2',
-  },
   xlayer: {
     address: '0x74b7F16337b8972027F6196A17a631aC6dE26d22',
     decimals: 6,
@@ -412,18 +392,6 @@ const USDC_ADDRESSES: Record<
     decimals: 6,
     name: 'Bridged USDC (SKALE Bridge)',
     version: '2',
-  },
-  kiteai: {
-    address: '0x7aB6f3ed87C42eF0aDb67Ed95090f8bF5240149e',
-    decimals: 6,
-    name: 'Bridged USDC (Kite AI)',
-    version: '2',
-  },
-  'kiteai-testnet': {
-    address: '0x38129cf4CE5E183eFF248F42A7D345Bb1B47621A',
-    decimals: 18,
-    name: 'pieUSD',
-    version: '1',
   },
   arbitrum: {
     address: '0xaf88d065e77c8cC2239327C5EDb3A432268e5831',

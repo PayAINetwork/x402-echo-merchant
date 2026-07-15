@@ -27,10 +27,8 @@ import {
   avalancheFuji,
   sei,
   seiTestnet,
-  iotex,
   polygon,
   polygonAmoy,
-  peaq,
   xLayer,
   arbitrum,
   arbitrumSepolia,
@@ -44,8 +42,6 @@ import {
   xLayerTestnet1952,
   skaleBase,
   skaleBaseSepolia,
-  kiteai,
-  kiteaiTestnet,
 } from '../../lib/chains';
 
 // ERC20 ABI for balanceOf function
@@ -114,16 +110,12 @@ const CAIP2_TO_CHAIN: Record<string, Chain> = {
   'eip155:43113': avalancheFuji,
   'eip155:1329': sei,
   'eip155:713715': seiTestnet,
-  'eip155:4689': iotex,
   'eip155:137': polygon,
   'eip155:80002': polygonAmoy,
-  'eip155:3338': peaq,
   'eip155:196': xLayer,
   'eip155:1952': xLayerTestnet1952,
   'eip155:1187947933': skaleBase,
   'eip155:324705682': skaleBaseSepolia,
-  'eip155:2366': kiteai,
-  'eip155:2368': kiteaiTestnet,
   'eip155:42161': arbitrum,
   'eip155:421614': arbitrumSepolia,
 };
@@ -155,7 +147,7 @@ function getChainName(network: string): string {
  * Check if network is a testnet based on CAIP-2 format
  */
 function isTestnet(network: string): boolean {
-  const testnetChainIds = [84532, 43113, 713715, 80002, 195, 324705682, 2368, 421614]; // base-sepolia, avalanche-fuji, sei-testnet, polygon-amoy, xlayer-testnet, skale-base-sepolia, kiteai-testnet, arbitrum-sepolia
+  const testnetChainIds = [84532, 43113, 713715, 80002, 195, 324705682, 421614]; // base-sepolia, avalanche-fuji, sei-testnet, polygon-amoy, xlayer-testnet, skale-base-sepolia, arbitrum-sepolia
   const { chainId } = parseCAIP2Network(network);
   return testnetChainIds.includes(chainId);
 }
@@ -283,7 +275,7 @@ export function PaywallApp() {
     const balance = await getUSDCBalance(publicClient, address, usdcAddress);
     console.log('balance', balance);
 
-    // Read on-chain decimals instead of assuming 6 (e.g. pieUSD on KiteAI testnet uses 18)
+    // Read on-chain decimals instead of assuming 6
     let decimals = 6;
     try {
       const result = await publicClient.readContract({

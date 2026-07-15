@@ -243,7 +243,7 @@ describe("handlePaidContentRequest", () => {
   it("should return JSON for non-browser clients", async () => {
     const mockPaymentInfo = {
       transaction: "0x123abc",
-      network: "peaq",
+      network: "polygon",
       payer: "0x456def",
     };
 
@@ -257,7 +257,7 @@ describe("handlePaidContentRequest", () => {
 
     for (const userAgent of nonBrowserUserAgents) {
       const request = new NextRequest(
-        "http://localhost:3000/api/peaq/paid-content",
+        "http://localhost:3000/api/polygon/paid-content",
         {
           method: "GET",
           headers: {
@@ -267,12 +267,12 @@ describe("handlePaidContentRequest", () => {
         }
       );
 
-      const response = await handlePaidContentRequest(request, "peaq");
+      const response = await handlePaidContentRequest(request, "polygon");
       const data = await response.json();
 
       // Should return JSON for non-browser clients
       expect(data.transaction).toBe("0x123abc");
-      expect(data.network).toBe("peaq");
+      expect(data.network).toBe("polygon");
     }
   });
 });
