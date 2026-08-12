@@ -3,7 +3,7 @@ import {
   declareErc20ApprovalGasSponsoringExtension,
   EIP2612_GAS_SPONSORING,
   ERC20_APPROVAL_GAS_SPONSORING,
-} from '@payai/x402-extensions';
+} from '@x402/extensions';
 
 /** Matches `RouteConfig.permit2GasSponsoring` in `x402-helpers.ts`. */
 export type Permit2GasSponsoringMode = 'none' | 'eip2612' | 'erc20' | 'both';

@@ -35,9 +35,9 @@ import {
 } from 'viem/chains';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 
-import { ExactEvmScheme, UptoEvmScheme, toClientEvmSigner } from '@payai/x402-evm';
-import { safeBase64Encode } from '@payai/x402/utils';
-import type { PaymentPayloadContext } from '@payai/x402/types';
+import { ExactEvmScheme, UptoEvmScheme, toClientEvmSigner } from '@x402/evm';
+import { safeBase64Encode } from '@x402/core/utils';
+import type { PaymentPayloadContext } from '@x402/core/types';
 import {
   xLayerTestnet1952,
   skaleBase,
