@@ -9,8 +9,8 @@ import { z } from 'zod';
 import { createKeyPairSignerFromBytes, getBase58Encoder } from '@solana/kit';
 import type { KeyPairSigner } from '@solana/kit';
 
-import type { VerifyResponse } from '@payai/x402/types';
-import { safeBase64Encode } from '@payai/x402/utils';
+import type { VerifyResponse } from '@x402/core/types';
+import { safeBase64Encode } from '@x402/core/utils';
 
 // =============================================================================
 // Local Type Definitions
