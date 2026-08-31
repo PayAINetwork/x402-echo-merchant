@@ -65,6 +65,8 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 
 - `NEXT_PUBLIC_SITE_URL` - Base URL of the server (used by the web app)
 - `FACILITATOR_URL` - URL of the x402 facilitator service (e.g. `https://facilitator.payai.network`)
+- `PAYAI_API_KEY_ID` - Dedicated Echo Merchant facilitator API key ID
+- `PAYAI_API_KEY_SECRET` - Server-only Echo Merchant API key secret; enables JWT auth for `/verify` and `/settle`
 
 - `EVM_RECEIVE_PAYMENTS_ADDRESS` - EVM address to receive payments to
 - `SVM_RECEIVE_PAYMENTS_ADDRESS` - Solana address to receive payments to
