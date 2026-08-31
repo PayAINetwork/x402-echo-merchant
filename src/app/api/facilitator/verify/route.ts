@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getOrGenerateJwt } from '@payai/facilitator';
 import { toJsonSafe } from '@/lib/x402-helpers';
 
 export async function POST(request: NextRequest) {
@@ -6,7 +7,12 @@ export async function POST(request: NextRequest) {
 
   // get the url and headers for the facilitator
   const url = process.env.FACILITATOR_URL as `${string}://${string}`;
-  const headers = { 'Content-Type': 'application/json' };
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const apiKeyId = process.env.PAYAI_API_KEY_ID;
+  const apiKeySecret = process.env.PAYAI_API_KEY_SECRET;
+  if (apiKeyId && apiKeySecret) {
+    headers.Authorization = `Bearer ${await getOrGenerateJwt({ apiKeyId, apiKeySecret })}`;
+  }
 
   // make the request to the facilitator
   const res = await fetch(`${url}/verify`, {

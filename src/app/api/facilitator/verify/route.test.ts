@@ -2,6 +2,14 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST } from "./route";
 import { NextRequest } from "next/server";
 
+const auth = vi.hoisted(() => ({
+  getOrGenerateJwt: vi.fn(),
+}));
+
+vi.mock("@payai/facilitator", () => ({
+  getOrGenerateJwt: auth.getOrGenerateJwt,
+}));
+
 // Mock the fetch function
 global.fetch = vi.fn();
 
@@ -11,6 +19,9 @@ describe("/api/facilitator/verify", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env.FACILITATOR_URL = mockFacilitatorUrl;
+    process.env.PAYAI_API_KEY_ID = "echo-service";
+    process.env.PAYAI_API_KEY_SECRET = "payai_sk_secret";
+    auth.getOrGenerateJwt.mockResolvedValue("service-jwt");
   });
 
   it("should forward request to facilitator and return response", async () => {
@@ -60,10 +71,18 @@ describe("/api/facilitator/verify", () => {
       `${mockFacilitatorUrl}/verify`,
       expect.objectContaining({
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          Authorization: "Bearer service-jwt",
+          "Content-Type": "application/json",
+        },
         body: expect.stringContaining("x402Version"),
       })
     );
+
+    expect(auth.getOrGenerateJwt).toHaveBeenCalledWith({
+      apiKeyId: "echo-service",
+      apiKeySecret: "payai_sk_secret",
+    });
 
     // Verify response
     expect(response.status).toBe(200);
