@@ -75,8 +75,7 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 - `SVM_RECEIVE_PAYMENTS_ADDRESS` - Solana address to receive payments to
 - `EVM_PRIVATE_KEY` - EVM private key used to send refunds (hex string starting with `0x`)
 - `SVM_PRIVATE_KEY` - Solana private key used to send refunds
-- `UPSTASH_REDIS_REST_URL` - Server-only REST URL for the persistent Upstash Redis database
-- `UPSTASH_REDIS_REST_TOKEN` - Server-only token for the persistent Upstash Redis database
+- `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` - Server-only credentials for the persistent Upstash Redis database; Vercel Marketplace's `KV_REST_API_URL` / `KV_REST_API_TOKEN` names are also supported
 
 - `BASE_RPC_URL` - Base Mainnet RPC URL (https)
 - `BASE_SEPOLIA_RPC_URL` - Base Sepolia RPC URL (https)
