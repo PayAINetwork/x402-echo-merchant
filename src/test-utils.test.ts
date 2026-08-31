@@ -213,9 +213,9 @@ describe('Documentation', () => {
    └─ Returns: { success: true, transaction: "0x..." }
 
 3. Refund Trigger (Automatic)
-   ├─ Extract payer from verification
-   ├─ Call /api/facilitator/refund
-   └─ Pass: recipient, selectedPaymentRequirements
+   ├─ Bind payer and requirements to successful settlement TX
+   ├─ Atomically claim settlement in durable Redis
+   └─ Invoke trusted server-side refund service directly
 
 4. Refund Execution
    ├─ Create wallet signer from EVM_PRIVATE_KEY
@@ -234,6 +234,7 @@ Key Points:
 ✓ Refund uses merchant's wallet (EVM_PRIVATE_KEY)
 ✓ Merchant pays gas fees for refund
 ✓ Refund happens automatically after settlement
+✓ Settlement replay cannot issue a second refund
 ✓ Works across all EVM chains (Base, Avalanche, Polygon, etc.)
 
 Common Issues:

@@ -16,6 +16,10 @@ pnpm test:ui
 
 # Run tests with coverage
 pnpm test:coverage
+
+# Typecheck and lint
+pnpm typecheck
+pnpm lint
 ```
 
 ## Test Structure
@@ -24,7 +28,8 @@ pnpm test:coverage
 
 - **verify** - Tests for payment verification endpoint
 - **settle** - Tests for payment settlement endpoint
-- **refund** - Tests for refund processing endpoint
+
+There is intentionally no refund route. Refunds are invoked directly by the trusted Node.js Proxy after successful settlement.
 
 ### Paid Content Routes (`src/app/api/*/paid-content/`)
 
@@ -38,6 +43,8 @@ Tests are organized by network (base, polygon, avalanche, solana, etc.) and cove
 ### Library Tests (`src/lib/`)
 
 - **paidContentHandler.test.ts** - Core handler logic for paid content delivery
+- **refund-service.test.ts** - Settlement binding, durable idempotency, replay/tamper rejection, and signed-transaction persistence
+- **refund.test.ts** - EVM behavior and Solana HTTP polling, rebroadcast, expiry, refresh, and confirmation
 
 ## Test Coverage
 
@@ -51,6 +58,9 @@ The test suite covers:
 - ✅ Content type negotiation (JSON vs HTML)
 - ✅ User agent detection
 - ✅ Refund flows
+- ✅ Public refund route removal
+- ✅ Settlement replay and tamper prevention
+- ✅ Solana dropped submissions, transient RPC failures, rebroadcast, and blockhash refresh
 
 ## Writing New Tests
 

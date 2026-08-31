@@ -28,6 +28,7 @@ import {
 } from './lib/x402-helpers';
 import { useFacilitator as createFacilitatorClient, type FacilitatorConfig } from './lib/facilitator';
 import { mergePermit2GasSponsoringDeclarations } from './lib/permit2Extensions';
+import { processSettlementRefund } from './lib/refund-service';
 
 // SolanaAddress is just a string type alias
 type SolanaAddress = string;
@@ -952,67 +953,43 @@ export function paymentMiddleware(
         const paymentResponseHeader = safeBase64Encode(JSON.stringify(responseHeaderData));
         response.headers.set('PAYMENT-RESPONSE', paymentResponseHeader);
 
-        if (!payer || payer === '') {
-          return response;
+        let refundTxHash: string | undefined;
+        if (payer) {
+          try {
+            const refundResult = await processSettlementRefund({
+              settlementTransaction: settlement.transaction ?? '',
+              settlementNetwork: settlement.network ?? '',
+              payer,
+              merchantPayTo: String(payTo),
+              paymentRequirements: selectedPaymentRequirements,
+            });
+            refundTxHash = refundResult.refundTxHash;
+            log('Refund status:', refundResult.status);
+          } catch {
+            // The refund service emits a secret-safe structured failure log.
+            refundTxHash = undefined;
+          }
         }
 
-        // refund the payment via Node API route for EVM only in this branch
-        const apiUrl = `${request.nextUrl.protocol}//${request.nextUrl.host}/api/facilitator/refund`;
-        log('Calling refund API at:', apiUrl);
-        log('Payment requirements:', selectedPaymentRequirements);
-        log('Payer:', payer);
-        const refundResp = await fetch(apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            recipient: payer,
-            selectedPaymentRequirements,
-          }),
+        const forwardHeaders = new Headers();
+        const acceptHeader = request.headers.get('accept');
+        const userAgentHeader = request.headers.get('user-agent');
+        if (acceptHeader) forwardHeaders.set('accept', acceptHeader);
+        if (userAgentHeader) forwardHeaders.set('user-agent', userAgentHeader);
+        forwardHeaders.set('PAYMENT-RESPONSE', paymentResponseHeader);
+        if (!refundTxHash) forwardHeaders.set('x-refund-failed', 'true');
+
+        const handlerRequest = new NextRequest(request.url, {
+          headers: forwardHeaders,
+          method: 'GET',
         });
-        if (refundResp.ok) {
-          const { refundTxHash } = await refundResp.json();
-          log('Refund response:', refundTxHash);
-          // Build a request for the paidContentHandler with the payment info header
-          const forwardHeaders = new Headers();
-          // preserve content negotiation and user agent
-          const acceptHeader = request.headers.get('accept');
-          const userAgentHeader = request.headers.get('user-agent');
-          if (acceptHeader) forwardHeaders.set('accept', acceptHeader);
-          if (userAgentHeader) forwardHeaders.set('user-agent', userAgentHeader);
-          forwardHeaders.set('PAYMENT-RESPONSE', paymentResponseHeader);
-          const handlerRequest = new NextRequest(request.url, {
-            headers: forwardHeaders,
-            method: 'GET',
-          });
-          // Use the configured network for default display
-          const handlerResponse = await handlePaidContentRequest(
-            handlerRequest,
-            network as unknown as string,
-            refundTxHash
-          );
-          // ensure the client still receives the payment response header - V2 header name
-          handlerResponse.headers.set('PAYMENT-RESPONSE', paymentResponseHeader);
-          return handlerResponse;
-        } else {
-          // Forward to handler without refundTxHash to indicate failure
-          const forwardHeaders = new Headers();
-          const acceptHeader = request.headers.get('accept');
-          const userAgentHeader = request.headers.get('user-agent');
-          if (acceptHeader) forwardHeaders.set('accept', acceptHeader);
-          if (userAgentHeader) forwardHeaders.set('user-agent', userAgentHeader);
-          forwardHeaders.set('PAYMENT-RESPONSE', paymentResponseHeader);
-          forwardHeaders.set('x-refund-failed', 'true');
-          const handlerRequest = new NextRequest(request.url, {
-            headers: forwardHeaders,
-            method: 'GET',
-          });
-          const handlerResponse = await handlePaidContentRequest(
-            handlerRequest,
-            network as unknown as string
-          );
-          handlerResponse.headers.set('PAYMENT-RESPONSE', paymentResponseHeader);
-          return handlerResponse;
-        }
+        const handlerResponse = await handlePaidContentRequest(
+          handlerRequest,
+          network as unknown as string,
+          refundTxHash
+        );
+        handlerResponse.headers.set('PAYMENT-RESPONSE', paymentResponseHeader);
+        return handlerResponse;
       } else {
         // Settlement failed - return 500 (not 402, which means "payment required")
         // 402 should only be used when content hasn't been paid for yet

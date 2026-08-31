@@ -17,12 +17,10 @@
 
 import { describe, it, expect, beforeAll } from "vitest";
 import {
-  createWalletClient,
+  createPublicClient,
   http,
   parseEther,
   getAddress,
-  publicActions,
-  type WalletClient,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { baseSepolia } from "viem/chains";
@@ -31,7 +29,10 @@ import { baseSepolia } from "viem/chains";
 const SKIP_INTEGRATION_TESTS = process.env.RUN_INTEGRATION_TESTS !== "true";
 
 describe.skipIf(SKIP_INTEGRATION_TESTS)("Integration Tests", () => {
-  let merchantWallet: WalletClient;
+  const merchantWallet = createPublicClient({
+    chain: baseSepolia,
+    transport: http(process.env.BASE_SEPOLIA_RPC_URL),
+  });
   let merchantAddress: string;
 
   beforeAll(() => {
@@ -44,11 +45,6 @@ describe.skipIf(SKIP_INTEGRATION_TESTS)("Integration Tests", () => {
     const account = privateKeyToAccount(privateKey);
     merchantAddress = account.address;
 
-    merchantWallet = createWalletClient({
-      account,
-      chain: baseSepolia,
-      transport: http(process.env.BASE_SEPOLIA_RPC_URL),
-    }).extend(publicActions);
   });
 
   describe("Wallet Setup", () => {
@@ -272,14 +268,8 @@ describe("Manual Testing Guide", () => {
    ✓ See success page with refund TX
 
 4️⃣  Check Logs
-   Look for these emoji logs:
-
-   💳 EVM Payer extracted
-   🔄 Attempting refund to
-   📥 Refund API called
-   💰 Refund function called
-   🔗 Processing EVM refund
-   ✅ Refund completed! TX Hash: 0x...
+   Look for structured [refund] events with the settlement transaction,
+   network, attempted Solana signatures, and final category/status.
 
 5️⃣  Verify on Block Explorer
    Base Sepolia: https://sepolia.basescan.org/
@@ -305,8 +295,7 @@ describe("Manual Testing Guide", () => {
 
 🐛 Debugging Tips:
    - Check middleware logs for verification & settlement
-   - Check refund API logs for refund execution
-   - Look for emoji indicators in console
+   - Check structured refund service logs for refund execution
    - Verify wallet balances on block explorer
 
 📚 Additional Resources:

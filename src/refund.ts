@@ -34,13 +34,75 @@ import {
  * Convert CAIP-2 network format to friendly network name
  * Used for signer lookup
  */
-function getFriendlyNetworkName(network: string): string {
+export function getFriendlyNetworkName(network: string): string {
   // If already friendly format (no colon), return as-is
   if (!network.includes(':')) {
     return network;
   }
   // Otherwise, convert from CAIP-2 to friendly name
   return CAIP2_TO_NETWORK[network] || network;
+}
+
+export type RefundExecutionFailureCategory =
+  | 'evm_submission'
+  | 'solana_prepare'
+  | 'solana_rpc_unavailable'
+  | 'solana_transaction_failed'
+  | 'solana_confirmation_timeout'
+  | 'solana_blockhash_expired'
+  | 'unsupported_network';
+
+export class RefundExecutionError extends Error {
+  readonly category: RefundExecutionFailureCategory;
+  readonly attemptedSignatures: string[];
+
+  constructor(
+    category: RefundExecutionFailureCategory,
+    message: string,
+    attemptedSignatures: string[] = [],
+    options?: ErrorOptions
+  ) {
+    super(message, options);
+    this.name = 'RefundExecutionError';
+    this.category = category;
+    this.attemptedSignatures = attemptedSignatures;
+  }
+}
+
+export interface SignedSolanaRefundAttempt {
+  signature: string;
+  encodedTransaction: string;
+  blockhash: string;
+  lastValidBlockHeight: string;
+}
+
+export interface RefundOptions {
+  onEvmSubmitting?: () => Promise<void>;
+  onSolanaSigned?: (attempt: SignedSolanaRefundAttempt) => Promise<void>;
+  solana?: Partial<{
+    maxBlockhashAttempts: number;
+    maxPollsPerBlockhash: number;
+    rebroadcastEveryPolls: number;
+    maxRpcFailures: number;
+    pollIntervalMs: number;
+  }>;
+}
+
+const DEFAULT_SOLANA_OPTIONS = {
+  maxBlockhashAttempts: 2,
+  maxPollsPerBlockhash: 120,
+  rebroadcastEveryPolls: 4,
+  maxRpcFailures: 12,
+  pollIntervalMs: 500,
+};
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+function sleep(milliseconds: number): Promise<void> {
+  if (milliseconds <= 0) return Promise.resolve();
+  return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 import {
   xLayerTestnet1952,
@@ -50,14 +112,15 @@ import {
 import {
   appendTransactionMessageInstructions,
   createSolanaRpc,
-  createSolanaRpcSubscriptions,
   createTransactionMessage,
+  getBase64EncodedWireTransaction,
   getSignatureFromTransaction,
-  sendAndConfirmTransactionFactory,
   setTransactionMessageFeePayerSigner,
   setTransactionMessageLifetimeUsingBlockhash,
   signTransactionMessageWithSigners,
   type Address as SolAddress,
+  type Base64EncodedWireTransaction,
+  type Signature,
   type TransactionSigner,
 } from '@solana/kit';
 import {
@@ -199,105 +262,245 @@ const getSigner = async (network: Network) => {
  */
 export const refund = async (
   recipient: string,
-  selectedPaymentRequirements: PaymentRequirements
+  selectedPaymentRequirements: PaymentRequirements,
+  options: RefundOptions = {}
 ) => {
-  console.log('refunding payment for network: ', selectedPaymentRequirements.network);
-  console.log('payment requirements: ', selectedPaymentRequirements);
-
   // Convert CAIP-2 network to friendly name for signer lookup
   const networkForSigner = getFriendlyNetworkName(selectedPaymentRequirements.network);
 
   if ((SupportedEVMNetworks as readonly string[]).includes(networkForSigner)) {
-    const signer = (await getSigner(networkForSigner)) as WalletClient;
+    try {
+      const signer = (await getSigner(networkForSigner)) as WalletClient;
 
-    // call the ERC20 transfer function
-    const toAddress = getAddress(recipient as `0x${string}`);
-    const contractAddress = getAddress(selectedPaymentRequirements.asset as `0x${string}`);
-    const result = await signer.writeContract({
-      chain: signer.chain,
-      address: contractAddress,
-      abi: erc20Abi,
-      functionName: 'transfer',
-      args: [toAddress, selectedPaymentRequirements.amount as unknown as bigint],
-      account: getEvmAccount(),
-    });
+      // Persist the idempotency state before viem can sign or submit anything.
+      await options.onEvmSubmitting?.();
 
-    return result;
+      const toAddress = getAddress(recipient as `0x${string}`);
+      const contractAddress = getAddress(selectedPaymentRequirements.asset as `0x${string}`);
+      return await signer.writeContract({
+        chain: signer.chain,
+        address: contractAddress,
+        abi: erc20Abi,
+        functionName: 'transfer',
+        args: [toAddress, selectedPaymentRequirements.amount as unknown as bigint],
+        account: getEvmAccount(),
+      });
+    } catch (error) {
+      if (error instanceof RefundExecutionError) throw error;
+      throw new RefundExecutionError('evm_submission', errorMessage(error), [], {
+        cause: error,
+      });
+    }
   } else if ((SupportedSVMNetworks as readonly string[]).includes(networkForSigner)) {
-    const signer = (await getSigner(networkForSigner)) as Signer;
-    const kitSigner = signer as unknown as TransactionSigner<string>;
+    const attemptedSignatures: string[] = [];
+    const settings = { ...DEFAULT_SOLANA_OPTIONS, ...options.solana };
     const isDevnet = networkForSigner === 'solana-devnet';
     const rpcUrl = isDevnet
       ? (process.env.SOLANA_DEVNET_RPC_URL ?? 'https://api.devnet.solana.com')
       : (process.env.SOLANA_RPC_URL ?? 'https://api.mainnet-beta.solana.com');
-    const wsUrl = isDevnet
-      ? (process.env.SOLANA_DEVNET_WS_URL ?? 'wss://api.devnet.solana.com')
-      : (process.env.SOLANA_WS_URL ?? 'wss://api.mainnet-beta.solana.com');
-
     const rpc = createSolanaRpc(rpcUrl);
-    const rpcSubscriptions = createSolanaRpcSubscriptions(wsUrl);
 
-    // Determine mint and associated token accounts
-    const mintAddress = selectedPaymentRequirements.asset as string;
+    let kitSigner: TransactionSigner<string>;
+    let transferIx: ReturnType<typeof getTransferCheckedInstruction>;
+    try {
+      const signer = (await getSigner(networkForSigner)) as Signer;
+      kitSigner = signer as unknown as TransactionSigner<string>;
+      const mintAddress = selectedPaymentRequirements.asset as SolAddress;
+      const mintAccount = await fetchMint(rpc, mintAddress);
+      const programId = mintAccount.programAddress as SolAddress;
 
-    // fetch the mint account
-    const mintAccount = await fetchMint(rpc, mintAddress as unknown as SolAddress);
-    const programId = mintAccount?.programAddress as SolAddress;
-    const decimals = mintAccount.data.decimals;
+      const sourceAta = (
+        await findAssociatedTokenPda({
+          mint: mintAddress,
+          owner: kitSigner.address as SolAddress,
+          tokenProgram: programId,
+        })
+      )[0];
+      const destinationAta = (
+        await findAssociatedTokenPda({
+          mint: mintAddress,
+          owner: recipient as SolAddress,
+          tokenProgram: programId,
+        })
+      )[0];
 
-    // Prefer provided token accounts from the original transaction to avoid ATA creation for PDA owners
-    const sourceAta = (
-      await findAssociatedTokenPda({
-        mint: mintAddress as unknown as SolAddress,
-        owner: kitSigner.address as SolAddress,
-        tokenProgram: programId,
-      })
-    )[0] as unknown as SolAddress;
+      transferIx = getTransferCheckedInstruction(
+        {
+          source: sourceAta,
+          mint: mintAddress,
+          destination: destinationAta,
+          authority: kitSigner,
+          amount: selectedPaymentRequirements.amount as unknown as bigint,
+          decimals: mintAccount.data.decimals,
+        },
+        { programAddress: programId }
+      );
+    } catch (error) {
+      throw new RefundExecutionError('solana_prepare', errorMessage(error), [], {
+        cause: error,
+      });
+    }
 
-    const destinationAta = (
-      await findAssociatedTokenPda({
-        mint: mintAddress as unknown as SolAddress,
-        owner: recipient as unknown as SolAddress,
-        tokenProgram: programId,
-      })
-    )[0] as unknown as SolAddress;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const ixs: any[] = [];
-    const transferIx = getTransferCheckedInstruction(
-      {
-        source: sourceAta as SolAddress,
-        mint: mintAddress as unknown as SolAddress,
-        destination: destinationAta as SolAddress,
-        authority: kitSigner,
-        amount: selectedPaymentRequirements.amount as unknown as bigint,
-        decimals: decimals as number,
-      },
-      {
-        programAddress: programId as SolAddress,
+    for (let blockhashAttempt = 0; blockhashAttempt < settings.maxBlockhashAttempts; blockhashAttempt += 1) {
+      let signedAttempt: SignedSolanaRefundAttempt;
+      try {
+        const { value: latestBlockhash } = await rpc
+          .getLatestBlockhash({ commitment: 'confirmed' })
+          .send();
+        const txMessage = appendTransactionMessageInstructions(
+          [transferIx],
+          setTransactionMessageLifetimeUsingBlockhash(
+            latestBlockhash,
+            setTransactionMessageFeePayerSigner(
+              kitSigner,
+              createTransactionMessage({ version: 0 })
+            )
+          )
+        );
+        const signedTransaction = await signTransactionMessageWithSigners(txMessage);
+        const signature = getSignatureFromTransaction(signedTransaction);
+        const encodedTransaction = getBase64EncodedWireTransaction(signedTransaction);
+        signedAttempt = {
+          signature,
+          encodedTransaction,
+          blockhash: latestBlockhash.blockhash,
+          lastValidBlockHeight: latestBlockhash.lastValidBlockHeight.toString(),
+        };
+      } catch (error) {
+        throw new RefundExecutionError(
+          'solana_prepare',
+          errorMessage(error),
+          attemptedSignatures,
+          { cause: error }
+        );
       }
+
+      attemptedSignatures.push(signedAttempt.signature);
+
+      // This hook must complete before the first submission. Production uses it
+      // to durably record both the signature and exact signed wire transaction.
+      await options.onSolanaSigned?.(signedAttempt);
+
+      const signature = signedAttempt.signature as Signature;
+      const encodedTransaction = signedAttempt.encodedTransaction as Base64EncodedWireTransaction;
+      const lastValidBlockHeight = BigInt(signedAttempt.lastValidBlockHeight);
+      let rpcFailures = 0;
+      let sawTransaction = false;
+      let expiredWithoutTransaction = false;
+
+      for (let poll = 0; poll < settings.maxPollsPerBlockhash; poll += 1) {
+        if (!sawTransaction && poll % settings.rebroadcastEveryPolls === 0) {
+          try {
+            await rpc
+              .sendTransaction(encodedTransaction, {
+                encoding: 'base64',
+                maxRetries: BigInt(0),
+                preflightCommitment: 'confirmed',
+              })
+              .send();
+          } catch {
+            // Submission errors can be ambiguous: the RPC may have accepted the
+            // transaction before the response was lost. Always check its status.
+            rpcFailures += 1;
+          }
+        }
+
+        let status:
+          | Awaited<ReturnType<ReturnType<typeof rpc.getSignatureStatuses>['send']>>['value'][number]
+          | undefined;
+        try {
+          const statusResponse = await rpc
+            .getSignatureStatuses([signature], { searchTransactionHistory: true })
+            .send();
+          status = statusResponse.value[0] ?? undefined;
+        } catch {
+          rpcFailures += 1;
+        }
+
+        if (status) {
+          sawTransaction = true;
+          if (status.err) {
+            throw new RefundExecutionError(
+              'solana_transaction_failed',
+              'Solana refund transaction failed on-chain',
+              attemptedSignatures
+            );
+          }
+          if (
+            status.confirmationStatus === 'confirmed' ||
+            status.confirmationStatus === 'finalized' ||
+            status.confirmations === null
+          ) {
+            return signedAttempt.signature;
+          }
+        }
+
+        if (!sawTransaction) {
+          try {
+            const blockHeight = await rpc.getBlockHeight({ commitment: 'confirmed' }).send();
+            if (blockHeight > lastValidBlockHeight) {
+              const finalStatusResponse = await rpc
+                .getSignatureStatuses([signature], { searchTransactionHistory: true })
+                .send();
+              const finalStatus = finalStatusResponse.value[0];
+              if (finalStatus) {
+                sawTransaction = true;
+                if (finalStatus.err) {
+                  throw new RefundExecutionError(
+                    'solana_transaction_failed',
+                    'Solana refund transaction failed on-chain',
+                    attemptedSignatures
+                  );
+                }
+                if (
+                  finalStatus.confirmationStatus === 'confirmed' ||
+                  finalStatus.confirmationStatus === 'finalized' ||
+                  finalStatus.confirmations === null
+                ) {
+                  return signedAttempt.signature;
+                }
+              } else {
+                expiredWithoutTransaction = true;
+                break;
+              }
+            }
+          } catch (error) {
+            if (error instanceof RefundExecutionError) throw error;
+            rpcFailures += 1;
+          }
+        }
+
+        if (rpcFailures > settings.maxRpcFailures) {
+          throw new RefundExecutionError(
+            'solana_rpc_unavailable',
+            'Solana RPC remained unavailable while confirming the refund',
+            attemptedSignatures
+          );
+        }
+
+        await sleep(settings.pollIntervalMs);
+      }
+
+      if (expiredWithoutTransaction) {
+        continue;
+      }
+
+      throw new RefundExecutionError(
+        'solana_confirmation_timeout',
+        'Solana refund confirmation timed out; the recorded signature will not be replaced',
+        attemptedSignatures
+      );
+    }
+
+    throw new RefundExecutionError(
+      'solana_blockhash_expired',
+      'Solana refund blockhash attempts expired without an observed transaction',
+      attemptedSignatures
     );
-    ixs.push(transferIx);
-
-    // Resolve latest blockhash for transaction lifetime
-    const { value: latestBlockhash } = await rpc.getLatestBlockhash().send();
-
-    const txMessage = appendTransactionMessageInstructions(
-      ixs,
-      setTransactionMessageLifetimeUsingBlockhash(
-        latestBlockhash,
-        setTransactionMessageFeePayerSigner(kitSigner, createTransactionMessage({ version: 0 }))
-      )
-    );
-    const signedTransaction = await signTransactionMessageWithSigners(txMessage);
-
-    // Cast to any to work around @solana/kit type changes
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await sendAndConfirmTransactionFactory({ rpc, rpcSubscriptions })(signedTransaction as any, {
-      commitment: 'confirmed',
-    });
-
-    const signature = getSignatureFromTransaction(signedTransaction);
-    return signature;
   }
+
+  throw new RefundExecutionError(
+    'unsupported_network',
+    `Unsupported network: ${selectedPaymentRequirements.network}`
+  );
 };

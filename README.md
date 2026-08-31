@@ -17,8 +17,10 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 - **x402 paywall middleware**: Enforces payment before serving protected content
 - **Rizzler GIF reward**: After payment, receive a fun GIF and full transaction/refund details
 - **100% refunds**: All payments are instantly refunded for demo/testing
+- **Settlement-bound refunds**: Refund inputs come from the successful facilitator settlement and server-owned payment requirements
+- **Durable duplicate prevention**: Atomic Upstash Redis records ensure one settlement cannot trigger two refunds
 - **Modern UI**: Built with Next.js, TailwindCSS, and shadcn/ui
-- **Edge-compatible**: Middleware works on Vercel/Edge, with Node.js logic offloaded to API routes
+- **Server-side refund execution**: Next.js 16 Proxy runs the trusted refund path directly in the Node.js runtime
 
 ---
 
@@ -28,7 +30,8 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 2. **x402 middleware** checks for payment and enforces the paywall
 3. **After payment**:
    - Middleware verifies and settles the payment
-   - Instantly refunds the payment
+   - Atomically claims the settlement transaction in durable storage
+   - Invokes the refund wallet directly from the trusted server path
    - Returns a custom HTML page with:
      - "Thank you for your payment! Have some rizz!"
      - The rizzler
@@ -72,6 +75,8 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 - `SVM_RECEIVE_PAYMENTS_ADDRESS` - Solana address to receive payments to
 - `EVM_PRIVATE_KEY` - EVM private key used to send refunds (hex string starting with `0x`)
 - `SVM_PRIVATE_KEY` - Solana private key used to send refunds
+- `UPSTASH_REDIS_REST_URL` - Server-only REST URL for the persistent Upstash Redis database
+- `UPSTASH_REDIS_REST_TOKEN` - Server-only token for the persistent Upstash Redis database
 
 - `BASE_RPC_URL` - Base Mainnet RPC URL (https)
 - `BASE_SEPOLIA_RPC_URL` - Base Sepolia RPC URL (https)
@@ -83,14 +88,20 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 - `POLYGON_AMOY_RPC_URL` - Polygon Amoy Testnet RPC URL (https)
 - `SOLANA_RPC_URL` - Solana Mainnet RPC URL (https)
 - `SOLANA_DEVNET_RPC_URL` - Solana Devnet RPC URL (https)
-- `SOLANA_WS_URL` - (optional) Solana Mainnet WebSocket URL (wss)
-- `SOLANA_DEVNET_WS_URL` - (optional) Solana Devnet WebSocket URL (wss)
 - `XLAYER_RPC_URL` - xLayer Mainnet RPC URL (https)
 - `XLAYER_TESTNET_RPC_URL` - xLayer Testnet RPC URL (https)
 
 ### Dependency & facilitator alignment
 
 Pin `@payai/x402`, `@payai/x402-evm`, `@payai/x402-next`, `@payai/facilitator`, `@payai/x402-svm`, and `@payai/x402-extensions` to the **same minor version** as the facilitator you run against (see `payai-x402-facilitator`’s `apps/api/package.json`). Mismatched versions can break verify/settle or extension handling.
+
+### Refund safety and Solana confirmation
+
+There is no public refund endpoint. The Node.js Proxy calls the refund service only after the facilitator returns a successful settlement with a transaction identifier. Recipient, network, asset, amount, and `payTo` are bound to that settlement and the merchant-generated payment requirements.
+
+Every settlement is claimed atomically in Upstash Redis before the wallet is used. Records are intentionally persistent and must not be expired or deleted during normal operation. Missing Redis configuration fails closed: paid content can still be delivered after settlement, but no refund wallet operation is attempted.
+
+Solana refunds use only the configured HTTP RPC. The signed signature and wire transaction are stored before submission, confirmation uses HTTP signature-status polling, and the same signed transaction is safely rebroadcast while its blockhash is valid. A fresh blockhash is used only after the previous signature is absent and its blockhash has expired. No WebSocket configuration is required.
 
 ---
 
@@ -113,8 +124,8 @@ Non-USDC or custom tokens need correct metadata (`ERC20TokenAmount` / EIP-712 do
 ## Deployment
 
 - Deploy to Vercel, your own Node.js server, or any platform supporting Next.js
-- For Edge compatibility, all Node.js-only logic is handled in API routes, including:
-  ---- authenticating with @coinbase/cdp-sdk which relies on the NodeJS crypto library
+- Link a persistent Upstash Redis database and expose its REST URL/token only as server-side environment variables
+- Configure the variables for Preview and Production before enabling automatic refunds
 
 ---
 
