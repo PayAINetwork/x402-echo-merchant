@@ -2,7 +2,15 @@ import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest';
 // V2: Use local PaymentRequirements type with 'amount' field
 import type { PaymentRequirements } from './lib/x402-helpers';
 import * as viem from 'viem';
-import { sendAndConfirmTransactionFactory } from '@solana/kit';
+
+const solanaMocks = vi.hoisted(() => ({
+  getLatestBlockhash: vi.fn(),
+  sendTransaction: vi.fn(),
+  getSignatureStatuses: vi.fn(),
+  getBlockHeight: vi.fn(),
+  getSignatureFromTransaction: vi.fn(),
+  getBase64EncodedWireTransaction: vi.fn(),
+}));
 
 // Mock environment variables BEFORE importing modules that use them
 beforeAll(() => {
@@ -15,8 +23,6 @@ beforeAll(() => {
   vi.stubEnv('BASE_RPC_URL', 'https://base.publicnode.com');
   vi.stubEnv('SOLANA_RPC_URL', 'https://api.mainnet-beta.solana.com');
   vi.stubEnv('SOLANA_DEVNET_RPC_URL', 'https://api.devnet.solana.com');
-  vi.stubEnv('SOLANA_WS_URL', 'wss://api.mainnet-beta.solana.com');
-  vi.stubEnv('SOLANA_DEVNET_WS_URL', 'wss://api.devnet.solana.com');
 });
 
 // Mock viem functions
@@ -63,12 +69,14 @@ vi.mock('viem/chains', () => ({
 vi.mock('@solana/kit', () => ({
   createSolanaRpc: vi.fn(() => ({
     getLatestBlockhash: vi.fn(() => ({
-      send: vi.fn(() => Promise.resolve({ value: { blockhash: 'mockBlockhash' } })),
+      send: solanaMocks.getLatestBlockhash,
     })),
+    sendTransaction: vi.fn(() => ({ send: solanaMocks.sendTransaction })),
+    getSignatureStatuses: vi.fn(() => ({ send: solanaMocks.getSignatureStatuses })),
+    getBlockHeight: vi.fn(() => ({ send: solanaMocks.getBlockHeight })),
   })),
-  createSolanaRpcSubscriptions: vi.fn(() => ({})),
-  sendAndConfirmTransactionFactory: vi.fn(() => vi.fn(() => Promise.resolve())),
-  getSignatureFromTransaction: vi.fn(() => 'mockSignature123'),
+  getSignatureFromTransaction: solanaMocks.getSignatureFromTransaction,
+  getBase64EncodedWireTransaction: solanaMocks.getBase64EncodedWireTransaction,
   appendTransactionMessageInstructions: vi.fn(() => ({})),
   createTransactionMessage: vi.fn(() => ({})),
   setTransactionMessageFeePayerSigner: vi.fn(() => ({})),
@@ -131,6 +139,23 @@ import { refund } from './refund';
 describe('refund', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    solanaMocks.getLatestBlockhash.mockResolvedValue({
+      value: { blockhash: 'mockBlockhash', lastValidBlockHeight: BigInt(200) },
+    });
+    solanaMocks.sendTransaction.mockResolvedValue('mockSignature123');
+    solanaMocks.getSignatureStatuses.mockResolvedValue({
+      value: [
+        {
+          confirmationStatus: 'confirmed',
+          confirmations: BigInt(1),
+          err: null,
+          slot: BigInt(1),
+        },
+      ],
+    });
+    solanaMocks.getBlockHeight.mockResolvedValue(BigInt(100));
+    solanaMocks.getSignatureFromTransaction.mockReturnValue('mockSignature123');
+    solanaMocks.getBase64EncodedWireTransaction.mockReturnValue('mockEncodedTransaction');
   });
 
   describe('EVM Chains', () => {
@@ -333,9 +358,9 @@ describe('refund', () => {
     });
 
     it('should handle SVM network connection errors', async () => {
-      // Temporarily override the mock for this test
-      const mockSendAndConfirm = vi.fn(() => Promise.reject(new Error('Network request failed')));
-      vi.mocked(sendAndConfirmTransactionFactory).mockReturnValueOnce(mockSendAndConfirm);
+      solanaMocks.sendTransaction.mockRejectedValue(new Error('Network request failed'));
+      solanaMocks.getSignatureStatuses.mockRejectedValue(new Error('Network request failed'));
+      solanaMocks.getBlockHeight.mockRejectedValue(new Error('Network request failed'));
 
       const recipient = '7xKPmockSolanaAddress123';
       const paymentRequirements: PaymentRequirements = {
@@ -348,9 +373,167 @@ describe('refund', () => {
         extra: { name: 'USDC', version: '2' },
       };
 
-      await expect(refund(recipient, paymentRequirements)).rejects.toThrow(
-        'Network request failed'
+      await expect(
+        refund(recipient, paymentRequirements, {
+          solana: { maxRpcFailures: 0, pollIntervalMs: 0 },
+        })
+      ).rejects.toMatchObject({ category: 'solana_rpc_unavailable' });
+    });
+
+    it('records the signed signature before submission and confirms over HTTP polling', async () => {
+      const events: string[] = [];
+      solanaMocks.sendTransaction.mockImplementation(async () => {
+        events.push('submitted');
+        return 'mockSignature123';
+      });
+
+      const result = await refund(
+        '7xKPmockSolanaAddress123',
+        {
+          scheme: 'exact',
+          network: 'solana',
+          amount: '10000',
+          payTo: 'MerchantSolanaAddress',
+          maxTimeoutSeconds: 60,
+          asset: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+          extra: {},
+        },
+        {
+          onSolanaSigned: async attempt => {
+            events.push(`recorded:${attempt.signature}`);
+          },
+          solana: { pollIntervalMs: 0 },
+        }
       );
+
+      expect(result).toBe('mockSignature123');
+      expect(events).toEqual(['recorded:mockSignature123', 'submitted']);
+      expect(solanaMocks.getSignatureStatuses).toHaveBeenCalled();
+    });
+
+    it('rebroadcasts the same signed transaction after a dropped submission', async () => {
+      solanaMocks.sendTransaction
+        .mockRejectedValueOnce(new Error('connection reset'))
+        .mockResolvedValueOnce('mockSignature123');
+      solanaMocks.getSignatureStatuses
+        .mockResolvedValueOnce({ value: [null] })
+        .mockResolvedValueOnce({
+          value: [
+            {
+              confirmationStatus: 'confirmed',
+              confirmations: BigInt(1),
+              err: null,
+              slot: BigInt(2),
+            },
+          ],
+        });
+
+      const result = await refund(
+        '7xKPmockSolanaAddress123',
+        {
+          scheme: 'exact',
+          network: 'solana',
+          amount: '10000',
+          payTo: 'MerchantSolanaAddress',
+          maxTimeoutSeconds: 60,
+          asset: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+          extra: {},
+        },
+        {
+          solana: { rebroadcastEveryPolls: 1, pollIntervalMs: 0 },
+        }
+      );
+
+      expect(result).toBe('mockSignature123');
+      expect(solanaMocks.sendTransaction).toHaveBeenCalledTimes(2);
+      expect(solanaMocks.getBase64EncodedWireTransaction).toHaveBeenCalledTimes(1);
+    });
+
+    it('recovers from a transient status RPC failure', async () => {
+      solanaMocks.getSignatureStatuses
+        .mockRejectedValueOnce(new Error('temporary 503'))
+        .mockResolvedValueOnce({
+          value: [
+            {
+              confirmationStatus: 'confirmed',
+              confirmations: BigInt(1),
+              err: null,
+              slot: BigInt(2),
+            },
+          ],
+        });
+
+      const result = await refund(
+        '7xKPmockSolanaAddress123',
+        {
+          scheme: 'exact',
+          network: 'solana',
+          amount: '10000',
+          payTo: 'MerchantSolanaAddress',
+          maxTimeoutSeconds: 60,
+          asset: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+          extra: {},
+        },
+        { solana: { pollIntervalMs: 0 } }
+      );
+
+      expect(result).toBe('mockSignature123');
+      expect(solanaMocks.getSignatureStatuses).toHaveBeenCalledTimes(2);
+    });
+
+    it('refreshes and re-signs only after an expired signature is absent', async () => {
+      solanaMocks.getLatestBlockhash
+        .mockResolvedValueOnce({
+          value: { blockhash: 'expiredBlockhash', lastValidBlockHeight: BigInt(100) },
+        })
+        .mockResolvedValueOnce({
+          value: { blockhash: 'freshBlockhash', lastValidBlockHeight: BigInt(200) },
+        });
+      solanaMocks.getSignatureFromTransaction
+        .mockReturnValueOnce('expiredSignature')
+        .mockReturnValueOnce('freshSignature');
+      solanaMocks.getBase64EncodedWireTransaction
+        .mockReturnValueOnce('expiredWireTransaction')
+        .mockReturnValueOnce('freshWireTransaction');
+      solanaMocks.getSignatureStatuses
+        .mockResolvedValueOnce({ value: [null] })
+        .mockResolvedValueOnce({ value: [null] })
+        .mockResolvedValueOnce({
+          value: [
+            {
+              confirmationStatus: 'confirmed',
+              confirmations: BigInt(1),
+              err: null,
+              slot: BigInt(2),
+            },
+          ],
+        });
+      solanaMocks.getBlockHeight.mockResolvedValueOnce(BigInt(101));
+      const recordedSignatures: string[] = [];
+
+      const result = await refund(
+        '7xKPmockSolanaAddress123',
+        {
+          scheme: 'exact',
+          network: 'solana',
+          amount: '10000',
+          payTo: 'MerchantSolanaAddress',
+          maxTimeoutSeconds: 60,
+          asset: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+          extra: {},
+        },
+        {
+          onSolanaSigned: async attempt => {
+            recordedSignatures.push(attempt.signature);
+          },
+          solana: { pollIntervalMs: 0 },
+        }
+      );
+
+      expect(result).toBe('freshSignature');
+      expect(recordedSignatures).toEqual(['expiredSignature', 'freshSignature']);
+      expect(solanaMocks.getLatestBlockhash).toHaveBeenCalledTimes(2);
+      expect(solanaMocks.sendTransaction).toHaveBeenCalledTimes(2);
     });
     describe('Amount Handling', () => {
       it('should handle different refund amounts correctly', async () => {
