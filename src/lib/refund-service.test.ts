@@ -1,5 +1,5 @@
-import { existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+/// <reference types="vite/client" />
+
 import { describe, expect, it, vi } from 'vitest';
 import { RefundExecutionError, type RefundOptions } from '../refund';
 import type { PaymentRequirements } from './x402-helpers';
@@ -12,6 +12,7 @@ import {
 
 const merchantPayTo = '0xb01D6018CaA5Ce71D9CF1F45E030b4cB70e86C19';
 const payer = '0xb38824330c40B846eF8AE4443205123cF57BB239';
+const facilitatorRoutes = import.meta.glob('../app/api/facilitator/*/route.ts');
 
 function evmRequirements(overrides: Partial<PaymentRequirements> = {}): PaymentRequirements {
   return {
@@ -41,8 +42,9 @@ function settlementContext(
 
 describe('settlement-bound refund service', () => {
   it('has no public refund route', () => {
-    const routePath = resolve('src/app/api/facilitator/refund/route.ts');
-    expect(existsSync(routePath)).toBe(false);
+    expect(Object.keys(facilitatorRoutes)).not.toContain(
+      '../app/api/facilitator/refund/route.ts'
+    );
   });
 
   it('executes exactly one refund for a successful settlement', async () => {

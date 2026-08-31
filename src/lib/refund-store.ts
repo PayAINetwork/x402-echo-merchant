@@ -1,4 +1,3 @@
-import { createHash } from 'node:crypto';
 import { Redis } from '@upstash/redis';
 
 export type RefundFailureCategory =
@@ -88,23 +87,28 @@ function canonicalIdentity(identity: RefundIdentity): string {
   ]);
 }
 
-export function fingerprintRefund(identity: RefundIdentity): string {
-  return createHash('sha256').update(canonicalIdentity(identity)).digest('hex');
+async function sha256Hex(value: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+  return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
 }
 
-function refundKey(identity: RefundIdentity): string {
-  const settlementKey = createHash('sha256')
-    .update(`${identity.network}:${identity.settlementTransaction}`)
-    .digest('hex');
+export function fingerprintRefund(identity: RefundIdentity): Promise<string> {
+  return sha256Hex(canonicalIdentity(identity));
+}
+
+async function refundKey(identity: RefundIdentity): Promise<string> {
+  const settlementKey = await sha256Hex(
+    `${identity.network}:${identity.settlementTransaction}`
+  );
   return `echo-merchant:refund:v1:${settlementKey}`;
 }
 
-function createRecord(identity: RefundIdentity): RefundRecord {
+async function createRecord(identity: RefundIdentity): Promise<RefundRecord> {
   const now = new Date().toISOString();
   return {
     version: 1,
     revision: 0,
-    fingerprint: fingerprintRefund(identity),
+    fingerprint: await fingerprintRefund(identity),
     identity,
     status: 'claimed',
     attemptedSignatures: [],
@@ -141,8 +145,8 @@ export class UpstashRefundStore implements RefundStore {
   constructor(private readonly redis: Redis) {}
 
   async claim(identity: RefundIdentity): Promise<RefundClaimResult> {
-    const key = refundKey(identity);
-    const candidate = createRecord(identity);
+    const key = await refundKey(identity);
+    const candidate = await createRecord(identity);
     const created = await this.redis.set(key, JSON.stringify(candidate), { nx: true });
 
     if (created === 'OK') {
@@ -167,14 +171,14 @@ export class UpstashRefundStore implements RefundStore {
   async compareAndSet(expectedRevision: number, record: RefundRecord): Promise<boolean> {
     const result = await this.redis.eval<[number, string], number>(
       COMPARE_AND_SET_SCRIPT,
-      [refundKey(record.identity)],
+      [await refundKey(record.identity)],
       [expectedRevision, JSON.stringify(record)]
     );
     return result === 1;
   }
 
   async get(identity: RefundIdentity): Promise<RefundRecord | null> {
-    return parseRecord(await this.redis.get<string>(refundKey(identity)));
+    return parseRecord(await this.redis.get<string>(await refundKey(identity)));
   }
 }
 
@@ -182,8 +186,8 @@ export class MemoryRefundStore implements RefundStore {
   private readonly records = new Map<string, RefundRecord>();
 
   async claim(identity: RefundIdentity): Promise<RefundClaimResult> {
-    const key = refundKey(identity);
-    const candidate = createRecord(identity);
+    const key = await refundKey(identity);
+    const candidate = await createRecord(identity);
     const existing = this.records.get(key);
 
     if (!existing) {
@@ -202,7 +206,7 @@ export class MemoryRefundStore implements RefundStore {
   }
 
   async compareAndSet(expectedRevision: number, record: RefundRecord): Promise<boolean> {
-    const key = refundKey(record.identity);
+    const key = await refundKey(record.identity);
     const existing = this.records.get(key);
     if (!existing || existing.revision !== expectedRevision) return false;
     this.records.set(key, structuredClone(record));
@@ -210,7 +214,7 @@ export class MemoryRefundStore implements RefundStore {
   }
 
   async get(identity: RefundIdentity): Promise<RefundRecord | null> {
-    const record = this.records.get(refundKey(identity));
+    const record = this.records.get(await refundKey(identity));
     return record ? structuredClone(record) : null;
   }
 }
