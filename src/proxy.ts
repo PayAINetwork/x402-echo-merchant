@@ -779,6 +779,20 @@ export function paymentMiddleware(
       log('All request headers:', JSON.stringify(allHeaders, null, 2));
     }
     if (!paymentHeader) {
+      // V2 requires resource metadata at the top level, including for HTML paywalls.
+      // Keep this work on the unsigned-request branch only.
+      const paymentRequired = {
+        x402Version,
+        resource: {
+          url: resourceUrl,
+          description: description ?? '',
+          mimeType: mimeType ?? 'application/json',
+        },
+        accepts: paymentRequirements,
+        ...extensionsForPaymentRequired,
+      };
+      const paymentRequiredHeader = safeBase64Encode(JSON.stringify(paymentRequired));
+
       const accept = request.headers.get('Accept');
       if (accept?.includes('text/html')) {
         const userAgent = request.headers.get('User-Agent');
@@ -835,6 +849,7 @@ export function paymentMiddleware(
             headers: {
               'Content-Type': 'text/html',
               'Cross-Origin-Opener-Policy': 'unsafe-none',
+              'PAYMENT-REQUIRED': paymentRequiredHeader,
             },
           });
         }
@@ -842,20 +857,9 @@ export function paymentMiddleware(
 
       // Create the payment required response
       const paymentRequiredBody = {
-        x402Version,
+        ...paymentRequired,
         error: 'PAYMENT-SIGNATURE header is required',
-        accepts: paymentRequirements,
-        ...extensionsForPaymentRequired,
       };
-
-      // Encode for PAYMENT-REQUIRED header (v2 protocol signal)
-      const paymentRequiredHeader = safeBase64Encode(
-        JSON.stringify({
-          x402Version,
-          accepts: paymentRequirements,
-          ...extensionsForPaymentRequired,
-        })
-      );
 
       return new NextResponse(JSON.stringify(paymentRequiredBody), {
         status: 402,
