@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 import { paymentMiddleware } from './proxy';
+import { bscRoute, BSC_TOKENS } from './lib/bsc';
 import { NETWORK_TO_CAIP2, type PaymentRequired, type RouteConfig } from './lib/x402-helpers';
 
 const mocks = vi.hoisted(() => ({
@@ -59,6 +60,21 @@ describe('unsigned v2 resource challenges', () => {
     expect(mocks.paidContent).not.toHaveBeenCalled();
     expect(fetch).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
+  });
+
+  it.each(['usdc', 'usdt'] as const)('BSC %s uses exact Permit2 and 18-decimal token units', async symbol => {
+    const response = await paymentMiddleware(recipient, { [path]: bscRoute(symbol) })(
+      new NextRequest(url + '?assetTransferMethod=permit2', { headers: { Accept: 'application/json' } })
+    );
+    const required = challenge(response);
+    expect(required.x402Version).toBe(2);
+    expect(required.accepts[0]).toMatchObject({
+      network: 'eip155:56', scheme: 'exact', amount: '10000000000000000',
+      extra: { assetTransferMethod: 'permit2', tokenSymbol: symbol.toUpperCase() },
+    });
+    expect(required.accepts[0].asset.toLowerCase()).toBe(BSC_TOKENS[symbol].toLowerCase());
+    expect(required.accepts[0].extra?.name).toBeUndefined();
+    expect(required.extensions).toBeUndefined();
   });
 
   it.each(['base-sepolia', 'solana-devnet', 'solana', 'skale-base-sepolia'] as const)(

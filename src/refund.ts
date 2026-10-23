@@ -8,6 +8,7 @@ import {
 } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import {
+  bsc,
   avalanche,
   avalancheFuji,
   base,
@@ -166,7 +167,10 @@ const getSigner = async (network: Network) => {
   // For EVM networks, get the account
   const account = getEvmAccount();
 
-  if (network === 'avalanche') {
+  if (network === 'bsc') {
+    if (!process.env.BSC_RPC_URL) throw new Error('BSC_RPC_URL is required');
+    return createWalletClient({ chain: bsc, transport: http(process.env.BSC_RPC_URL), account }).extend(publicActions);
+  } else if (network === 'avalanche') {
     return createWalletClient({
       chain: avalanche,
       transport: http(process.env.AVALANCHE_RPC_URL as `https://${string}`),
