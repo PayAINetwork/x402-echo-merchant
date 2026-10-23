@@ -79,6 +79,7 @@ export type { VerifyResponse };
 export const NETWORK_TO_CAIP2: Record<string, string> = {
   // EVM networks
   bsc: 'eip155:56',
+  'bsc-testnet': 'eip155:97',
   base: 'eip155:8453',
   'base-sepolia': 'eip155:84532',
   avalanche: 'eip155:43114',
@@ -110,6 +111,7 @@ export const CAIP2_TO_NETWORK: Record<string, string> = Object.fromEntries(
  */
 export const SupportedEVMNetworks = [
   'bsc',
+  'bsc-testnet',
   'base',
   'base-sepolia',
   'avalanche',

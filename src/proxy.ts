@@ -62,6 +62,8 @@ function getRpcUrlForNetwork(network: Network): string | undefined {
   switch (network) {
     case 'bsc':
       return process.env.BSC_RPC_URL;
+    case 'bsc-testnet':
+      return process.env.BSC_TESTNET_RPC_URL;
     case 'base':
       return process.env.BASE_RPC_URL;
     case 'base-sepolia':
@@ -338,11 +340,11 @@ export async function proxy(request: NextRequest) {
     return withCors(request, preflight);
   }
   const pathname = request.nextUrl.pathname;
-  if (pathname === '/api/bsc/paid-content' || pathname === '/api/bsc-usdt/paid-content') {
+  if (pathname === '/api/bsc/paid-content' || pathname === '/api/bsc-testnet/paid-content') {
     if (request.nextUrl.searchParams.get('scheme') === 'upto') {
       return withCors(request, NextResponse.json({ error: 'BSC supports exact payments only' }, { status: 400 }));
     }
-    const route = bscRoute(pathname.startsWith('/api/bsc-usdt/') ? 'usdt' : 'usdc');
+    const route = bscRoute(pathname.startsWith('/api/bsc-testnet/') ? 'bsc-testnet' : 'bsc');
     return withCors(request, await paymentMiddleware(payToEVM, { [pathname]: route }, facilitatorConfig)(request));
   }
 
@@ -608,7 +610,7 @@ export function paymentMiddleware(
     const scheme = useUptoScheme ? ('upto' as const) : ('exact' as const);
     const assetTransferMethod = shouldUsePermit2 ? ('permit2' as const) : configTransferMethod;
     const permit2GasSponsoring =
-      network === 'bsc' ? ('none' as const) :
+      (network === 'bsc' || network === 'bsc-testnet') ? ('none' as const) :
       shouldUsePermit2 && configGasSponsoring === 'none' ? ('both' as const) : configGasSponsoring;
     const permit2UserHint = useUptoScheme
       ? (configUserHint ??
@@ -670,7 +672,7 @@ export function paymentMiddleware(
       }
 
       const evmExtra: Record<string, unknown> = {
-        ...(network === 'bsc' ? { tokenSymbol: asset.address.toLowerCase() === '0x55d398326f99059ff775485246999027b3197955' ? 'USDT' : 'USDC' } : {}),
+        ...((network === 'bsc' || network === 'bsc-testnet') ? { tokenSymbol: 'USDC' } : {}),
         // EIP-712 domain info
         ...(asset as ERC20TokenAmount['asset']).eip712,
         // Additional metadata for paywall display

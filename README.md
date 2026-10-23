@@ -186,9 +186,14 @@ Make sure to read its [README.md](https://github.com/PayAINetwork/payai-x402-fac
 
 ### BNB Smart Chain
 
-`/api/bsc/paid-content` accepts 0.01 Binance-Peg USDC and
-`/api/bsc-usdt/paid-content` accepts 0.01 Binance-Peg USDT. Both tokens have 18
-decimals and use x402 v2 exact Permit2 payments. A prior token approval to
-canonical Permit2 is required and costs payer BNB. Initial approval sponsorship
-and BSC upto payments are not enabled. Configure the dedicated `BSC_RPC_URL`
-and fund the Echo receiver with BNB for refunds before advertising these routes.
+`/api/bsc/paid-content` accepts 0.01 Binance-Peg USDC on mainnet (chain 56).
+`/api/bsc-testnet/paid-content` accepts 0.01 test USDC on testnet (chain 97),
+using the community test token `0x64544969ed7EBf5f083679233325356EbE738930`.
+This test token is not Circle-issued USDC. Both assets have 18 decimals and use
+x402 v2 exact Permit2 payments. A prior token approval to canonical Permit2 is
+required and costs payer BNB (testnet BNB on testnet). Initial approval sponsorship
+and BSC upto payments are not enabled.
+
+Configure `BSC_RPC_URL` and `BSC_TESTNET_RPC_URL` separately, and fund the Echo
+receiver with BNB on each network for refunds. The Echo demo offers USDC only;
+the facilitator also supports Binance-Peg USDT on BSC mainnet.
