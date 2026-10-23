@@ -14,6 +14,8 @@ interface EndpointInfo {
 }
 
 const MAINNET_ENDPOINTS: EndpointInfo[] = [
+  { label: 'BNB Smart Chain · USDC', url: `${API_URL}/api/bsc/paid-content`, supportsPermit2: false },
+  { label: 'BNB Smart Chain · USDT', url: `${API_URL}/api/bsc-usdt/paid-content`, supportsPermit2: false },
   {
     label: 'Solana Mainnet',
     url: `${API_URL}/api/solana/paid-content`,

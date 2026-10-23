@@ -183,3 +183,12 @@ To add a new network (example: `sei`) across the Echo Merchant UI, middleware, a
 
 A good way to test is by running the facilitator locally and using it to do an end-to-end test with the echo merchant.
 Make sure to read its [README.md](https://github.com/PayAINetwork/payai-x402-facilitator/blob/main/README.md#adding-support-for-a-new-network-facilitator) for how to set up a new network on the facilitator.
+
+### BNB Smart Chain
+
+`/api/bsc/paid-content` accepts 0.01 Binance-Peg USDC and
+`/api/bsc-usdt/paid-content` accepts 0.01 Binance-Peg USDT. Both tokens have 18
+decimals and use x402 v2 exact Permit2 payments. A prior token approval to
+canonical Permit2 is required and costs payer BNB. Initial approval sponsorship
+and BSC upto payments are not enabled. Configure the dedicated `BSC_RPC_URL`
+and fund the Echo receiver with BNB for refunds before advertising these routes.

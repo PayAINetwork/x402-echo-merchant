@@ -21,6 +21,7 @@ import {
 } from 'viem';
 import type { Chain } from 'viem';
 import {
+  bsc,
   base,
   baseSepolia,
   avalanche,
@@ -104,6 +105,7 @@ type Eip1193Provider = {
  * CAIP-2 network to chain mapping
  */
 const CAIP2_TO_CHAIN: Record<string, Chain> = {
+  'eip155:56': bsc,
   'eip155:8453': base,
   'eip155:84532': baseSepolia,
   'eip155:43114': avalanche,
@@ -231,6 +233,8 @@ export function PaywallApp() {
       null
     );
   }, [paymentRequirementList, network, requestedScheme]);
+
+  const tokenSymbol = paymentRequirements?.extra?.tokenSymbol === 'USDT' ? 'USDT' : 'USDC';
 
   // Extract chain checking logic so it can be reused
   const checkChain = useCallback(async () => {
@@ -410,12 +414,12 @@ export function PaywallApp() {
     setIsPaying(true);
 
     try {
-      setStatus('Checking USDC balance...');
+      setStatus(`Checking ${tokenSymbol} balance...`);
       const usdcAddress = paymentRequirements.asset as Address;
       const balance = await getUSDCBalance(publicClient, address, usdcAddress);
 
       if (balance === BigInt(0)) {
-        throw new Error(`Insufficient balance. Make sure you have USDC on ${chainName}`);
+        throw new Error(`Insufficient balance. Make sure you have ${tokenSymbol} on ${chainName}`);
       }
 
       setStatus('Creating payment signature...');
@@ -569,12 +573,12 @@ export function PaywallApp() {
         <h1 className="title">Payment Required</h1>
         <p>
           {description && `${description}.`} To access this content, please pay ${amount}{' '}
-          {chainName} USDC.
+          {chainName} {tokenSymbol}.
         </p>
         {permit2UserHint && <p className="instructions">{permit2UserHint}</p>}
         {testnet && (
           <p className="instructions">
-            Need {chainName} USDC?{' '}
+            Need {chainName} {tokenSymbol}?{' '}
             <a href="https://faucet.circle.com/" target="_blank" rel="noopener noreferrer">
               Get some <u>here</u>.
             </a>
@@ -610,14 +614,14 @@ export function PaywallApp() {
                     onClick={() => setHideBalance(prev => !prev)}
                   >
                     {formattedUsdcBalance && !hideBalance
-                      ? `$${formattedUsdcBalance} USDC`
-                      : '••••• USDC'}
+                      ? `$${formattedUsdcBalance} ${tokenSymbol}`
+                      : `••••• ${tokenSymbol}`}
                   </button>
                 </span>
               </div>
               <div className="payment-row">
                 <span className="payment-label">Amount:</span>
-                <span className="payment-value">${amount} USDC</span>
+                <span className="payment-value">${amount} {tokenSymbol}</span>
               </div>
               <div className="payment-row">
                 <span className="payment-label">Network:</span>

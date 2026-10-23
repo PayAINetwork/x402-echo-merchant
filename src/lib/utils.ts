@@ -20,6 +20,7 @@ export function getHumanFriendlyNetworkName(network: string): string {
 
   // Convert friendly name to human-readable format
   // e.g., "base-sepolia" -> "Base Sepolia", "solana-devnet" -> "Solana Devnet"
+  if (friendlyName === 'bsc') return 'BNB Smart Chain';
   return friendlyName
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
@@ -36,6 +37,7 @@ export function isCAIP2Format(network: string): boolean {
 }
 
 export function getExplorerForNetwork(network: string) {
+  if (network === 'bsc') return 'https://bscscan.com/tx/';
   if (network === 'base-sepolia') {
     return 'https://sepolia.basescan.org/tx/';
   } else if (network === 'base') {
