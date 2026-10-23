@@ -189,6 +189,7 @@ Make sure to read its [README.md](https://github.com/PayAINetwork/payai-x402-fac
 `/api/bsc/paid-content` accepts 0.01 Binance-Peg USDC on mainnet (chain 56).
 `/api/bsc-testnet/paid-content` accepts 0.01 test USDC on testnet (chain 97),
 using the community test token `0x64544969ed7EBf5f083679233325356EbE738930`.
+Get this test token from the [BNB Chain faucet](https://www.bnbchain.org/en/testnet-faucet) by selecting USDC.
 This test token is not Circle-issued USDC. Both assets have 18 decimals and use
 x402 v2 exact Permit2 payments. A prior token approval to canonical Permit2 is
 required and costs payer BNB (testnet BNB on testnet). Initial approval sponsorship

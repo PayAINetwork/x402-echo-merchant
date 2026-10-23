@@ -581,7 +581,7 @@ export function PaywallApp() {
         {testnet && (
           <p className="instructions">
             Need {chainName} {tokenSymbol}?{' '}
-            <a href="https://faucet.circle.com/" target="_blank" rel="noopener noreferrer">
+            <a href={network === 'eip155:97' ? 'https://www.bnbchain.org/en/testnet-faucet' : 'https://faucet.circle.com/'} target="_blank" rel="noopener noreferrer">
               Get some <u>here</u>.
             </a>
           </p>
