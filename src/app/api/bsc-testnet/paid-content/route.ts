@@ -11,7 +11,7 @@ export const GET = async (request: Request) => {
       const paymentInfo = JSON.parse(atob(paymentResponseHeader));
       const html = renderRizzlerHtml({
         transaction: paymentInfo.transaction || 'N/A',
-        network: paymentInfo.network || 'bsc',
+        network: paymentInfo.network || 'bsc-testnet',
         payer: paymentInfo.payer || 'N/A',
       });
       return new NextResponse(html, {

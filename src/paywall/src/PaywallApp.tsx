@@ -22,6 +22,7 @@ import {
 import type { Chain } from 'viem';
 import {
   bsc,
+  bscTestnet,
   base,
   baseSepolia,
   avalanche,
@@ -106,6 +107,7 @@ type Eip1193Provider = {
  */
 const CAIP2_TO_CHAIN: Record<string, Chain> = {
   'eip155:56': bsc,
+  'eip155:97': bscTestnet,
   'eip155:8453': base,
   'eip155:84532': baseSepolia,
   'eip155:43114': avalanche,
@@ -149,7 +151,7 @@ function getChainName(network: string): string {
  * Check if network is a testnet based on CAIP-2 format
  */
 function isTestnet(network: string): boolean {
-  const testnetChainIds = [84532, 43113, 713715, 80002, 195, 324705682, 421614]; // base-sepolia, avalanche-fuji, sei-testnet, polygon-amoy, xlayer-testnet, skale-base-sepolia, arbitrum-sepolia
+  const testnetChainIds = [97, 84532, 43113, 713715, 80002, 195, 324705682, 421614]; // bsc-testnet, base-sepolia, avalanche-fuji, sei-testnet, polygon-amoy, xlayer-testnet, skale-base-sepolia, arbitrum-sepolia
   const { chainId } = parseCAIP2Network(network);
   return testnetChainIds.includes(chainId);
 }

@@ -3,6 +3,7 @@ import type { Chain } from 'viem';
 import type { ReactNode } from 'react';
 import {
   bsc,
+  bscTestnet,
   base,
   baseSepolia,
   avalanche,
@@ -26,6 +27,7 @@ type ProvidersProps = {
 // (e.g. "eip155:8453"), so the chain lookup is keyed by chain id.
 const CHAIN_BY_CAIP2: Record<string, Chain> = {
   'eip155:56': bsc,
+  'eip155:97': bscTestnet,
   'eip155:8453': base,
   'eip155:84532': baseSepolia,
   'eip155:43114': avalanche,

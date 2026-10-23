@@ -58,6 +58,7 @@ vi.mock('viem/chains', () => ({
   baseSepolia: { id: 84532, name: 'Base Sepolia' },
   base: { id: 8453, name: 'Base' },
   bsc: { id: 56, name: 'BNB Smart Chain' },
+  bscTestnet: { id: 97, name: 'BNB Smart Chain Testnet' },
   avalanche: { id: 43114, name: 'Avalanche' },
   avalancheFuji: { id: 43113, name: 'Avalanche Fuji' },
   polygon: { id: 137, name: 'Polygon' },
@@ -285,6 +286,7 @@ describe('refund', () => {
     it('should work with different EVM networks', async () => {
       const networks = [
         { name: 'bsc', rpcKey: 'BSC_RPC_URL' },
+        { name: 'bsc-testnet', rpcKey: 'BSC_TESTNET_RPC_URL' },
         { name: 'avalanche', rpcKey: 'AVALANCHE_RPC_URL' },
         { name: 'polygon', rpcKey: 'POLYGON_RPC_URL' },
         { name: 'sei', rpcKey: 'SEI_RPC_URL' },

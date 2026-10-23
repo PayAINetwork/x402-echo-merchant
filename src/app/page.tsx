@@ -14,8 +14,6 @@ interface EndpointInfo {
 }
 
 const MAINNET_ENDPOINTS: EndpointInfo[] = [
-  { label: 'BNB Smart Chain · USDC', url: `${API_URL}/api/bsc/paid-content`, supportsPermit2: false },
-  { label: 'BNB Smart Chain · USDT', url: `${API_URL}/api/bsc-usdt/paid-content`, supportsPermit2: false },
   {
     label: 'Solana Mainnet',
     url: `${API_URL}/api/solana/paid-content`,
@@ -26,6 +24,7 @@ const MAINNET_ENDPOINTS: EndpointInfo[] = [
     url: `${API_URL}/api/base/paid-content`,
     supportsPermit2: true,
   },
+  { label: 'BNB Smart Chain · USDC', url: `${API_URL}/api/bsc/paid-content`, supportsPermit2: false },
   {
     label: 'Polygon Mainnet',
     url: `${API_URL}/api/polygon/paid-content`,
@@ -69,6 +68,7 @@ const TESTNET_ENDPOINTS: EndpointInfo[] = [
     url: `${API_URL}/api/base-sepolia/paid-content`,
     supportsPermit2: true,
   },
+  { label: 'BNB Smart Chain Testnet · USDC', url: `${API_URL}/api/bsc-testnet/paid-content`, supportsPermit2: false },
   {
     label: 'Avalanche Fuji',
     url: `${API_URL}/api/avalanche-fuji/paid-content`,

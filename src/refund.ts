@@ -9,6 +9,7 @@ import {
 import { privateKeyToAccount } from 'viem/accounts';
 import {
   bsc,
+  bscTestnet,
   avalanche,
   avalancheFuji,
   base,
@@ -167,6 +168,10 @@ const getSigner = async (network: Network) => {
   // For EVM networks, get the account
   const account = getEvmAccount();
 
+  if (network === 'bsc-testnet') {
+    if (!process.env.BSC_TESTNET_RPC_URL) throw new Error('BSC_TESTNET_RPC_URL is required');
+    return createWalletClient({ chain: bscTestnet, transport: http(process.env.BSC_TESTNET_RPC_URL), account }).extend(publicActions);
+  }
   if (network === 'bsc') {
     if (!process.env.BSC_RPC_URL) throw new Error('BSC_RPC_URL is required');
     return createWalletClient({ chain: bsc, transport: http(process.env.BSC_RPC_URL), account }).extend(publicActions);
