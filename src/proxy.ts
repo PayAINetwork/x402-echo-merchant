@@ -29,6 +29,7 @@ import {
 } from './lib/x402-helpers';
 import { useFacilitator as createFacilitatorClient, type FacilitatorConfig } from './lib/facilitator';
 import { mergePermit2GasSponsoringDeclarations } from './lib/permit2Extensions';
+import { getPaywallRpcUrl } from './lib/paywallRpc';
 import { processSettlementRefund } from './lib/refund-service';
 
 // SolanaAddress is just a string type alias
@@ -54,52 +55,6 @@ const facilitatorConfig: FacilitatorConfig = {
   apiKeyId: process.env.PAYAI_API_KEY_ID,
   apiKeySecret: process.env.PAYAI_API_KEY_SECRET,
 };
-
-/**
- * Get RPC URL for a given network from environment variables
- */
-function getRpcUrlForNetwork(network: Network): string | undefined {
-  switch (network) {
-    case 'bsc':
-      return process.env.BSC_RPC_URL;
-    case 'bsc-testnet':
-      return process.env.BSC_TESTNET_RPC_URL;
-    case 'base':
-      return process.env.BASE_RPC_URL;
-    case 'base-sepolia':
-      return process.env.BASE_SEPOLIA_RPC_URL;
-    case 'avalanche':
-      return process.env.AVALANCHE_RPC_URL;
-    case 'avalanche-fuji':
-      return process.env.AVALANCHE_FUJI_RPC_URL;
-    case 'sei':
-      return process.env.SEI_RPC_URL;
-    case 'sei-testnet':
-      return process.env.SEI_TESTNET_RPC_URL;
-    case 'xlayer':
-      return process.env.XLAYER_RPC_URL;
-    case 'xlayer-testnet':
-      return process.env.XLAYER_TESTNET_RPC_URL;
-    case 'polygon':
-      return process.env.POLYGON_RPC_URL;
-    case 'polygon-amoy':
-      return process.env.POLYGON_AMOY_RPC_URL;
-    case 'skale-base':
-      return process.env.SKALE_BASE_RPC_URL;
-    case 'skale-base-sepolia':
-      return process.env.SKALE_BASE_SEPOLIA_RPC_URL;
-    case 'arbitrum':
-      return process.env.ARBITRUM_RPC_URL;
-    case 'arbitrum-sepolia':
-      return process.env.ARBITRUM_SEPOLIA_RPC_URL;
-    // SVM networks don't need RPC URLs for paywall (handled server-side)
-    case 'solana':
-    case 'solana-devnet':
-      return undefined;
-    default:
-      return undefined;
-  }
-}
 
 const solanaDevnetConfig = {
   price: '$0.01' as Price,
@@ -836,10 +791,7 @@ export function paymentMiddleware(
                   treasuryAddress: payTo as string,
                   facilitatorUrl: facilitatorUrl,
                   apiEndpoint: request.url,
-                  rpcUrl:
-                    network === 'solana-devnet'
-                      ? (process.env.SOLANA_DEVNET_RPC_URL ?? 'https://api.devnet.solana.com')
-                      : (process.env.SOLANA_RPC_URL ?? 'https://api.mainnet-beta.solana.com'),
+                  rpcUrl: getPaywallRpcUrl(network),
                 })
               : getLocalPaywallHtml({
                   amount: displayAmount,
@@ -855,7 +807,7 @@ export function paymentMiddleware(
                     network === ('xlayer-testnet' as unknown as Network) ||
                     network === ('skale-base-sepolia' as unknown as Network) ||
                     network === ('arbitrum-sepolia' as unknown as Network),
-                  rpcUrl: getRpcUrlForNetwork(network),
+                  rpcUrl: getPaywallRpcUrl(network),
                   extensions: paymentRequiredExtensions,
                 }));
           return new NextResponse(html, {

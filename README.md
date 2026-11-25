@@ -90,6 +90,13 @@ A modern, developer-focused pay-per-use API demo server for the [x402 protocol](
 - `XLAYER_RPC_URL` - xLayer Mainnet RPC URL (https)
 - `XLAYER_TESTNET_RPC_URL` - xLayer Testnet RPC URL (https)
 
+The `<NETWORK>_RPC_URL` variables above are **server-only**. They are used for refunds and payment checks and may hold private provider keys. They are never sent to the browser.
+
+The browser paywall uses its own, public RPC settings:
+
+- `PAYWALL_<NETWORK>_RPC_URL` - Optional RPC URL embedded in the paywall page for that network (for example `PAYWALL_BASE_RPC_URL`, `PAYWALL_SOLANA_DEVNET_RPC_URL`). Anyone who opens a paywall page can read this value, so only use a public endpoint or a provider key locked to this site's domain.
+  - When unset, EVM paywalls use the chain's default public RPC, and Solana paywalls use `https://api.mainnet-beta.solana.com` / `https://api.devnet.solana.com`.
+
 ### Dependency & facilitator alignment
 
 Pin `@payai/x402`, `@payai/x402-evm`, `@payai/x402-next`, `@payai/facilitator`, `@payai/x402-svm`, and `@payai/x402-extensions` to the **same minor version** as the facilitator you run against (see `payai-x402-facilitator`’s `apps/api/package.json`). Mismatched versions can break verify/settle or extension handling.
@@ -166,6 +173,7 @@ To add a new network (example: `sei`) across the Echo Merchant UI, middleware, a
 
 7. Environment variables
    - Set `<NETWORK>_RPC_URL` to a private custom RPC from Alchemy if possible, otherwise find a suitable RPC for the network and add it here. `<NETWORK>` is to be replaced by the network name.
+   - Do not reuse that private URL for the browser. If the paywall needs a non-default RPC, set `PAYWALL_<NETWORK>_RPC_URL` to a public or domain-restricted endpoint.
    - Ensure you have `FACILITATOR_URL` pointing to your facilitator (which must support the network).
    - Ensure `EVM_RECEIVE_PAYMENTS_ADDRESS` is set for EVM networks.
    - For SVM networks, set `SVM_RECEIVE_PAYMENTS_ADDRESS`.
