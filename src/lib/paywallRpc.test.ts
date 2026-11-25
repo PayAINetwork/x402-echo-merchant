@@ -1,5 +1,13 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getPaywallRpcUrl, paywallRpcEnvName } from './paywallRpc';
+
+// Ignore PAYWALL_*_RPC_URL values from the real environment (e.g. set in Vercel,
+// where the build runs these tests) so default-value assertions stay deterministic.
+beforeEach(() => {
+  for (const name of Object.keys(process.env)) {
+    if (/^PAYWALL_.+_RPC_URL$/.test(name)) vi.stubEnv(name, '');
+  }
+});
 
 afterEach(() => {
   vi.unstubAllEnvs();
