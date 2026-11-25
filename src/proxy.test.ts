@@ -40,6 +40,10 @@ function handler(network: RouteConfig['network'], config: RouteConfig['config'] 
 describe('unsigned v2 resource challenges', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Ignore PAYWALL_*_RPC_URL values from the real environment (Vercel runs tests during build).
+    for (const name of Object.keys(process.env)) {
+      if (/^PAYWALL_.+_RPC_URL$/.test(name)) vi.stubEnv(name, '');
+    }
     // These are entirely local tests: no RPC, facilitator, or payment requests.
     vi.stubGlobal('fetch', vi.fn(() => { throw new Error('Unexpected network request'); }));
     mocks.supported.mockResolvedValue({
@@ -60,6 +64,7 @@ describe('unsigned v2 resource challenges', () => {
     expect(mocks.paidContent).not.toHaveBeenCalled();
     expect(fetch).not.toHaveBeenCalled();
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
   });
 
   it.each(['bsc', 'bsc-testnet'] as const)('%s uses exact Permit2 and 18-decimal USDC units', async network => {
@@ -111,7 +116,7 @@ describe('unsigned v2 resource challenges', () => {
   it.each([
     ['base-sepolia', 'BASE_SEPOLIA_RPC_URL', 'evmHtml', undefined],
     ['solana-devnet', 'SOLANA_DEVNET_RPC_URL', 'svmHtml', 'https://api.devnet.solana.com'],
-    ['solana', 'SOLANA_RPC_URL', 'svmHtml', 'https://api.mainnet-beta.solana.com'],
+    ['solana', 'SOLANA_RPC_URL', 'svmHtml', 'https://solana-rpc.publicnode.com'],
   ] as const)('never sends the server-only %s RPC URL to the browser paywall', async (network, serverEnv, paywall, expected) => {
     const secretRpc = 'https://rpc.example/v2/server-only-secret-key';
     vi.stubEnv(serverEnv, secretRpc);

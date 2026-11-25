@@ -2,10 +2,12 @@ import type { Network } from './x402-helpers';
 
 /**
  * Public Solana endpoints used by the browser paywall when no paywall-specific
- * RPC is configured.
+ * RPC is configured. These must accept requests from web pages: the public
+ * mainnet endpoint (api.mainnet-beta.solana.com) answers browser requests with
+ * 403 "Access forbidden", so mainnet uses PublicNode's free endpoint instead.
  */
 const DEFAULT_SOLANA_PAYWALL_RPC = {
-  solana: 'https://api.mainnet-beta.solana.com',
+  solana: 'https://solana-rpc.publicnode.com',
   'solana-devnet': 'https://api.devnet.solana.com',
 } as const;
 

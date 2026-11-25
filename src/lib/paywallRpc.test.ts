@@ -1,5 +1,13 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getPaywallRpcUrl, paywallRpcEnvName } from './paywallRpc';
+
+// Ignore PAYWALL_*_RPC_URL values from the real environment (e.g. set in Vercel,
+// where the build runs these tests) so default-value assertions stay deterministic.
+beforeEach(() => {
+  for (const name of Object.keys(process.env)) {
+    if (/^PAYWALL_.+_RPC_URL$/.test(name)) vi.stubEnv(name, '');
+  }
+});
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -27,7 +35,7 @@ describe('getPaywallRpcUrl', () => {
   it('ignores server-only RPC variables for Solana and uses public endpoints', () => {
     vi.stubEnv('SOLANA_RPC_URL', 'https://solana-mainnet.example/v2/secret');
     vi.stubEnv('SOLANA_DEVNET_RPC_URL', 'https://solana-devnet.example/v2/secret');
-    expect(getPaywallRpcUrl('solana')).toBe('https://api.mainnet-beta.solana.com');
+    expect(getPaywallRpcUrl('solana')).toBe('https://solana-rpc.publicnode.com');
     expect(getPaywallRpcUrl('solana-devnet')).toBe('https://api.devnet.solana.com');
   });
 

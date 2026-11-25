@@ -95,7 +95,7 @@ The `<NETWORK>_RPC_URL` variables above are **server-only**. They are used for r
 The browser paywall uses its own, public RPC settings:
 
 - `PAYWALL_<NETWORK>_RPC_URL` - Optional RPC URL embedded in the paywall page for that network (for example `PAYWALL_BASE_RPC_URL`, `PAYWALL_SOLANA_DEVNET_RPC_URL`). Anyone who opens a paywall page can read this value, so only use a public endpoint or a provider key locked to this site's domain.
-  - When unset, EVM paywalls use the chain's default public RPC, and Solana paywalls use `https://api.mainnet-beta.solana.com` / `https://api.devnet.solana.com`.
+  - When unset, EVM paywalls use the chain's default public RPC, and Solana paywalls use `https://solana-rpc.publicnode.com` (mainnet) / `https://api.devnet.solana.com` (devnet). The official `api.mainnet-beta.solana.com` endpoint rejects requests from browsers, so do not use it here.
 
 ### Dependency & facilitator alignment
 
