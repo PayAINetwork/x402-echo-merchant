@@ -27,7 +27,7 @@ describe('getPaywallRpcUrl', () => {
   it('ignores server-only RPC variables for Solana and uses public endpoints', () => {
     vi.stubEnv('SOLANA_RPC_URL', 'https://solana-mainnet.example/v2/secret');
     vi.stubEnv('SOLANA_DEVNET_RPC_URL', 'https://solana-devnet.example/v2/secret');
-    expect(getPaywallRpcUrl('solana')).toBe('https://api.mainnet-beta.solana.com');
+    expect(getPaywallRpcUrl('solana')).toBe('https://solana-rpc.publicnode.com');
     expect(getPaywallRpcUrl('solana-devnet')).toBe('https://api.devnet.solana.com');
   });
 

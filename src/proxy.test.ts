@@ -111,7 +111,7 @@ describe('unsigned v2 resource challenges', () => {
   it.each([
     ['base-sepolia', 'BASE_SEPOLIA_RPC_URL', 'evmHtml', undefined],
     ['solana-devnet', 'SOLANA_DEVNET_RPC_URL', 'svmHtml', 'https://api.devnet.solana.com'],
-    ['solana', 'SOLANA_RPC_URL', 'svmHtml', 'https://api.mainnet-beta.solana.com'],
+    ['solana', 'SOLANA_RPC_URL', 'svmHtml', 'https://solana-rpc.publicnode.com'],
   ] as const)('never sends the server-only %s RPC URL to the browser paywall', async (network, serverEnv, paywall, expected) => {
     const secretRpc = 'https://rpc.example/v2/server-only-secret-key';
     vi.stubEnv(serverEnv, secretRpc);
