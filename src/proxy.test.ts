@@ -108,6 +108,35 @@ describe('unsigned v2 resource challenges', () => {
     },
   );
 
+  it.each([
+    ['base-sepolia', 'BASE_SEPOLIA_RPC_URL', 'evmHtml', undefined],
+    ['solana-devnet', 'SOLANA_DEVNET_RPC_URL', 'svmHtml', 'https://api.devnet.solana.com'],
+    ['solana', 'SOLANA_RPC_URL', 'svmHtml', 'https://api.mainnet-beta.solana.com'],
+  ] as const)('never sends the server-only %s RPC URL to the browser paywall', async (network, serverEnv, paywall, expected) => {
+    const secretRpc = 'https://rpc.example/v2/server-only-secret-key';
+    vi.stubEnv(serverEnv, secretRpc);
+    try {
+      await handler(network)(new NextRequest(url, { headers: { Accept: 'text/html', 'User-Agent': 'Mozilla/5.0' } }));
+      expect(mocks[paywall]).toHaveBeenCalledTimes(1);
+      const options = (mocks[paywall].mock.calls[0] as unknown as [{ rpcUrl?: string }])[0];
+      expect(options.rpcUrl).toBe(expected);
+      expect(JSON.stringify(options)).not.toContain('server-only-secret-key');
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it('embeds the explicit public paywall RPC URL when configured', async () => {
+    vi.stubEnv('BASE_SEPOLIA_RPC_URL', 'https://rpc.example/v2/server-only-secret-key');
+    vi.stubEnv('PAYWALL_BASE_SEPOLIA_RPC_URL', 'https://public-rpc.example');
+    try {
+      await handler('base-sepolia')(new NextRequest(url, { headers: { Accept: 'text/html', 'User-Agent': 'Mozilla/5.0' } }));
+      expect((mocks.evmHtml.mock.calls[0] as unknown as [{ rpcUrl?: string }])[0].rpcUrl).toBe('https://public-rpc.example');
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it('preserves custom paywall HTML exactly', async () => {
     const customPaywallHtml = '<html><body>Existing custom paywall</body></html>';
     const response = await handler('base-sepolia', { customPaywallHtml })(new NextRequest(url, { headers: { Accept: 'text/html', 'User-Agent': 'Mozilla/5.0' } }));
